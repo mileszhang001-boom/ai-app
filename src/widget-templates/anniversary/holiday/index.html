@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0e1013">
+  <title>放假倒计时卡片</title>
+  <!-- Google Fonts - Bebas Neue (DIN 风格替代品) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/tokens.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="widget-holiday">
+    <!-- 右上主光晕 -->
+    <div class="glow-primary"></div>
+
+    <!-- 左下副光晕 -->
+    <div class="glow-secondary"></div>
+
+    <!-- 氛围光线 -->
+    <div class="ambient-line"></div>
+
+    <!-- 内容区 -->
+    <div class="content">
+      <!-- 顶部类别标注 -->
+      <div class="category-label">countdown</div>
+
+      <!-- 核心数字 -->
+      <div class="hero-number" id="dayCounter">47</div>
+
+      <!-- 英文单位 -->
+      <div class="unit-label">days</div>
+
+      <!-- 分割线 -->
+      <div class="divider"></div>
+
+      <!-- 中文副标题 -->
+      <div class="subtitle-cn"></div>
+
+      <!-- 中文辅助信息 -->
+      <div class="caption-cn">国庆快乐 · 放假倒计时</div>
+    </div>
+  </div>
+
+  <script src="../../shared/bridge.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

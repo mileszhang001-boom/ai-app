@@ -1,0 +1,18 @@
+{
+  "name": "ai-widget-workshop",
+  "version": "0.1.0",
+  "description": "车载 AI 小组件平台 v0.1 Demo",
+  "type": "module",
+  "scripts": {
+    "dev:mobile": "cd src/mobile-web && vite",
+    "build:mobile": "cd src/mobile-web && vite build",
+    "preview:mobile": "cd src/mobile-web && vite preview",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": ["ai", "widget", "car", "hmi"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

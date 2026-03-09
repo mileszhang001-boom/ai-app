@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0e1013">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>AI小组件 · 创意工坊</title>
+  <link rel="stylesheet" href="/src/styles/main.css?v=${new Date().toISOString().slice(0,10).replace(/-/g,'')}">
+</head>
+<body>
+  <div id="app">
+    <!-- 页面内容通过 JS 动态加载 -->
+    <div class="page active" id="page-market">
+      <!-- 模板市场页面 -->
+    </div>
+    <div class="page" id="page-config">
+      <!-- 参数配置页面 -->
+    </div>
+    <div class="page" id="page-preview">
+      <!-- 预览页面 -->
+    </div>
+    <div class="page" id="page-my-widgets">
+      <!-- 我的组件页面 -->
+    </div>
+    <div class="page" id="page-sync">
+      <!-- 同步页面 -->
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <nav class="bottom-nav">
+    <a href="#" class="nav-item active" data-page="market">
+      <span class="nav-icon">📱</span>
+      <span class="nav-label">模板</span>
+    </a>
+    <a href="#" class="nav-item" data-page="my-widgets">
+      <span class="nav-icon">🎨</span>
+      <span class="nav-label">我的</span>
+    </a>
+    <a href="#" class="nav-item" data-page="sync">
+      <span class="nav-icon">🚗</span>
+      <span class="nav-label">同步</span>
+    </a>
+  </nav>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

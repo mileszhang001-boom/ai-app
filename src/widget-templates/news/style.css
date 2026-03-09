@@ -1,0 +1,404 @@
+/**
+ * 每日新闻 · 科技蓝（Tech）
+ *
+ * 居中布局
+ * 4条信息单屏显示
+ * 支持风格预设切换
+ */
+
+/* 基础重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* 卡片容器 */
+.widget-news {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px 28px;
+  box-sizing: border-box;
+
+  /* 默认科技蓝渐变背景 */
+  background: var(--news-bg-dark, linear-gradient(180deg, #111316 0%, #0e1013 100%));
+  border: 1px solid rgba(255,255,255, 0.04);
+}
+
+/* ── 风格预设：基于 data-style 属性 ── */
+
+/* 科技蓝 - 默认 */
+[data-style="tech-blue"] .widget-news,
+.widget-news[data-style="tech-blue"] {
+  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
+}
+
+[data-style="tech-blue"] .widget-news .header,
+.widget-news[data-style="tech-blue"] .header {
+  border-bottom: 2px solid rgba(100, 150, 220, 0.15);
+}
+
+[data-style="tech-blue"] .widget-news .header::before,
+.widget-news[data-style="tech-blue"] .header::before {
+  background: rgba(100, 150, 220, 1);
+}
+
+[data-style="tech-blue"] .widget-news .category-label,
+.widget-news[data-style="tech-blue"] .category-label {
+  color: rgba(100, 150, 220, 0.70);
+}
+
+[data-style="tech-blue"] .widget-news .news-item-category,
+.widget-news[data-style="tech-blue"] .news-item-category {
+  background: rgba(100, 150, 220, 0.10);
+  color: rgba(100, 150, 220, 0.70);
+}
+
+[data-style="tech-blue"] .widget-news .ambient-line,
+.widget-news[data-style="tech-blue"] .ambient-line {
+  background: linear-gradient(90deg, rgba(100, 150, 220, 0.35) 0%, transparent 100%);
+}
+
+/* 小米橙 */
+[data-style="xiaomi-orange"] .widget-news,
+.widget-news[data-style="xiaomi-orange"] {
+  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
+}
+
+[data-style="xiaomi-orange"] .widget-news .header,
+.widget-news[data-style="xiaomi-orange"] .header {
+  border-bottom: 2px solid rgba(255, 106, 0, 0.15);
+}
+
+[data-style="xiaomi-orange"] .widget-news .header::before,
+.widget-news[data-style="xiaomi-orange"] .header::before {
+  background: #FF6A00;
+}
+
+[data-style="xiaomi-orange"] .widget-news .category-label,
+.widget-news[data-style="xiaomi-orange"] .category-label {
+  color: rgba(255, 106, 0, 0.70);
+}
+
+[data-style="xiaomi-orange"] .widget-news .news-item-category,
+.widget-news[data-style="xiaomi-orange"] .news-item-category {
+  background: rgba(255, 106, 0, 0.10);
+  color: rgba(255, 106, 0, 0.70);
+}
+
+[data-style="xiaomi-orange"] .widget-news .ambient-line,
+.widget-news[data-style="xiaomi-orange"] .ambient-line {
+  background: linear-gradient(90deg, rgba(255, 106, 0, 0.35) 0%, transparent 100%);
+}
+
+/* 海洋蓝 */
+[data-style="ocean-blue"] .widget-news,
+.widget-news[data-style="ocean-blue"] {
+  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
+}
+
+[data-style="ocean-blue"] .widget-news .header,
+.widget-news[data-style="ocean-blue"] .header {
+  border-bottom: 2px solid rgba(0, 122, 255, 0.15);
+}
+
+[data-style="ocean-blue"] .widget-news .header::before,
+.widget-news[data-style="ocean-blue"] .header::before {
+  background: rgba(0, 122, 255, 1);
+}
+
+[data-style="ocean-blue"] .widget-news .category-label,
+.widget-news[data-style="ocean-blue"] .category-label {
+  color: rgba(0, 122, 255, 0.70);
+}
+
+[data-style="ocean-blue"] .widget-news .news-item-category,
+.widget-news[data-style="ocean-blue"] .news-item-category {
+  background: rgba(0, 122, 255, 0.10);
+  color: rgba(0, 122, 255, 0.70);
+}
+
+[data-style="ocean-blue"] .widget-news .ambient-line,
+.widget-news[data-style="ocean-blue"] .ambient-line {
+  background: linear-gradient(90deg, rgba(0, 122, 255, 0.35) 0%, transparent 100%);
+}
+
+/* 森林绿 */
+[data-style="forest-green"] .widget-news,
+.widget-news[data-style="forest-green"] {
+  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
+}
+
+[data-style="forest-green"] .widget-news .header,
+.widget-news[data-style="forest-green"] .header {
+  border-bottom: 2px solid rgba(0, 200, 83, 0.15);
+}
+
+[data-style="forest-green"] .widget-news .header::before,
+.widget-news[data-style="forest-green"] .header::before {
+  background: rgba(0, 200, 83, 1);
+}
+
+[data-style="forest-green"] .widget-news .category-label,
+.widget-news[data-style="forest-green"] .category-label {
+  color: rgba(0, 200, 83, 0.70);
+}
+
+[data-style="forest-green"] .widget-news .news-item-category,
+.widget-news[data-style="forest-green"] .news-item-category {
+  background: rgba(0, 200, 83, 0.10);
+  color: rgba(0, 200, 83, 0.70);
+}
+
+[data-style="forest-green"] .widget-news .ambient-line,
+.widget-news[data-style="forest-green"] .ambient-line {
+  background: linear-gradient(90deg, rgba(0, 200, 83, 0.35) 0%, transparent 100%);
+}
+
+/* ── 内容区 ── */
+.widget-news .content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 顶部标题栏 ── */
+.widget-news .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(100, 150, 220, 0.15);
+}
+
+/* 左侧竖线 */
+.widget-news .header::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 14px;
+  background: rgba(100, 150, 220, 1);
+  border-radius: 2px;
+}
+
+.widget-news .category-label {
+  font-family: var(--font-en-family);
+  font-size: var(--size-category);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: var(--letter-spacing-category, 2px);
+  text-transform: uppercase;
+  color: var(--news-label-dark);
+  margin-left: 8px;
+}
+
+.widget-news .date {
+  font-family: var(--font-cn-family);
+  font-size: var(--size-caption);
+  color: rgba(255,255,255, 0.30);
+}
+
+/* ── 新闻列表 ── */
+.widget-news .news-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 4px;
+}
+
+/* 隐藏滚动条 */
+.widget-news .news-list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.widget-news .news-list {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* 新闻项 */
+.widget-news .news-item {
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* 第一行：标签 + 标题 */
+.widget-news .news-item-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.widget-news .news-item-category {
+  font-family: var(--font-family-display, 'SF Pro Display');
+  font-size: 10px;
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(100, 150, 220, 0.10);
+  color: rgba(100, 150, 220, 0.70);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.widget-news .news-item-title {
+  font-family: var(--font-family-body, 'SF Pro Text');
+  font-size: 14px;
+  font-weight: var(--font-weight-regular, 400);
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 第二行：时间 */
+.widget-news .news-item-time {
+  font-family: var(--font-family-body, 'SF Pro Text');
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.30);
+}
+
+/* 列表分割线 */
+.widget-news .news-item:not(:last-child)::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255, 0.05) 0%,
+    rgba(255,255,255, 0.01) 100%
+  );
+  margin-top: 16px;
+}
+
+/* 骨架屏动画 */
+.widget-news .news-item.skeleton {
+  pointer-events: none;
+}
+
+.widget-news .news-item.skeleton .news-item-category {
+  background: linear-gradient(90deg,
+    rgba(255,255,255, 0.05) 0%,
+    rgba(100, 150, 220, 0.10) 50%,
+    rgba(255,255,255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  color: transparent;
+  width: 50px;
+  height: 14px;
+}
+
+.widget-news .news-item.skeleton .news-item-title {
+  background: linear-gradient(90deg,
+    rgba(255,255,255, 0.05) 0%,
+    rgba(255,255,255, 0.15) 50%,
+    rgba(255,255,255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  width: 70%;
+  height: 18px;
+}
+
+.widget-news .news-item.skeleton .news-item-time {
+  background: linear-gradient(90deg,
+    rgba(255,255,255, 0.05) 0%,
+    rgba(255,255,255, 0.10) 50%,
+    rgba(255,255,255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  width: 40px;
+  height: 14px;
+}
+
+/* ── 底部区域 ── */
+.widget-news .footer {
+  display: flex;
+  flex-shrink: 0;
+  text-align: center;
+  padding-top: 12px;
+  gap: 12px;
+}
+
+.widget-news .divider {
+  width: 24px;
+  height: 1px;
+  background: rgba(255,255,255, 0.20);
+}
+
+.widget-news .footer-text {
+  font-family: var(--font-family-body, 'SF Pro Text');
+  font-size: var(--font-size-caption, 12px);
+  font-weight: var(--font-weight-regular, 400);
+  color: rgba(255, 255, 255, 0.40);
+}
+
+/* ── 氛围光线（底部） ── */
+.widget-news .ambient-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(100, 150, 220, 0.35) 0%,
+    transparent 100%
+  );
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* ── 动画 ── */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ─── 响应式（开发预览） ─── */
+@media (max-width: 900px) {
+  .widget-news {
+    width: 100%;
+    height: 100%;
+  }
+}

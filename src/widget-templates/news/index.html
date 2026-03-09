@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0e1013">
+  <title>每日新闻卡片</title>
+  <!-- Google Fonts - Bebas Neue (DIN 风格替代品) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/tokens.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="widget-news">
+    <!-- 氛围光线 -->
+    <div class="ambient-line"></div>
+
+    <!-- 内容区 -->
+    <div class="content">
+      <!-- 顶部标题区 -->
+      <div class="header">
+        <div class="category-label">daily briefing</div>
+        <div class="date" id="currentDate">今日·--月--日</div>
+      </div>
+
+      <!-- 新闻列表 - 支持4条信息，可上下滑动 -->
+      <div class="news-list" id="newsList">
+        <!-- 新闻项将通过 JS 动态插入 -->
+        <div class="news-item skeleton">
+          <div class="news-item-header">
+            <div class="news-item-category"></div>
+            <div class="news-item-title"></div>
+          </div>
+          <div class="news-item-time"></div>
+        </div>
+        <div class="news-item skeleton">
+          <div class="news-item-header">
+            <div class="news-item-category"></div>
+            <div class="news-item-title"></div>
+          </div>
+          <div class="news-item-time"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部辅助信息 -->
+    <div class="footer">
+      <div class="divider"></div>
+      <span class="footer-text">AI 摘要 · 每日新闻</span>
+    </div>
+  </div>
+
+  <script src="../shared/bridge.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

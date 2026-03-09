@@ -1,0 +1,65 @@
+/**
+ * AI小组件手机端主入口
+ */
+
+import { PageRouter } from './router.js';
+import { APIClient } from './api.js';
+import { TemplateMarket } from './pages/market.js';
+import { PreviewPage } from './pages/preview.js';
+import { MyWidgetsPage } from './pages/my-widgets.js';
+import { SyncPage } from './pages/sync.js';
+
+// API 客户端
+const api = new APIClient('http://localhost:8000');
+
+// 页面路由器
+const router = new PageRouter();
+
+// 初始化页面
+const marketPage = new TemplateMarket(api, router);
+const previewPage = new PreviewPage(api, router);
+const myWidgetsPage = new MyWidgetsPage(api, router);
+const syncPage = new SyncPage(api, router);
+
+// 注册页面
+router.register('market', marketPage);
+router.register('preview', previewPage);
+router.register('my-widgets', myWidgetsPage);
+router.register('sync', syncPage);
+
+// 底部导航处理
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    const pageName = item.dataset.page;
+    router.navigate(pageName);
+  });
+});
+
+// 初始页面
+router.navigate('market');
+
+// 处理返回按钮
+window.addEventListener('popstate', () => {
+  // 浏览器后退处理
+});
+
+// Toast 提示函数
+export function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
+
+// 导出 API 实例供其他模块使用
+export { api };

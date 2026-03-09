@@ -1,0 +1,30 @@
+{
+  "widget_id": "widget_d766502ebe11",
+  "files": {
+    "html": "html/widget_d766502ebe11.html",
+    "css": "css/widget_d766502ebe11.css",
+    "js": "js/widget_d766502ebe11.js"
+  },
+  "metadata": {
+    "widget_id": "widget_d766502ebe11",
+    "user_id": "demo_user",
+    "component_type": "anniversary",
+    "theme": "love",
+    "template_id": null,
+    "style_preset": "sweet-pink",
+    "params": {
+      "title": "恋爱纪念",
+      "start_date": "2024-06-01",
+      "subtitle": "每一天都算数"
+    },
+    "created_at": "2026-03-08T17:02:37.110737",
+    "synced": false,
+    "sync_time": null
+  },
+  "created_at": "2026-03-08T17:02:37.110737",
+  "size": {
+    "html": 1159,
+    "css": 0,
+    "js": 0
+  }
+}

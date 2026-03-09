@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"python3 -m http.server\")",
+      "Bash(pkill -f \"python.*server\")",
+      "Bash(pip install -r /Users/mi/Desktop/ai-widget-workshop/src/server/requirements.txt)",
+      "Bash(pip install --upgrade pydantic fastapi uvicorn)",
+      "Bash(pip install httpx python-dotenv)"
+    ]
+  }
+}

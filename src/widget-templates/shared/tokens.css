@@ -1,0 +1,542 @@
+/**
+ * AI小组件 Design Tokens - Ambient Light
+ *
+ * 潮机 H5 组件的统一设计规范
+ * 所有组件必须引用此文件，确保视觉一致性
+ *
+ * 设计语言：Ambient Light（氛围光）
+ * 核心特征：暗色空间中的精确信息 + 极端字号对比 + tonal 色彩系统 + 氛围光线
+ */
+
+/* ── 深色模式基底（匹配 SU7 深色桌面） ── */
+:root {
+  /* 全局底色，带微妙蓝调 */
+  --dark-bg: #0e1013;
+  --dark-bg-gradient: linear-gradient(180deg, #0a0b0d 0%, #0e1013 100%);
+
+  /* 卡片默认底色 */
+  --dark-card-bg: #161a1f;
+  --dark-card-bg-gradient: linear-gradient(180deg, #111316 0%, #0e1013 100%);
+
+  /* 卡片边框 */
+  --dark-card-border: rgba(255, 255, 255, 0.04);
+
+  /* 文本色 */
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: rgba(255, 255, 255, 0.55);
+  --dark-text-tertiary: rgba(255, 255, 255, 0.30);
+  --dark-text-disabled: rgba(255, 255, 255, 0.25);
+
+  /* 系统强调色 - 小米橙 */
+  --accent-xiaomi-orange: #FF6A00;
+  --dark-accent-bg: rgba(255, 106, 0, 0.10);
+  --dark-accent-text: rgba(255, 106, 0, 0.70);
+  --dark-accent-ambient: rgba(255, 106, 0, 0.30);
+}
+
+/* ── 浅色模式基底（匹配 SU7 浅色桌面） ── */
+[data-theme="light"] {
+  /* 全局底色 */
+  --light-bg: #e4e9f0;
+  --light-bg-gradient: linear-gradient(180deg, #dde3eb 0%, #e4e9f0 100%);
+
+  /* 卡片底色 */
+  --light-card-bg: rgba(255, 255, 255, 0.85);
+  --light-card-bg-gradient: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+
+  /* 卡片边框 */
+  --light-card-border: rgba(0, 0, 0, 0.04);
+
+  /* 文本色 */
+  --light-text-primary: #1a1a2e;
+  --light-text-secondary: rgba(0, 0, 0, 0.45);
+  --light-text-tertiary: rgba(0, 0, 0, 0.25);
+  --light-text-disabled: rgba(0, 0, 0, 0.2);
+
+  /* 系统强调色 */
+  --light-accent-bg: rgba(255, 106, 0, 0.08);
+  --light-accent-text: rgba(255, 106, 0, 0.70);
+  --light-accent-ambient: rgba(255, 106, 0, 0.25);
+}
+
+/* ── 默认深色模式值 ── */
+:root {
+  /* 背景色 */
+  --bg-primary: var(--dark-bg);
+  --bg-secondary: var(--dark-card-bg);
+  --bg-card: var(--dark-card-bg);
+  --bg-elevated: #252545;
+  --bg-card-border: var(--dark-card-border);
+
+  /* 文本色 */
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --text-tertiary: var(--dark-text-tertiary);
+  --text-disabled: var(--dark-text-disabled);
+
+  /* 强调色 */
+  --accent: var(--accent-xiaomi-orange);
+  --accent-bg: var(--dark-accent-bg);
+  --accent-text: var(--dark-accent-text);
+  --accent-ambient: var(--dark-accent-ambient);
+
+  /* 功能色 */
+  --color-success: #00C853;
+  --color-warning: #FFD600;
+  --color-error: #FF1744;
+  --color-info: #2196F3;
+
+  /* 分隔线 */
+  --color-divider: rgba(255, 255, 255, 0.1);
+}
+
+/* ── 浅色模式覆盖 ── */
+[data-theme="light"] {
+  --bg-primary: var(--light-bg);
+  --bg-secondary: var(--light-card-bg);
+  --bg-card: var(--light-card-bg);
+  --bg-elevated: #f0f0f5;
+  --bg-card-border: var(--light-card-border);
+
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --text-tertiary: var(--light-text-tertiary);
+  --text-disabled: var(--light-text-disabled);
+
+  --accent-bg: var(--light-accent-bg);
+  --accent-text: var(--light-accent-text);
+  --accent-ambient: var(--light-accent-ambient);
+
+  --color-divider: rgba(0, 0, 0, 0.08);
+}
+
+/* ── 主题色系（情感类组件专属） ── */
+
+/* ── 恋爱纪念 · 玫瑰 ── */
+:root {
+  --love-bg-dark: linear-gradient(155deg, #1e0e24 0%, #261530 35%, #180e1e 100%);
+  --love-bg-light: linear-gradient(155deg, #fdf2f8 0%, #fce7f3 40%, #f5e6ff 100%);
+  --love-glow: rgba(200, 120, 180, 0.18);
+  --love-glow-alt: rgba(255, 150, 100, 0.08);
+  --love-ambient: rgba(220, 140, 180, 0.4);
+  --love-label-dark: rgba(220, 160, 190, 0.5);
+  --love-label-light: rgba(150, 80, 120, 0.5);
+  --love-line: rgba(220, 160, 190, 0.2);
+  --love-number-gradient: linear-gradient(180deg, #ffffff 20%, rgba(255, 255, 255, 0.6) 100%);
+  --love-number-gradient-light: linear-gradient(180deg, #2d1b3e 20%, rgba(45, 27, 62, 0.65) 100%);
+}
+
+[data-theme="light"] {
+  --love-glow: rgba(200, 120, 180, 0.15);
+  --love-glow-alt: rgba(255, 150, 100, 0.1);
+  --love-ambient: rgba(220, 140, 180, 0.3);
+}
+
+/* ── 放假倒计时 · 翠绿 ── */
+:root {
+  --holiday-bg-dark: linear-gradient(140deg, #1a2a1a 0%, #0f1a12 100%);
+  --holiday-bg-light: linear-gradient(140deg, #f0fdf4 0%, #dcfce7 50%, #d1fae5 100%);
+  --holiday-glow: rgba(80, 200, 120, 0.10);
+  --holiday-glow-alt: rgba(100, 220, 160, 0.06);
+  --holiday-ambient: rgba(80, 200, 120, 0.35);
+  --holiday-label-dark: rgba(120, 220, 160, 0.45);
+  --holiday-label-light: rgba(22, 163, 74, 0.45);
+  --holiday-line: rgba(120, 220, 160, 0.15);
+  --holiday-number-gradient: linear-gradient(180deg, #ffffff 15%, rgba(255, 255, 255, 0.55) 100%);
+  --holiday-number-gradient-light: linear-gradient(180deg, #14532d 15%, rgba(20, 83, 45, 0.55) 100%);
+}
+
+[data-theme="light"] {
+  --holiday-glow: rgba(80, 200, 120, 0.13);
+  --holiday-glow-alt: rgba(100, 220, 160, 0.08);
+  --holiday-ambient: rgba(80, 200, 120, 0.25);
+}
+
+/* ── 宝宝成长 · 靛蓝 ── */
+:root {
+  --baby-bg-dark: linear-gradient(160deg, #141828 0%, #1a2038 40%, #15182a 100%);
+  --baby-bg-light: linear-gradient(160deg, #eff6ff 0%, #e0f2fe 40%, #f0f4ff 100%);
+  --baby-glow: rgba(120, 160, 255, 0.12);
+  --baby-glow-alt: rgba(140, 180, 255, 0.05);
+  --baby-ambient: rgba(140, 180, 255, 0.30);
+  --baby-label-dark: rgba(140, 180, 255, 0.40);
+  --baby-label-light: rgba(59, 130, 246, 0.40);
+  --baby-line: rgba(140, 180, 255, 0.15);
+  --baby-number-gradient: linear-gradient(180deg, #ffffff 20%, rgba(255, 255, 255, 0.6) 100%);
+  --baby-number-gradient-light: linear-gradient(180deg, #1e3a5f 20%, rgba(30, 58, 95, 0.6) 100%);
+}
+
+[data-theme="light"] {
+  --baby-glow: rgba(120, 160, 255, 0.09);
+  --baby-glow-alt: rgba(140, 180, 255, 0.07);
+  --baby-ambient: rgba(140, 180, 255, 0.25);
+}
+
+/* ── 暖橙纪念 · 琥珀 ── */
+:root {
+  --warm-bg-dark: linear-gradient(150deg, #1f1510 0%, #261a12 40%, #1a1210 100%);
+  --warm-bg-light: linear-gradient(150deg, #fff7ed 0%, #ffedd5 40%, #fef3c7 100%);
+  --warm-glow: rgba(255, 140, 60, 0.08);
+  --warm-glow-alt: rgba(255, 180, 100, 0.05);
+  --warm-ambient: rgba(255, 150, 60, 0.35);
+  --warm-label-dark: rgba(255, 180, 100, 0.40);
+  --warm-label-light: rgba(194, 65, 12, 0.35);
+  --warm-line: rgba(255, 180, 100, 0.15);
+  --warm-number-gradient: linear-gradient(180deg, #ffffff 15%, rgba(255, 255, 255, 0.55) 100%);
+  --warm-number-gradient-light: linear-gradient(180deg, #7c2d12 15%, rgba(124, 45, 18, 0.55) 100%);
+}
+
+[data-theme="light"] {
+  --warm-glow: rgba(255, 140, 60, 0.11);
+  --warm-glow-alt: rgba(255, 180, 100, 0.07);
+  --warm-ambient: rgba(255, 150, 60, 0.25);
+}
+
+/* ── 每日新闻 · 科技蓝 ── */
+:root {
+  --news-bg-dark: linear-gradient(150deg, #12151f 0%, #151825 40%, #0f1118 100%);
+  --news-bg-light: linear-gradient(150deg, #eff6ff 0%, #e0f2fe 40%, #f0f9ff 100%);
+  --news-glow: rgba(100, 150, 220, 0.08);
+  --news-glow-alt: rgba(80, 130, 200, 0.05);
+  --news-ambient: rgba(100, 150, 220, 0.30);
+  --news-label-dark: rgba(100, 150, 220, 0.45);
+  --news-label-light: rgba(37, 99, 235, 0.45);
+  --news-line: rgba(100, 150, 220, 0.15);
+  --news-accent-dark: rgba(100, 150, 220, 0.6);
+  --news-accent-light: rgba(37, 99, 235, 0.6);
+}
+
+[data-theme="light"] {
+  --news-glow: rgba(100, 150, 220, 0.11);
+  --news-glow-alt: rgba(80, 130, 200, 0.07);
+  --news-ambient: rgba(100, 150, 220, 0.25);
+}
+
+/* ── 闹钟 · 小米橙 ── */
+:root {
+  --alarm-bg-dark: linear-gradient(145deg, #1a120e 0%, #1e1812 40%, #140e0c 100%);
+  --alarm-bg-light: linear-gradient(145deg, #fff7ed 0%, #ffedd5 40%, #fef3c7 100%);
+  --alarm-glow: rgba(255, 106, 0, 0.10);
+  --alarm-glow-alt: rgba(255, 150, 50, 0.06);
+  --alarm-ambient: rgba(255, 106, 0, 0.40);
+  --alarm-label-dark: rgba(255, 140, 60, 0.45);
+  --alarm-label-light: rgba(234, 88, 12, 0.45);
+  --alarm-line: rgba(255, 140, 60, 0.15);
+  --alarm-number-gradient: linear-gradient(180deg, #ffffff 15%, rgba(255, 255, 255, 0.55) 100%);
+  --alarm-number-gradient-light: linear-gradient(180deg, #7c2d12 15%, rgba(124, 45, 18, 0.55) 100%);
+}
+
+[data-theme="light"] {
+  --alarm-glow: rgba(255, 106, 0, 0.13);
+  --alarm-glow-alt: rgba(255, 150, 50, 0.08);
+  --alarm-ambient: rgba(255, 106, 0, 0.30);
+}
+
+/* ── 更多主题色系（基于种子颜色动态生成） ── */
+:root {
+  /* 种子色 - 主题色种子 */
+  --color-seed-purple: #2d1b4e;
+  --color-seed-orange: #ff8c00;
+  --color-seed-green: #10b981;
+  --color-seed-blue: #0ea5e9;
+  --color-seed-pink: #ff6b9d;
+
+  /* 生成的深色背景 - 基于种子色的渐变 */
+  --theme-bg-purple-dark: linear-gradient(155deg, var(--color-seed-purple) 0%, #150f15 100%);
+  --theme-bg-purple-light: linear-gradient(155deg, var(--color-seed-purple) 10%, #e8d7f7 100%);
+
+  --theme-bg-orange-dark: linear-gradient(150deg, var(--color-seed-orange) 0%, #ffb84d 100%);
+  --theme-bg-orange-light: linear-gradient(150deg, var(--color-seed-orange) 10%, #ffd966 100%);
+
+  --theme-bg-green-dark: linear-gradient(150deg, var(--color-seed-green) 0%, #1aa852 100%);
+  --theme-bg-green-light: linear-gradient(150deg, var(--color-seed-green) 10%, #4ade80 100%);
+
+  --theme-bg-blue-dark: linear-gradient(150deg, var(--color-seed-blue) 0%, #38bdf8 100%);
+  --theme-bg-blue-light: linear-gradient(150deg, var(--color-seed-blue) 10%, #7dd3fc 100%);
+
+  --theme-bg-pink-dark: linear-gradient(150deg, var(--color-seed-pink) 0%, #ffd9e8 100%);
+  --theme-bg-pink-light: linear-gradient(150deg, var(--color-seed-pink) 10%, #ffe6f3 100%);
+
+  /* 生成的辅助色 - 基于种子色的发光效果 */
+  --theme-glow-purple: rgba(200, 120, 180, 0.12);
+  --theme-glow-orange: rgba(255, 140, 60, 0.12);
+  --theme-glow-green: rgba(80, 200, 120, 0.12);
+  --theme-glow-blue: rgba(100, 150, 220, 0.12);
+  --theme-glow-pink: rgba(255, 140, 60, 0.12);
+
+  /* 生成的标签色 - 基于种子色的文字颜色 */
+  --theme-label-purple-dark: rgba(200, 160, 220, 0.5);
+  --theme-label-orange-dark: rgba(255, 180, 100, 0.5);
+  --theme-label-green-dark: rgba(80, 200, 120, 0.5);
+  --theme-label-blue-dark: rgba(100, 150, 220, 0.5);
+  --theme-label-pink-dark: rgba(255, 180, 100, 0.5);
+
+  /* 生成的氛围线色 - 基于种子色的底部光效 */
+  --theme-ambient-purple: rgba(200, 160, 220, 0.4);
+  --theme-ambient-orange: rgba(255, 180, 100, 0.4);
+  --theme-ambient-green: rgba(80, 200, 120, 0.4);
+  --theme-ambient-blue: rgba(100, 150, 220, 0.4);
+  --theme-ambient-pink: rgba(255, 180, 100, 0.4);
+
+  /* 浅色模式辅助色 */
+  --theme-glow-purple-light: rgba(200, 120, 180, 0.15);
+  --theme-glow-orange-light: rgba(255, 140, 60, 0.15);
+  --theme-glow-green-light: rgba(80, 200, 120, 0.15);
+  --theme-glow-blue-light: rgba(100, 150, 220, 0.15);
+  --theme-glow-pink-light: rgba(255, 140, 60, 0.15);
+
+  --theme-label-purple-light: rgba(200, 160, 220, 0.35);
+  --theme-label-orange-light: rgba(255, 180, 100, 0.35);
+  --theme-label-green-light: rgba(80, 200, 120, 0.35);
+  --theme-label-blue-light: rgba(100, 150, 220, 0.35);
+  --theme-label-pink-light: rgba(255, 180, 100, 0.35);
+
+  --theme-ambient-purple-light: rgba(200, 160, 220, 0.25);
+  --theme-ambient-orange-light: rgba(255, 180, 100, 0.25);
+  --theme-ambient-green-light: rgba(80, 200, 120, 0.25);
+  --theme-ambient-blue-light: rgba(100, 150, 220, 0.25);
+  --theme-ambient-pink-light: rgba(255, 180, 100, 0.25);
+}
+
+/* ── 实用类组件色彩 ── */
+  --util-bg-dark: linear-gradient(180deg, #111316 0%, #0e1013 100%);
+  --util-bg-light: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --util-accent: #FF6A00;
+  --util-accent-bg-dark: rgba(255, 106, 0, 0.10);
+  --util-accent-bg-light: rgba(255, 106, 0, 0.08);
+  --util-accent-text: rgba(255, 106, 0, 0.70);
+  --util-ambient: rgba(255, 106, 0, 0.30);
+}
+
+[data-theme="light"] {
+  --util-accent-bg: var(--util-accent-bg-light);
+  --util-ambient: rgba(255, 106, 0, 0.25);
+}
+
+/* ── 字号层级（896×1464 卡片） ── */
+:root {
+  /* 核心数字：卡片的绝对主角 */
+  --size-hero-lg: 104px;     /* 居中布局的大数字（放假倒计时） */
+  --size-hero-md: 88px;      /* 底部对齐布局的数字（恋爱/宝宝） */
+  --size-hero-sm: 80px;      /* 时间显示（闹钟 07:30） */
+
+  /* 顶部英文类别标注 */
+  --size-category: 11px;
+
+  /* 数字下方英文单位 */
+  --size-unit: 11px;
+
+  /* 中文副标题 */
+  --size-subtitle: 15px;
+
+  /* 中文辅助信息 */
+  --size-caption: 12px;
+
+  /* 新闻标题 */
+  --size-news-title: 14px;
+
+  /* 新闻时间/标签 */
+  --size-news-meta: 11px;
+
+  /* 列表头标题 */
+  --size-header: 14px;
+
+  /* 显示字号 */
+  --font-size-display: 56px;
+
+  /* 标题字号 */
+  --font-size-title: 20px;
+
+  /* 正文字号 */
+  --font-size-body: 16px;
+
+  /* 辅助字号 */
+  --font-size-caption: 12px;
+
+  /* 字重 */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* 行高 */
+  --font-hero-line-height: 0.9;
+  --line-height-hero-tight: 0.9;
+  --line-height-hero-relaxed: 0.85;
+  --line-height-normal: 1.4;
+}
+
+/* ── 字体家族 ── */
+:root {
+  /* 核心数字：DIN Alternate 或回退字体 */
+  --font-hero-family: 'DIN Alternate', 'SF Pro Display', 'Helvetica Neue', system-ui;
+  --font-hero-weight: 300;
+  --font-hero-letter-spacing: -3px;
+  --font-hero-line-height: 0.9;
+
+  /* 英文标注和显示文字 */
+  --font-family-display: 'SF Pro Display', 'Helvetica Neue', system-ui;
+
+  /* 中文内容 */
+  --font-cn-family: 'SF Pro Text', 'Noto Sans SC', system-ui;
+
+  /* 英文标注 */
+  --font-en-family: 'SF Pro Display', 'Helvetica Neue', system-ui;
+
+  /* 通用字体栈 */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ── 间距节奏 ── */
+:root {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* 卡片内边距 */
+  --card-padding-v: 32px;
+  --card-padding-h: 28px;
+  --card-radius: 20px;
+
+  /* 元素间距 */
+  --gap-hero-to-unit: 6px;       /* 数字 → 英文单位：紧密 */
+  --gap-unit-to-divider: 28px;   /* 英文单位 → 分割线：拉开 */
+  --gap-divider-to-subtitle: 14px;
+  --gap-subtitle-caption: 5px;
+  --gap-subtitle-unit: 20px;   /* 副标题 → 分割线（居中布局） */
+  --gap-category-to-hero: 20px;  /* 顶部标注 → 数字 */
+  --gap-unit-hero: 4px;       /* 英文单位 → 数字（居中布局） */
+  --gap-hero-divider: 32px;   /* 数字 → 分割线（居中布局） */
+}
+
+/* ── 圆角 ── */
+:root {
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 20px;
+}
+
+/* ── 卡片尺寸（车端固定） ── */
+:root {
+  --card-width: 896px;
+  --card-height: 1464px;
+  --card-aspect-ratio: 896 / 1464;
+}
+
+/* ── 分割线 ── */
+:root {
+  --divider-width: 24px;
+  --divider-width-small: 20px;
+  --divider-height: 1px;
+}
+
+/* ── 氛围光线 ── */
+:root {
+  --ambient-line-height: 1px;
+  --ambient-line-width-half: 50%;   /* 只覆盖一半，不横贯 */
+  --ambient-line-width-short: 40%;   /* 新闻/闹钟更短 */
+  --ambient-line-width-full: 55%;    /* 恋爱更长 */
+}
+
+/* ── 背景光晕 ── */
+:root {
+  --glow-primary-size: 180px;
+  --glow-primary-filter: blur(30px);
+  --glow-secondary-size: 140px;
+  --glow-secondary-filter: blur(25px);
+}
+
+/* ── 过渡 ── */
+:root {
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 300ms ease-out;
+  --transition-slow: 500ms ease-out;
+
+  /* 缓动函数 */
+  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ── 字母间距 ── */
+:root {
+  --letter-spacing-hero: -3px;
+  --letter-spacing-hero-large: -4px;
+  --letter-spacing-hero-small: -2px;
+  --letter-spacing-unit: 3px;
+  --letter-spacing-unit-wide: 4px;
+  --letter-spacing-category: 2px;
+  --letter-spacing-body: 0.3px;
+}
+
+/* ── 兼容变量（不重复声明已有变量） ── */
+:root {
+  --font-size-tiny: 14px;
+  --spacing-xxs: 4px;
+  --spacing-xxl: 72px;
+  --card-padding: 32px;
+  --card-padding-sm: 24px;
+}
+
+/* ── 旧风格预设（兼容） ── */
+:root {
+  --style-vibrant-orange-bg: linear-gradient(135deg, #FF6900 0%, #FF9500 100%);
+  --style-vibrant-orange-accent: #FFFFFF;
+  --style-ocean-blue-bg: linear-gradient(135deg, #007AFF 0%, #00C6FF 100%);
+  --style-ocean-blue-accent: #FFFFFF;
+  --style-forest-green-bg: linear-gradient(135deg, #00C853 0%, #64DD17 100%);
+  --style-forest-green-accent: #FFFFFF;
+  --style-minimal-dark-bg: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
+  --style-minimal-dark-accent: #FF6900;
+  --style-warm-yellow-bg: linear-gradient(135deg, #FFD600 0%, #FFAB00 100%);
+  --style-warm-yellow-accent: #1A1A1A;
+  --style-soft-purple-bg: linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%);
+  --style-soft-purple-accent: #FFFFFF;
+  --style-tech-blue-bg: linear-gradient(135deg, #00BFA5 0%, #00BCD4 100%);
+  --style-tech-blue-accent: #FFFFFF;
+  --style-sweet-pink-bg: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
+  --style-sweet-pink-accent: #FFFFFF;
+}
+
+/* ── 动效预设（统一运动语言） ── */
+
+/* 卡片首次加载淡入 */
+@keyframes entrance-fadeIn {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+:root {
+  --anim-entrance-duration: 0.6s;
+  --anim-entrance-easing: ease-out;
+}
+
+/* 数字更新脉冲 */
+@keyframes number-pulse {
+  0%   { transform: scale(0.96); opacity: 0.7; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+:root {
+  --anim-pulse-duration: 0.4s;
+  --anim-pulse-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 卡片左右切换 - 从右侧滑入 */
+@keyframes slide-in-right {
+  0%   { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* 卡片左右切换 - 从左侧滑入 */
+@keyframes slide-in-left {
+  0%   { opacity: 0; transform: translateX(-30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+:root {
+  --anim-slide-duration: 0.3s;
+  --anim-slide-easing: ease-out;
+}

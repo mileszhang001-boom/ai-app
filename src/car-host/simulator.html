@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>车端模拟器 · AI小组件</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* 车机屏幕容器 */
+    .car-screen {
+      position: relative;
+      width: 896px;
+      height: 1464px;
+      background: #0e1013;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(0,0,0,0.8), 0 0 2px rgba(255,255,255,0.05);
+      /* 缩放适配浏览器 */
+      transform-origin: center center;
+    }
+
+    /* WebView 区域 */
+    .webview-container {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .webview-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    /* 切换箭头 */
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .nav-arrow:hover { opacity: 0.8; }
+    .nav-arrow:active { opacity: 1; }
+
+    .nav-arrow.left { left: 8px; }
+    .nav-arrow.right { right: 8px; }
+
+    .nav-arrow svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: rgba(255,255,255,0.6);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* 自动隐藏箭头 */
+    .nav-arrow.hidden { opacity: 0; pointer-events: none; }
+
+    /* 圆点指示器 */
+    .dot-indicator {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    .dot-indicator.hidden { opacity: 0; }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: rgba(255,255,255,0.9);
+      width: 16px;
+      border-radius: 3px;
+    }
+
+    /* 入场动画 */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeSlideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .webview-container.slide-right {
+      animation: fadeSlideIn 0.3s ease-out;
+    }
+
+    .webview-container.slide-left {
+      animation: fadeSlideInLeft 0.3s ease-out;
+    }
+
+    /* 顶部状态栏（模拟车机） */
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 20;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      pointer-events: none;
+    }
+
+    /* 底部控制面板 */
+    .control-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+      background: rgba(30,30,50,0.9);
+      backdrop-filter: blur(12px);
+      padding: 12px 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .ctrl-btn {
+      padding: 8px 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .ctrl-btn.active {
+      background: rgba(255,106,0,0.2);
+      border-color: rgba(255,106,0,0.4);
+      color: #FF6A00;
+    }
+
+    .ctrl-btn.primary {
+      background: rgba(255,106,0,0.15);
+      border-color: rgba(255,106,0,0.3);
+      color: #FF6A00;
+    }
+
+    /* 缩放提示 */
+    .scale-info {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      z-index: 100;
+    }
+
+    /* 单组件时隐藏导航 */
+    .single-widget .nav-arrow,
+    .single-widget .dot-indicator { display: none; }
+
+    /* 响应式缩放 */
+    @media (max-height: 1600px) {
+      .car-screen { transform: scale(0.65); }
+    }
+    @media (max-height: 1200px) {
+      .car-screen { transform: scale(0.5); }
+    }
+    @media (max-height: 900px) {
+      .car-screen { transform: scale(0.42); }
+    }
+    @media (max-height: 700px) {
+      .car-screen { transform: scale(0.35); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 车机屏幕 -->
+  <div class="car-screen" id="carScreen">
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span id="clock">--:--</span>
+      <span>AI小组件 · Demo</span>
+    </div>
+
+    <!-- WebView 容器 -->
+    <div class="webview-container" id="webviewContainer">
+      <iframe id="widgetFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <!-- 切换箭头 -->
+    <div class="nav-arrow left" id="navLeft" onclick="switchWidget(-1)">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="nav-arrow right" id="navRight" onclick="switchWidget(1)">
+      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+    </div>
+
+    <!-- 圆点指示器 -->
+    <div class="dot-indicator" id="dotIndicator"></div>
+  </div>
+
+  <!-- 缩放信息 -->
+  <div class="scale-info" id="scaleInfo">896×1464</div>
+
+  <!-- 控制面板 -->
+  <div class="control-panel">
+    <button class="ctrl-btn active" onclick="loadPreset('love')">💕 恋爱</button>
+    <button class="ctrl-btn" onclick="loadPreset('baby')">👶 宝宝</button>
+    <button class="ctrl-btn" onclick="loadPreset('holiday')">🏖️ 放假</button>
+    <button class="ctrl-btn" onclick="loadPreset('warm')">🔥 暖橙</button>
+    <button class="ctrl-btn" onclick="loadPreset('news')">📰 新闻</button>
+    <button class="ctrl-btn" onclick="loadPreset('alarm')">⏰ 闹钟</button>
+    <button class="ctrl-btn primary" onclick="loadAllWidgets()">全部加载</button>
+  </div>
+
+<script>
+  // ── 组件管理 ──
+
+  const WIDGET_BASE = '/widget-templates';
+
+  // 组件列表（模板路径 + 默认参数）
+  const WIDGET_PRESETS = {
+    love: {
+      path: `${WIDGET_BASE}/anniversary/love/index.html`,
+      label: '恋爱纪念',
+      params: { title: '恋爱纪念', startDate: '2024-06-01', subtitle: '每一天都算数' }
+    },
+    baby: {
+      path: `${WIDGET_BASE}/anniversary/baby/index.html`,
+      label: '宝宝成长',
+      params: { title: '宝宝成长', startDate: '2025-01-15', subtitle: '慢慢长大不着急' }
+    },
+    holiday: {
+      path: `${WIDGET_BASE}/anniversary/holiday/index.html`,
+      label: '放假倒计时',
+      params: { title: '国庆快乐', targetDate: '2026-10-01', subtitle: '假期在向你招手' }
+    },
+    warm: {
+      path: `${WIDGET_BASE}/anniversary/warm/index.html`,
+      label: '暖橙纪念',
+      params: { title: '结婚纪念', startDate: '2020-05-20', subtitle: '岁月温柔' }
+    },
+    news: {
+      path: `${WIDGET_BASE}/news/index.html`,
+      label: '每日新闻',
+      params: {}
+    },
+    alarm: {
+      path: `${WIDGET_BASE}/alarm/index.html`,
+      label: '闹钟',
+      params: {}
+    }
+  };
+
+  let widgets = [];        // 当前加载的组件 key 列表
+  let currentIndex = 0;    // 当前显示的索引
+  let hideTimer = null;    // 箭头自动隐藏计时器
+
+  const frame = document.getElementById('widgetFrame');
+  const container = document.getElementById('webviewContainer');
+  const navLeft = document.getElementById('navLeft');
+  const navRight = document.getElementById('navRight');
+  const dotIndicator = document.getElementById('dotIndicator');
+  const carScreen = document.getElementById('carScreen');
+
+  // ── 时钟 ──
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.getHours().toString().padStart(2, '0') + ':' +
+      now.getMinutes().toString().padStart(2, '0');
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  // ── 加载单个组件 ──
+  function loadPreset(key) {
+    widgets = [key];
+    currentIndex = 0;
+    renderWidget();
+    updateControls();
+
+    // 高亮按钮
+    document.querySelectorAll('.ctrl-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.includes(WIDGET_PRESETS[key]?.label || ''));
+    });
+  }
+
+  // ── 加载全部组件 ──
+  function loadAllWidgets() {
+    widgets = Object.keys(WIDGET_PRESETS);
+    currentIndex = 0;
+    renderWidget();
+    updateControls();
+
+    document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.ctrl-btn.primary')?.classList.add('active');
+  }
+
+  // ── 渲染当前组件 ──
+  function renderWidget(direction) {
+    if (widgets.length === 0) return;
+
+    const key = widgets[currentIndex];
+    const preset = WIDGET_PRESETS[key];
+    if (!preset) return;
+
+    // 加载 iframe
+    frame.src = preset.path;
+
+    // 切换动画
+    if (direction !== undefined) {
+      container.classList.remove('slide-left', 'slide-right');
+      void container.offsetWidth; // force reflow
+      container.classList.add(direction > 0 ? 'slide-right' : 'slide-left');
+    }
+
+    // 向 iframe 注入参数（等加载完成）
+    frame.onload = () => {
+      try {
+        frame.contentWindow.postMessage({
+          type: 'widget-params',
+          params: preset.params
+        }, '*');
+      } catch (e) {
+        // 跨域限制时静默处理
+      }
+    };
+  }
+
+  // ── 切换组件 ──
+  function switchWidget(direction) {
+    if (widgets.length <= 1) return;
+
+    currentIndex += direction;
+    if (currentIndex < 0) currentIndex = widgets.length - 1;
+    if (currentIndex >= widgets.length) currentIndex = 0;
+
+    renderWidget(direction);
+    updateDots();
+    resetHideTimer();
+  }
+
+  // ── 更新导航控件 ──
+  function updateControls() {
+    const single = widgets.length <= 1;
+    carScreen.classList.toggle('single-widget', single);
+
+    if (!single) {
+      updateDots();
+      showNavigation();
+      resetHideTimer();
+    }
+  }
+
+  // ── 更新圆点 ──
+  function updateDots() {
+    dotIndicator.innerHTML = widgets.map((_, i) =>
+      `<div class="dot${i === currentIndex ? ' active' : ''}"></div>`
+    ).join('');
+  }
+
+  // ── 显示/隐藏导航 ──
+  function showNavigation() {
+    navLeft.classList.remove('hidden');
+    navRight.classList.remove('hidden');
+    dotIndicator.classList.remove('hidden');
+  }
+
+  function hideNavigation() {
+    navLeft.classList.add('hidden');
+    navRight.classList.add('hidden');
+    // 圆点保持显示
+  }
+
+  function resetHideTimer() {
+    clearTimeout(hideTimer);
+    showNavigation();
+    hideTimer = setTimeout(hideNavigation, 3000);
+  }
+
+  // 触摸/鼠标移动时显示导航
+  carScreen.addEventListener('mousemove', resetHideTimer);
+  carScreen.addEventListener('touchstart', resetHideTimer);
+
+  // ── 键盘快捷键 ──
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') switchWidget(-1);
+    if (e.key === 'ArrowRight') switchWidget(1);
+  });
+
+  // ── 初始加载 ──
+  loadPreset('love');
+</script>
+
+</body>
+</html>

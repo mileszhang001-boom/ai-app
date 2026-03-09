@@ -1,0 +1,362 @@
+/**
+ * 放假倒计时 · 翠绿（Emerald）
+ *
+ * 居中布局
+ * 支持风格预设切换
+ */
+
+/* 基础重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* 卡片容器 */
+.widget-holiday {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 28px 32px;
+  box-sizing: border-box;
+
+  /* 默认翠绿渐变背景 */
+  background: var(--holiday-bg-dark, linear-gradient(140deg, #122a18 0%, #0a1a0e 100%));
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── 风格预设：基于 data-style 属性 ── */
+
+/* 活力橙 */
+[data-style="vibrant-orange"] .widget-holiday,
+.widget-holiday[data-style="vibrant-orange"] {
+  background: linear-gradient(140deg, #2a1a0f 0%, #1f150a 100%);
+}
+
+[data-style="vibrant-orange"] .widget-holiday .glow-primary,
+.widget-holiday[data-style="vibrant-orange"] .glow-primary {
+  background: radial-gradient(circle, rgba(255, 106, 0, 0.12) 0%, transparent 70%);
+}
+
+[data-style="vibrant-orange"] .widget-holiday .ambient-line,
+.widget-holiday[data-style="vibrant-orange"] .ambient-line {
+  background: linear-gradient(90deg, rgba(255, 140, 60, 0.45) 0%, transparent 100%);
+}
+
+[data-style="vibrant-orange"] .widget-holiday .category-label,
+.widget-holiday[data-style="vibrant-orange"] .category-label {
+  color: rgba(255, 160, 80, 0.45);
+}
+
+[data-style="vibrant-orange"] .widget-holiday .unit-label,
+.widget-holiday[data-style="vibrant-orange"] .unit-label {
+  color: rgba(255, 160, 80, 0.40);
+}
+
+[data-style="vibrant-orange"] .widget-holiday .divider,
+.widget-holiday[data-style="vibrant-orange"] .divider {
+  background: rgba(255, 160, 80, 0.15);
+}
+
+/* 海洋蓝 */
+[data-style="ocean-blue"] .widget-holiday,
+.widget-holiday[data-style="ocean-blue"] {
+  background: linear-gradient(140deg, #0f1a2a 0%, #0d1520 100%);
+}
+
+[data-style="ocean-blue"] .widget-holiday .glow-primary,
+.widget-holiday[data-style="ocean-blue"] .glow-primary {
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.12) 0%, transparent 70%);
+}
+
+[data-style="ocean-blue"] .widget-holiday .ambient-line,
+.widget-holiday[data-style="ocean-blue"] .ambient-line {
+  background: linear-gradient(90deg, rgba(0, 140, 220, 0.45) 0%, transparent 100%);
+}
+
+[data-style="ocean-blue"] .widget-holiday .category-label,
+.widget-holiday[data-style="ocean-blue"] .category-label {
+  color: rgba(0, 160, 230, 0.45);
+}
+
+[data-style="ocean-blue"] .widget-holiday .unit-label,
+.widget-holiday[data-style="ocean-blue"] .unit-label {
+  color: rgba(0, 160, 230, 0.40);
+}
+
+[data-style="ocean-blue"] .widget-holiday .divider,
+.widget-holiday[data-style="ocean-blue"] .divider {
+  background: rgba(0, 160, 230, 0.15);
+}
+
+/* 森林绿 */
+[data-style="forest-green"] .widget-holiday,
+.widget-holiday[data-style="forest-green"] {
+  background: linear-gradient(140deg, #0f2a15 0%, #0d2010 100%);
+}
+
+[data-style="forest-green"] .widget-holiday .glow-primary,
+.widget-holiday[data-style="forest-green"] .glow-primary {
+  background: radial-gradient(circle, rgba(0, 200, 83, 0.12) 0%, transparent 70%);
+}
+
+[data-style="forest-green"] .widget-holiday .ambient-line,
+.widget-holiday[data-style="forest-green"] .ambient-line {
+  background: linear-gradient(90deg, rgba(80, 200, 100, 0.45) 0%, transparent 100%);
+}
+
+[data-style="forest-green"] .widget-holiday .category-label,
+.widget-holiday[data-style="forest-green"] .category-label {
+  color: rgba(100, 200, 120, 0.45);
+}
+
+[data-style="forest-green"] .widget-holiday .unit-label,
+.widget-holiday[data-style="forest-green"] .unit-label {
+  color: rgba(100, 200, 120, 0.40);
+}
+
+[data-style="forest-green"] .widget-holiday .divider,
+.widget-holiday[data-style="forest-green"] .divider {
+  background: rgba(100, 200, 120, 0.15);
+}
+
+/* 甜蜜粉 */
+[data-style="sweet-pink"] .widget-holiday,
+.widget-holiday[data-style="sweet-pink"] {
+  background: linear-gradient(140deg, #2a1020 0%, #1f0d18 100%);
+}
+
+[data-style="sweet-pink"] .widget-holiday .glow-primary,
+.widget-holiday[data-style="sweet-pink"] .glow-primary {
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.12) 0%, transparent 70%);
+}
+
+[data-style="sweet-pink"] .widget-holiday .ambient-line,
+.widget-holiday[data-style="sweet-pink"] .ambient-line {
+  background: linear-gradient(90deg, rgba(255, 120, 130, 0.45) 0%, transparent 100%);
+}
+
+[data-style="sweet-pink"] .widget-holiday .category-label,
+.widget-holiday[data-style="sweet-pink"] .category-label {
+  color: rgba(255, 140, 150, 0.45);
+}
+
+[data-style="sweet-pink"] .widget-holiday .unit-label,
+.widget-holiday[data-style="sweet-pink"] .unit-label {
+  color: rgba(255, 140, 150, 0.40);
+}
+
+[data-style="sweet-pink"] .widget-holiday .divider,
+.widget-holiday[data-style="sweet-pink"] .divider {
+  background: rgba(255, 140, 150, 0.15);
+}
+
+/* 柔和紫 */
+[data-style="soft-purple"] .widget-holiday,
+.widget-holiday[data-style="soft-purple"] {
+  background: linear-gradient(140deg, #1a102a 0%, #150d22 100%);
+}
+
+[data-style="soft-purple"] .widget-holiday .glow-primary,
+.widget-holiday[data-style="soft-purple"] .glow-primary {
+  background: radial-gradient(circle, rgba(124, 77, 255, 0.12) 0%, transparent 70%);
+}
+
+[data-style="soft-purple"] .widget-holiday .ambient-line,
+.widget-holiday[data-style="soft-purple"] .ambient-line {
+  background: linear-gradient(90deg, rgba(160, 110, 255, 0.45) 0%, transparent 100%);
+}
+
+[data-style="soft-purple"] .widget-holiday .category-label,
+.widget-holiday[data-style="soft-purple"] .category-label {
+  color: rgba(170, 130, 255, 0.45);
+}
+
+[data-style="soft-purple"] .widget-holiday .unit-label,
+.widget-holiday[data-style="soft-purple"] .unit-label {
+  color: rgba(170, 130, 255, 0.40);
+}
+
+[data-style="soft-purple"] .widget-holiday .divider,
+.widget-holiday[data-style="soft-purple"] .divider {
+  background: rgba(170, 130, 255, 0.15);
+}
+
+/* 温暖黄 */
+[data-style="warm-yellow"] .widget-holiday,
+.widget-holiday[data-style="warm-yellow"] {
+  background: linear-gradient(140deg, #2a240f 0%, #1f1a0a 100%);
+}
+
+[data-style="warm-yellow"] .widget-holiday .glow-primary,
+.widget-holiday[data-style="warm-yellow"] .glow-primary {
+  background: radial-gradient(circle, rgba(255, 214, 0, 0.12) 0%, transparent 70%);
+}
+
+[data-style="warm-yellow"] .widget-holiday .ambient-line,
+.widget-holiday[data-style="warm-yellow"] .ambient-line {
+  background: linear-gradient(90deg, rgba(255, 190, 60, 0.45) 0%, transparent 100%);
+}
+
+[data-style="warm-yellow"] .widget-holiday .category-label,
+.widget-holiday[data-style="warm-yellow"] .category-label {
+  color: rgba(255, 200, 80, 0.45);
+}
+
+[data-style="warm-yellow"] .widget-holiday .unit-label,
+.widget-holiday[data-style="warm-yellow"] .unit-label {
+  color: rgba(255, 200, 80, 0.40);
+}
+
+[data-style="warm-yellow"] .widget-holiday .divider,
+.widget-holiday[data-style="warm-yellow"] .divider {
+  background: rgba(255, 200, 80, 0.15);
+}
+
+/* ── 背景光晕 ── */
+
+/* 右上主光晕 */
+.widget-holiday .glow-primary {
+  position: absolute;
+  top: -10%;
+  right: -15%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(80, 200, 120, 0.12) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+/* ── 氛围光线（底部） ── */
+.widget-holiday .ambient-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(80, 200, 120, 0.45) 0%, transparent 100%);
+  border-radius: 1px;
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* ── 内容区 ── */
+.widget-holiday .content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* ── 顶部类别标注 ── */
+.widget-holiday .category-label {
+  font-family: var(--font-en-family);
+  font-size: var(--size-category);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: var(--letter-spacing-category, 2px);
+  text-transform: uppercase;
+  color: var(--holiday-label-dark);
+  margin-bottom: var(--gap-category-to-hero);
+}
+
+/* ── 核心数字 ── */
+.widget-holiday .hero-number {
+  font-family: var(--font-hero-family);
+  font-size: var(--size-hero-lg);
+  font-weight: var(--font-hero-weight);
+  letter-spacing: -4px;
+  line-height: var(--line-height-hero-relaxed, 0.85);
+  margin-bottom: var(--gap-unit-hero);
+
+  /* 数字渐变色：白色渐变 */
+  background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  /* 动画 */
+  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
+}
+
+/* 数字更新脉冲动画 */
+.widget-holiday .hero-number.updating {
+  animation: number-pulse var(--anim-pulse-duration, 0.4s) var(--anim-pulse-easing, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+/* ── 英文单位标注 ── */
+.widget-holiday .unit-label {
+  font-family: var(--font-en-family);
+  font-size: var(--size-unit);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: var(--letter-spacing-unit-wide, 4px);
+  text-transform: uppercase;
+  color: var(--holiday-label-dark);
+  margin-bottom: var(--gap-hero-divider);
+}
+
+/* ── 分割线（居中） ── */
+.widget-holiday .divider {
+  width: 24px;
+  height: 1px;
+  background: var(--holiday-line);
+  margin: 0 auto var(--gap-hero-divider);
+}
+
+/* ── 中文副标题 ── */
+.widget-holiday .subtitle-cn {
+  font-family: var(--font-cn-family);
+  font-size: var(--size-subtitle);
+  font-weight: var(--font-weight-regular, 400);
+  color: rgba(255, 255, 255, 0.70);
+  opacity: 0.7;
+  margin-bottom: var(--gap-subtitle-caption);
+}
+
+/* ── 中文辅助信息：最弱 ── */
+.widget-holiday .caption-cn {
+  font-family: var(--font-cn-family);
+  font-size: var(--size-caption);
+  font-weight: var(--font-weight-regular, 400);
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.2px;
+}
+
+/* ── WebView 兼容性 ── */
+
+/* 不支持 background-clip: text 的浏览器降级 */
+@supports not (-webkit-background-clip: text) {
+  .widget-holiday .hero-number {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #ffffff;
+  }
+}
+
+/* 不支持 filter: blur 的浏览器降级 */
+@supports not (filter: blur(40px)) {
+  .widget-holiday .glow-primary {
+    filter: none;
+    opacity: 0.5;
+  }
+}
+
+/* ─── 响应式（开发预览） ─── */
+@media (max-width: 900px) {
+  .widget-holiday {
+    width: 100%;
+    height: 100%;
+  }
+}
