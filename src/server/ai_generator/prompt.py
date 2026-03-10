@@ -2,6 +2,9 @@
 AI 生成 System Prompt 模板管理
 
 负责管理和生成 AI 生成组件参数时使用的 System Prompt
+支持两种模式：
+1. 结构化模式（原有）：用户已选好模板/主题，AI 只补全参数
+2. 自然语言模式（新增）：用户用一句话描述需求，AI 理解意图并生成完整参数
 """
 
 from datetime import datetime
@@ -57,6 +60,78 @@ TEMPLATES = {
         }
     }
 }
+
+
+# 自然语言理解的 System Prompt
+NL_SYSTEM_PROMPT = """你是车载小组件创意助手。用户会用自然语言告诉你想要什么样的车机桌面卡片，你需要理解意图并输出 JSON 参数。
+
+严格规则：
+1. 只输出纯 JSON，不要任何其他内容（不要 markdown 标记、不要解释）
+2. 必须从以下可用组件中选择，不能创造不存在的组件类型
+
+可用组件：
+1. anniversary（纪念日）
+   - theme: love — 恋爱纪念（正数，在一起第X天）。关键词：恋爱、在一起、结婚、纪念日、另一半、对象、女朋友、男朋友、老婆、老公
+   - theme: baby — 宝宝成长（正数，出生第X天）。关键词：宝宝、孩子、出生、满月、周岁
+   - theme: holiday — 放假倒计时（倒数，距离X还有X天）。关键词：放假、倒计时、国庆、春节、五一、元旦、假期、过年、中秋
+   - theme: warm — 暖橙纪念（正数，温暖色调）。关键词：温暖、纪念、生日、毕业
+2. news（每日新闻）
+   - theme: daily — 新闻摘要卡片。关键词：新闻、资讯、热点、今日头条
+3. alarm（闹钟）
+   - theme: clock — 闹钟卡片。关键词：闹钟、起床、提醒、早上、叫我
+
+输出格式：
+{
+  "component_type": "anniversary | news | alarm",
+  "mode": "countup | countdown",
+  "theme": "love | baby | holiday | warm | daily | clock",
+  "template_id": "对应的模板ID",
+  "style_preset": "推荐的风格",
+  "params": {
+    // anniversary/love,baby,warm: {"title": "≤20字", "start_date": "YYYY-MM-DD", "subtitle": "≤30字有创意的文案"}
+    // anniversary/holiday: {"title": "≤20字", "target_date": "YYYY-MM-DD", "subtitle": "≤30字有创意的文案"}
+    // news: {"category": "general", "max_items": 5}
+    // alarm: {"alarm_time": "HH:MM", "label": "≤15字", "repeat": "none|weekdays|weekends|daily"}
+  }
+}
+
+模板ID映射：
+- anniversary/love → anniversary_love
+- anniversary/baby → anniversary_baby
+- anniversary/holiday → anniversary_holiday
+- anniversary/warm → anniversary_warm
+- news/daily → news_daily
+- alarm/clock → alarm_clock
+
+风格选择指南：
+- 恋爱/甜蜜 → sweet-pink
+- 活力/假期 → vibrant-orange
+- 宝宝/柔和 → soft-purple
+- 极简/科技 → minimal-dark
+- 海洋/清新 → ocean-blue
+- 温暖/阳光 → warm-yellow
+- 自然/绿色 → forest-green
+- 闹钟经典 → analog-minimal
+- 闹钟霓虹 → digital-neon
+- 新闻 → minimal-dark
+
+文案创作规则：
+- subtitle 是卡片上最有感染力的一行字，要简短、有情感、有创意
+- 不要用"记录"、"纪念"这类平淡词汇，要用有画面感的表达
+- 恋爱：温暖甜蜜，如"最好的时光是有你的日子"、"余生都是你"
+- 宝宝：温柔治愈，如"小小的你，大大的世界"、"你是最好的礼物"
+- 放假：活泼期待，如"假期在向你招手"、"再坚持一下就放假啦"
+- title 可以根据用户描述自定义，不必固定为模板名
+
+日期理解规则（当前日期：%CURRENT_DATE%）：
+- "国庆" → 今年10月1日（如果已过，则取明年）
+- "春节" / "过年" → 最近的农历新年日期
+- "五一" → 今年5月1日（如果已过，则取明年）
+- "元旦" → 最近的1月1日
+- "中秋" → 最近的中秋节日期
+- "明天早上7点" → 提取时间 07:00
+- 如果用户没提供具体日期，根据上下文合理推断或使用今天的日期
+"""
 
 
 class PromptTemplate:
@@ -122,25 +197,14 @@ anniversary/holiday: vibrant-orange, warm-yellow, ocean-blue, forest-green
         style_preference: str = None
     ) -> str:
         """
-        构建用户 Prompt
-
-        Args:
-            component_type: 组件类型
-            theme: 主题
-            user_params: 用户已填参数
-            style_preference: 用户偏好的风格（可选）
-
-        Returns:
-            用户 Prompt 字符串
+        构建用户 Prompt（结构化模式）
         """
         template = self.get_template(component_type, theme)
         if not template:
             return f"用户选择了组件类型 {component_type}，主题 {theme}，但该模板不存在"
 
-        # 获取可用风格
         available_styles = self.get_style_presets(component_type, theme)
 
-        # 构建参数描述
         params_desc = []
         for key, value in user_params.items():
             if value is not None:
@@ -164,6 +228,11 @@ anniversary/holiday: vibrant-orange, warm-yellow, ocean-blue, forest-green
 
         return "\n".join(prompt_parts)
 
+    def get_nl_system_prompt(self) -> str:
+        """获取自然语言模式的 System Prompt"""
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        return NL_SYSTEM_PROMPT.replace("%CURRENT_DATE%", current_date)
+
 
 # 单例
 _prompt_template = None
@@ -178,8 +247,13 @@ def get_prompt_template() -> PromptTemplate:
 
 
 def get_system_prompt() -> str:
-    """获取 System Prompt"""
+    """获取 System Prompt（结构化模式）"""
     return get_prompt_template().base_prompt
+
+
+def get_nl_system_prompt() -> str:
+    """获取 System Prompt（自然语言模式）"""
+    return get_prompt_template().get_nl_system_prompt()
 
 
 def build_user_message(
@@ -188,7 +262,7 @@ def build_user_message(
     user_params: Dict[str, Any],
     style_preference: str = None
 ) -> str:
-    """构建用户消息"""
+    """构建用户消息（结构化模式）"""
     return get_prompt_template().build_user_prompt(
         component_type, theme, user_params, style_preference
     )

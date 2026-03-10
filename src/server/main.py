@@ -70,11 +70,17 @@ app.add_middleware(
 # ========== 数据模型 ==========
 
 class GenerateRequest(BaseModel):
-    """生成请求"""
+    """生成请求（结构化模式）"""
     component_type: str = Field(..., description="组件类型: anniversary | news | alarm")
     theme: Optional[str] = Field(None, description="主题: love | baby | holiday | daily | clock")
     params: Dict[str, Any] = Field(default_factory=dict, description="用户已填参数")
     style_preset: Optional[str] = Field(None, description="风格预设")
+    model: Optional[str] = Field("qwen-plus", description="LLM 模型")
+
+
+class ChatGenerateRequest(BaseModel):
+    """自然语言生成请求"""
+    text: str = Field(..., description="用户的自然语言输入，如'帮我做一个恋爱纪念日'")
     model: Optional[str] = Field("qwen-plus", description="LLM 模型")
 
 
@@ -362,6 +368,39 @@ async def generate_component(request: GenerateRequest):
             success=False,
             error=str(e)
         )
+
+
+@app.post("/api/chat-generate", response_model=GenerateResponse)
+async def chat_generate(request: ChatGenerateRequest):
+    """
+    自然语言生成组件参数
+
+    用户输入一句话，AI 理解意图并生成完整的组件参数。
+    例如："帮我做一个和女朋友的恋爱纪念日，我们2024年6月1日在一起的"
+    """
+    try:
+        if not request.text or not request.text.strip():
+            return GenerateResponse(success=False, error="请输入你想要的组件描述")
+
+        config = GenerateConfig(model=request.model)
+        generator = get_generator(config)
+
+        success, data, error = generator.generate_from_nl(request.text.strip())
+
+        if success:
+            widget_id = f"widget_{uuid.uuid4().hex[:12]}"
+            return GenerateResponse(
+                success=True,
+                data={
+                    "widget_id": widget_id,
+                    **data
+                }
+            )
+        else:
+            return GenerateResponse(success=False, error=error)
+
+    except Exception as e:
+        return GenerateResponse(success=False, error=str(e))
 
 
 @app.post("/api/render", response_class=HTMLResponse)

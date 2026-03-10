@@ -11,8 +11,10 @@ const TEMPLATE_URL_MAP = {
   'anniversary-love':    '/widget-templates/anniversary/love/index.html',
   'anniversary-baby':    '/widget-templates/anniversary/baby/index.html',
   'anniversary-holiday': '/widget-templates/anniversary/holiday/index.html',
+  'anniversary-warm':    '/widget-templates/anniversary/warm/index.html',
   'news-daily':          '/widget-templates/news/index.html',
   'news':                '/widget-templates/news/index.html',
+  'alarm-clock':         '/widget-templates/alarm/index.html',
   'alarm':               '/widget-templates/alarm/index.html',
 };
 

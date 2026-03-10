@@ -50,9 +50,14 @@ export class APIClient {
     return this.get(`/api/templates/${type}/${theme}`);
   }
 
-  // AI 生成组件
+  // AI 生成组件（结构化模式）
   async generateComponent(data) {
     return this.post('/api/generate', data);
+  }
+
+  // AI 生成组件（自然语言模式）
+  async chatGenerate(text) {
+    return this.post('/api/chat-generate', { text });
   }
 
   // 渲染组件

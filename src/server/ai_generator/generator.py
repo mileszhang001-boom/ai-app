@@ -19,7 +19,7 @@ except ImportError:
     HTTPX_AVAILABLE = False
 
 # Import prompt and validation functions
-from .prompt import get_system_prompt, build_user_message
+from .prompt import get_system_prompt, get_nl_system_prompt, build_user_message
 from .validator import validate_component
 
 
@@ -210,6 +210,270 @@ class AIGenerator:
             response.raise_for_status()
             result = response.json()
             return result["content"][0]["text"]
+
+    # 当前支持的组件描述，用于无法识别时给用户提示
+    SUPPORTED_WIDGETS = [
+        "恋爱纪念日（如：和女朋友6月1日在一起的）",
+        "宝宝成长记录（如：宝宝3月15日出生）",
+        "放假倒计时（如：国庆倒计时）",
+        "每日新闻摘要（如：想看今天的新闻）",
+        "闹钟（如：每天早上7点叫我起床）",
+    ]
+
+    def generate_from_nl(self, user_text: str) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
+        """
+        自然语言生成组件参数
+
+        用户输入一句自然语言，AI 理解意图后输出完整的组件参数 JSON。
+        如果无法识别用户意图，返回友好的错误提示和建议。
+
+        Args:
+            user_text: 用户的自然语言输入
+
+        Returns:
+            (success, data, error_message)
+        """
+        try:
+            system_prompt = get_nl_system_prompt()
+            user_message = user_text.strip()
+
+            response_text = self._call_llm_nl(system_prompt, user_message)
+            print(f"[DEBUG] NL LLM Response: {response_text[:500]}")
+
+            data = self._parse_response(response_text)
+
+            # 检查是否为无法识别的情况
+            if data.get("_unrecognized"):
+                suggestions = "\n".join(f"  · {s}" for s in self.SUPPORTED_WIDGETS)
+                return False, None, f"暂时还不支持这类组件，试试以下场景：\n{suggestions}"
+
+            component_type = data.get("component_type", "")
+            theme = data.get("theme", "")
+
+            is_valid, errors, cleaned = validate_component(
+                component_type, theme, data
+            )
+
+            if not is_valid:
+                return False, None, f"Validation failed: {', '.join(errors)}"
+
+            result = {
+                "component_type": data.get("component_type"),
+                "mode": data.get("mode"),
+                "theme": data.get("theme"),
+                "template_id": data.get("template_id"),
+                "style_preset": data.get("style_preset"),
+                "params": cleaned
+            }
+
+            return True, result, None
+
+        except Exception as e:
+            return False, None, str(e)
+
+    def _call_llm_nl(self, system_prompt: str, user_message: str) -> str:
+        """调用 LLM API（自然语言模式）"""
+        if not HTTPX_AVAILABLE:
+            raise RuntimeError("httpx is required")
+
+        if not self.api_key:
+            return self._mock_nl_response(user_message)
+
+        # 复用已有的 LLM 调用逻辑
+        if self.config.model.startswith("qwen"):
+            return self._call_qwen(system_prompt, user_message)
+        elif self.config.model.startswith("gpt"):
+            return self._call_openai(system_prompt, user_message)
+        elif self.config.model.startswith("claude"):
+            return self._call_anthropic(system_prompt, user_message)
+        else:
+            return self._call_qwen(system_prompt, user_message)
+
+    def _mock_nl_response(self, user_text: str) -> str:
+        """自然语言模式的模拟响应（用于无 API Key 测试）"""
+        import re
+
+        text = user_text.lower()
+        print(f"[DEBUG] Mock NL response for: {user_text}")
+
+        # 提取日期 — 支持多种格式
+        date_match = re.search(r'(\d{4})[年/-](\d{1,2})[月/-](\d{1,2})', user_text)
+        time_match = re.search(r'(\d{1,2})[点:：时](\d{0,2})', user_text)
+
+        extracted_date = None
+        if date_match:
+            y, m, d = date_match.group(1), date_match.group(2).zfill(2), date_match.group(3).zfill(2)
+            extracted_date = f"{y}-{m}-{d}"
+
+        extracted_time = None
+        if time_match:
+            h = time_match.group(1).zfill(2)
+            m = time_match.group(2).zfill(2) if time_match.group(2) else "00"
+            extracted_time = f"{h}:{m}"
+
+        today = date.today()
+
+        # ---- 意图识别 ----
+        # 闹钟
+        alarm_keywords = ["闹钟", "起床", "叫我", "提醒我", "早上", "上班"]
+        if any(k in text for k in alarm_keywords):
+            t = extracted_time or "07:30"
+            label = "起床闹钟"
+            if "上班" in text or "工作" in text:
+                label = "上班提醒"
+            elif "健身" in text or "运动" in text or "跑步" in text:
+                label = "运动时间"
+            repeat = "weekdays"
+            if "每天" in text:
+                repeat = "daily"
+            elif "周末" in text:
+                repeat = "weekends"
+
+            return json.dumps({
+                "component_type": "alarm",
+                "theme": "clock",
+                "template_id": "alarm_clock",
+                "style_preset": "digital-neon" if "霓虹" in text or "数码" in text else "analog-minimal",
+                "params": {"alarm_time": t, "label": label, "repeat": repeat}
+            }, ensure_ascii=False)
+
+        # 新闻
+        news_keywords = ["新闻", "资讯", "热点", "头条", "每日"]
+        if any(k in text for k in news_keywords) and "纪念" not in text:
+            return json.dumps({
+                "component_type": "news",
+                "theme": "daily",
+                "template_id": "news_daily",
+                "style_preset": "minimal-dark",
+                "params": {"category": "tech" if "科技" in text else "general", "max_items": 5}
+            }, ensure_ascii=False)
+
+        # 宝宝
+        baby_keywords = ["宝宝", "孩子", "出生", "满月", "周岁", "儿子", "女儿", "baby"]
+        if any(k in text for k in baby_keywords):
+            d = extracted_date or today.isoformat()
+            days_diff = (today - date.fromisoformat(d)).days if d <= today.isoformat() else 0
+            subtitle = self._generate_nl_subtitle("baby", days_diff, user_text)
+            title = "宝宝成长记"
+            # 从用户输入中提取名字
+            name_match = re.search(r'(?:叫|叫做|名字是|名叫)[\s]*([^\s,，。、]{1,4})', user_text)
+            if name_match:
+                title = f"{name_match.group(1)}的成长记"
+            return json.dumps({
+                "component_type": "anniversary", "mode": "countup", "theme": "baby",
+                "template_id": "anniversary_baby", "style_preset": "soft-purple",
+                "params": {"title": title[:20], "start_date": d, "subtitle": subtitle}
+            }, ensure_ascii=False)
+
+        # 放假/倒计时
+        holiday_keywords = ["放假", "倒计时", "假期", "国庆", "春节", "五一", "元旦", "过年", "中秋", "端午"]
+        if any(k in text for k in holiday_keywords):
+            # 推断目标日期
+            if extracted_date:
+                target = extracted_date
+            elif "国庆" in text:
+                target = f"{today.year}-10-01"
+                if date.fromisoformat(target) < today:
+                    target = f"{today.year + 1}-10-01"
+            elif "春节" in text or "过年" in text:
+                # 简化处理：大约1月底/2月初
+                target = f"{today.year + 1}-01-29"
+            elif "五一" in text:
+                target = f"{today.year}-05-01"
+                if date.fromisoformat(target) < today:
+                    target = f"{today.year + 1}-05-01"
+            elif "元旦" in text:
+                target = f"{today.year + 1}-01-01"
+            elif "中秋" in text:
+                target = f"{today.year}-09-17"
+                if date.fromisoformat(target) < today:
+                    target = f"{today.year + 1}-09-17"
+            else:
+                target = f"{today.year}-10-01"
+
+            days_left = (date.fromisoformat(target) - today).days
+            title = "假期倒计时"
+            if "国庆" in text:
+                title = "国庆快乐"
+            elif "春节" in text or "过年" in text:
+                title = "春节倒计时"
+            elif "五一" in text:
+                title = "五一假期"
+
+            subtitle = self._generate_nl_subtitle("holiday", days_left, user_text)
+            return json.dumps({
+                "component_type": "anniversary", "mode": "countdown", "theme": "holiday",
+                "template_id": "anniversary_holiday", "style_preset": "vibrant-orange",
+                "params": {"title": title[:20], "target_date": target, "subtitle": subtitle}
+            }, ensure_ascii=False)
+
+        # 恋爱 / 纪念日
+        love_keywords = ["恋爱", "在一起", "结婚", "纪念", "另一半", "女朋友", "男朋友", "老婆", "老公", "对象", "爱"]
+        if any(k in text for k in love_keywords) or extracted_date:
+            d = extracted_date or "2024-06-01"
+            days_diff = (today - date.fromisoformat(d)).days if d <= today.isoformat() else 0
+            subtitle = self._generate_nl_subtitle("love", days_diff, user_text)
+            title = "恋爱纪念"
+            if "结婚" in text:
+                title = "结婚纪念日"
+            return json.dumps({
+                "component_type": "anniversary", "mode": "countup", "theme": "love",
+                "template_id": "anniversary_love", "style_preset": "sweet-pink",
+                "params": {"title": title[:20], "start_date": d, "subtitle": subtitle}
+            }, ensure_ascii=False)
+
+        # 兜底：无法识别意图，返回特殊标记
+        return json.dumps({
+            "_unrecognized": True,
+            "_user_text": user_text
+        }, ensure_ascii=False)
+
+    def _generate_nl_subtitle(self, theme: str, days_diff: int, user_text: str) -> str:
+        """为自然语言模式生成有创意的副标题"""
+        days_abs = abs(days_diff)
+
+        if theme == "love":
+            if days_abs <= 30:
+                options = ["甜蜜的开始", "每一刻都是心动", "最好的日子刚刚开始"]
+            elif days_abs <= 100:
+                options = ["每一天都算数", "爱在日常里生长", "100天的小确幸"]
+            elif days_abs <= 365:
+                options = ["爱已悄然生长", "最好的时光是有你的日子", "日子有你才完整"]
+            elif days_abs <= 730:
+                options = ["两年了，依然心动", "时光温柔，因为有你", "爱已满两载春秋"]
+            elif days_abs <= 1095:
+                options = ["三年如一日的心动", "时光不负深情", "千日情深"]
+            else:
+                options = ["余生都是你", "岁月流转，爱意永驻", "最长情的告白"]
+            return options[days_abs % len(options)]
+
+        elif theme == "baby":
+            if days_abs <= 7:
+                options = ["欢迎来到这个世界", "小天使降临", "你是最好的礼物"]
+            elif days_abs <= 30:
+                options = ["小小的你，大大的世界", "每天都在长大", "满月快乐"]
+            elif days_abs <= 100:
+                options = ["百天的小可爱", "每一天都是新奇迹", "茁壮成长中"]
+            elif days_abs <= 365:
+                options = ["一岁啦！", "第一年的精彩", "从爬到走的日子"]
+            else:
+                options = ["时光见证你的成长", "每一天都在闪光", "最棒的小朋友"]
+            return options[days_abs % len(options)]
+
+        elif theme == "holiday":
+            if days_diff <= 0:
+                options = ["假期快乐！", "放假啦！", "享受假期吧"]
+            elif days_diff <= 3:
+                options = ["再坚持一下就放假啦", "近在眼前的快乐", "倒计时开始！"]
+            elif days_diff <= 7:
+                options = ["一周后见，快乐", "假期在向你招手", "快了快了"]
+            elif days_diff <= 30:
+                options = ["期待的心情最美好", "每天都在靠近假期", "值得等待的快乐"]
+            else:
+                options = ["美好的事情值得等待", "心里有期待，日子就有光", "遥远但值得"]
+            return options[days_abs % len(options)]
+
+        return "每一天都值得记录"
 
     def _mock_response(self, user_message: str) -> str:
         """模拟响应（用于测试）"""
@@ -463,17 +727,14 @@ async def generate_widget(
     user_params: Dict[str, Any],
     style_preference: str = None
 ) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
-    """
-    异步生成组件参数
-
-    Args:
-        component_type: 组件类型
-        theme: 主题
-        user_params: 用户已填参数
-        style_preference: 用户偏好的风格
-
-    Returns:
-        (success, data, error_message)
-    """
+    """异步生成组件参数（结构化模式）"""
     generator = get_generator()
     return generator.generate(component_type, theme, user_params, style_preference)
+
+
+async def generate_widget_from_nl(
+    user_text: str
+) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
+    """异步生成组件参数（自然语言模式）"""
+    generator = get_generator()
+    return generator.generate_from_nl(user_text)
