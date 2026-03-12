@@ -259,6 +259,6 @@ export class PreviewPage {
     };
 
     overlay.addEventListener('click', dismiss);
-    setTimeout(dismiss, 2500);
+    setTimeout(dismiss, 3500);
   }
 }

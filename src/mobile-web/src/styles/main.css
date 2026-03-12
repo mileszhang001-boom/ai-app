@@ -163,46 +163,75 @@ html, body {
   margin-bottom: var(--spacing-sm);
 }
 
-/* 模板网格 */
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+/* Hero 区域 */
+.hero-section {
+  text-align: center;
+  padding: 32px 0 8px;
 }
 
-.template-card {
-  background: var(--color-bg-card);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-md);
-  text-align: center;
+.hero-tagline {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.3px;
+}
+
+/* 场景卡片 */
+.scene-section {
+  margin-top: 28px;
+}
+
+.scene-label {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 12px;
+}
+
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.scene-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   transition: all 0.2s;
-  border: 2px solid transparent;
 }
 
-.template-card:hover {
-  border-color: var(--color-accent);
-  transform: translateY(-2px);
+.scene-card:hover {
+  background: rgba(255,106,0,0.08);
+  border-color: rgba(255,106,0,0.2);
 }
 
-.template-card:active {
-  transform: scale(0.98);
+.scene-card:active {
+  transform: scale(0.95);
+  opacity: 0.7;
 }
 
-.template-icon {
-  font-size: 48px;
-  margin-bottom: var(--spacing-sm);
+.scene-icon {
+  font-size: 28px;
+  line-height: 1;
 }
 
-.template-name {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.template-desc {
+.scene-name {
   font-size: 12px;
-  color: var(--color-text-tertiary);
-  margin-top: 4px;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
 }
 
 /* 表单 */
@@ -263,6 +292,20 @@ html, body {
 
 .btn:active {
   transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn:disabled:hover {
+  background: var(--color-accent);
+}
+
+.btn-secondary:disabled:hover {
+  background: var(--color-bg-secondary);
 }
 
 .btn-secondary {
@@ -506,35 +549,10 @@ html, body {
 /* ========== 自然语言创建区域 ========== */
 
 .nl-create-section {
-  background: linear-gradient(135deg, rgba(255,106,0,0.08) 0%, rgba(30,30,58,0.8) 100%);
-  border: 1px solid rgba(255,106,0,0.15);
-  border-radius: var(--border-radius-lg);
+  background: linear-gradient(135deg, rgba(255,106,0,0.06) 0%, rgba(30,30,58,0.6) 100%);
+  border: 1px solid rgba(255,106,0,0.12);
+  border-radius: var(--border-radius-xl);
   padding: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-}
-
-.nl-create-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.nl-create-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: linear-gradient(135deg, #FF6900, #FF8C42);
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.5px;
 }
 
 .nl-input-wrapper {
@@ -606,67 +624,6 @@ html, body {
 
 .nl-send-btn:not(:disabled):active {
   transform: scale(0.95);
-}
-
-/* 示例 chips */
-.nl-examples {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.nl-examples-label {
-  font-size: 12px;
-  color: rgba(255,255,255,0.3);
-}
-
-.nl-example-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.nl-chip {
-  padding: 5px 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  color: rgba(255,255,255,0.5);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.nl-chip:hover {
-  background: rgba(255,106,0,0.12);
-  border-color: rgba(255,106,0,0.25);
-  color: rgba(255,255,255,0.8);
-}
-
-.nl-chip:active {
-  transform: scale(0.95);
-}
-
-/* 分隔线 */
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 8px 0 var(--spacing-md);
-}
-
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background: var(--color-divider);
-}
-
-.divider-text {
-  font-size: 12px;
-  color: rgba(255,255,255,0.25);
-  white-space: nowrap;
 }
 
 /* 生成覆盖层中用户消息展示 */

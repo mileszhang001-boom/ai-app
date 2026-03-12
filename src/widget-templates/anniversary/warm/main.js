@@ -16,10 +16,10 @@
   // DOM 元素
   const dayCounter = document.getElementById('dayCounter');
 
-  // 计算天数
+  // 计算天数（本地时区安全）
   function calculateDays(startDate) {
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
+    const parts = startDate.split('-').map(Number);
+    const start = new Date(parts[0], parts[1] - 1, parts[2]);
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -94,6 +94,9 @@
   // 初始化
   function init() {
     applyTheme();
+    if (params.style_preset) {
+      document.documentElement.setAttribute('data-style', params.style_preset);
+    }
     updateText();
     updateDisplay();
 

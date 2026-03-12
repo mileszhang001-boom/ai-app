@@ -1,8 +1,7 @@
 /**
- * 模板市场页面
+ * 首页 — AI 创建入口
  *
- * 顶部：自然语言输入框（AI 创建入口）
- * 下方：模板网格（手动选择入口，同时作为灵感提示）
+ * 纯自然语言交互，一句话生成车机桌面卡片
  */
 
 import { showToast } from '../main.js';
@@ -18,11 +17,20 @@ const PLACEHOLDER_EXAMPLES = [
   '距离五一还有多久？做个倒计时',
 ];
 
+// 场景卡片配置
+const SCENE_CARDS = [
+  { icon: '💕', label: '恋爱纪念日', text: '和女朋友6月1日在一起的，做个纪念日' },
+  { icon: '🏖️', label: '国庆倒计时', text: '国庆倒计时' },
+  { icon: '👶', label: '宝宝成长', text: '宝宝3月15日出生，记录成长' },
+  { icon: '⏰', label: '早起闹钟', text: '每天早上7点叫我起床' },
+  { icon: '📰', label: '每日新闻', text: '想看今天的新闻' },
+  { icon: '💛', label: '结婚纪念', text: '我和老婆结婚两周年了' },
+];
+
 export class TemplateMarket {
   constructor(api, router) {
     this.api = api;
     this.router = router;
-    this.templates = null;
     this.placeholderIndex = 0;
     this.placeholderTimer = null;
     this.isGenerating = false;
@@ -30,60 +38,7 @@ export class TemplateMarket {
 
   async render() {
     const container = document.getElementById('page-market');
-
-    if (!this.templates) {
-      container.innerHTML = `
-        <div class="loading">
-          <div class="spinner"></div>
-        </div>
-      `;
-
-      try {
-        const response = await this.api.getTemplates();
-        this.templates = response.templates || response;
-      } catch (error) {
-        console.error('加载模板失败:', error);
-        this.templates = this.getDefaultTemplates();
-      }
-    }
-
     this.renderPage(container);
-  }
-
-  getDefaultTemplates() {
-    return {
-      anniversary: {
-        love: {
-          id: 'anniversary_love', name: '恋爱纪念', mode: 'countup',
-          description: '记录甜蜜时光，在一起的第X天',
-          style_presets: ['sweet-pink', 'vibrant-orange', 'soft-purple', 'minimal-dark']
-        },
-        baby: {
-          id: 'anniversary_baby', name: '宝宝成长', mode: 'countup',
-          description: '记录宝宝成长的足迹',
-          style_presets: ['soft-purple', 'sweet-pink', 'ocean-blue', 'warm-yellow']
-        },
-        holiday: {
-          id: 'anniversary_holiday', name: '放假倒计时', mode: 'countdown',
-          description: '期待美好假期，倒计时模式',
-          style_presets: ['vibrant-orange', 'warm-yellow', 'ocean-blue', 'forest-green']
-        }
-      },
-      news: {
-        daily: {
-          id: 'news_daily', name: '每日新闻',
-          description: 'AI 摘要的每日新闻卡片',
-          style_presets: ['minimal-dark', 'clean-light']
-        }
-      },
-      alarm: {
-        clock: {
-          id: 'alarm_clock', name: '闹钟',
-          description: '显示下一个闹钟 + 快捷设置',
-          style_presets: ['analog-minimal', 'digital-neon']
-        }
-      }
-    };
   }
 
   renderPage(container) {
@@ -94,17 +49,19 @@ export class TemplateMarket {
       </div>
       <div class="container">
 
-        <!-- AI 自然语言创建区域 -->
+        <!-- Hero 区域 -->
+        <div class="hero-section">
+          <div class="hero-tagline">告诉 AI 你的想法</div>
+          <div class="hero-subtitle">一句话，生成你的专属车机卡片</div>
+        </div>
+
+        <!-- AI 输入区域 -->
         <div class="nl-create-section">
-          <div class="nl-create-header">
-            <div class="nl-create-badge">AI</div>
-            <span>告诉我你想要什么卡片</span>
-          </div>
           <div class="nl-input-wrapper">
             <textarea
               id="nlInput"
               class="nl-input"
-              rows="2"
+              rows="3"
               maxlength="200"
             ></textarea>
             <button id="nlSendBtn" class="nl-send-btn" disabled>
@@ -114,51 +71,18 @@ export class TemplateMarket {
               </svg>
             </button>
           </div>
-          <div class="nl-examples" id="nlExamples">
-            <span class="nl-examples-label">试试说：</span>
-            <div class="nl-example-chips">
-              <button class="nl-chip" data-text="和女朋友6月1日在一起的，做个纪念日">恋爱纪念日</button>
-              <button class="nl-chip" data-text="国庆倒计时">国庆倒计时</button>
-              <button class="nl-chip" data-text="宝宝3月15日出生，记录成长">宝宝成长</button>
-              <button class="nl-chip" data-text="每天早上7点叫我起床">早起闹钟</button>
-              <button class="nl-chip" data-text="想看今天的新闻">每日新闻</button>
-            </div>
-          </div>
         </div>
 
-        <!-- 分隔 -->
-        <div class="section-divider">
-          <div class="divider-line"></div>
-          <span class="divider-text">或选择模板</span>
-          <div class="divider-line"></div>
-        </div>
-
-        <!-- 模板网格 -->
-        <div class="template-grid">
-          <div class="template-card" data-type="anniversary" data-theme="love">
-            <div class="template-icon">💕</div>
-            <div class="template-name">恋爱纪念</div>
-            <div class="template-desc">在一起的第X天</div>
-          </div>
-          <div class="template-card" data-type="anniversary" data-theme="baby">
-            <div class="template-icon">👶</div>
-            <div class="template-name">宝宝成长</div>
-            <div class="template-desc">记录成长足迹</div>
-          </div>
-          <div class="template-card" data-type="anniversary" data-theme="holiday">
-            <div class="template-icon">🏖️</div>
-            <div class="template-name">放假倒计时</div>
-            <div class="template-desc">期待美好假期</div>
-          </div>
-          <div class="template-card" data-type="news" data-theme="daily">
-            <div class="template-icon">📰</div>
-            <div class="template-name">每日新闻</div>
-            <div class="template-desc">AI 摘要新闻</div>
-          </div>
-          <div class="template-card" data-type="alarm" data-theme="clock">
-            <div class="template-icon">⏰</div>
-            <div class="template-name">闹钟</div>
-            <div class="template-desc">快捷设置闹钟</div>
+        <!-- 场景卡片 -->
+        <div class="scene-section">
+          <div class="scene-label">试试这些场景</div>
+          <div class="scene-grid">
+            ${SCENE_CARDS.map(s => `
+              <button class="scene-card" data-text="${s.text}">
+                <span class="scene-icon">${s.icon}</span>
+                <span class="scene-name">${s.label}</span>
+              </button>
+            `).join('')}
           </div>
         </div>
 
@@ -177,7 +101,6 @@ export class TemplateMarket {
     input.addEventListener('input', () => {
       const hasText = input.value.trim().length > 0;
       sendBtn.disabled = !hasText;
-      // 有输入时停止 placeholder 动画
       if (hasText) {
         this.stopPlaceholderAnimation();
         input.classList.add('has-content');
@@ -201,25 +124,15 @@ export class TemplateMarket {
       }
     });
 
-    // 示例 chip 点击
-    container.querySelectorAll('.nl-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const text = chip.dataset.text;
+    // 场景卡片点击
+    container.querySelectorAll('.scene-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const text = card.dataset.text;
         input.value = text;
         input.classList.add('has-content');
         sendBtn.disabled = false;
         this.stopPlaceholderAnimation();
-        // 直接触发生成
         this.handleNLGenerate(text);
-      });
-    });
-
-    // 模板卡片点击（保留原有功能）
-    container.querySelectorAll('.template-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const type = card.dataset.type;
-        const theme = card.dataset.theme;
-        this.router.navigate('config', { type, theme });
       });
     });
   }

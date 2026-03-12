@@ -145,13 +145,13 @@ html, body {
   width: var(--divider-width-small);
   height: var(--divider-height);
   background: var(--warm-line);
-  margin: 0 auto var(--spacing-hero-divider);
+  margin: 0 auto var(--gap-hero-divider);
 }
 
 /* ── 中文副标题 ── */
 .widget-warm .subtitle-cn {
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-subtitle);
+  font-family: var(--font-cn-family);
+  font-size: var(--size-subtitle);
   font-weight: var(--font-weight-regular);
   color: var(--dark-text-primary);
   opacity: 0.85;
@@ -165,7 +165,7 @@ html, body {
 
 /* ── 中文辅助信息：最弱 ── */
 .widget-warm .caption-cn {
-  font-family: var(--font-family-body);
+  font-family: var(--font-cn-family);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-regular);
   color: var(--dark-text-tertiary);

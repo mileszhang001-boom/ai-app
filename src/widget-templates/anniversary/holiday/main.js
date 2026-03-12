@@ -15,13 +15,16 @@
   // DOM 元素
   const dayCounter = document.getElementById('dayCounter');
 
-  // 计算倒计时
+  // 计算倒计时（本地时区安全，基于日期差）
   function calculateCountdown(targetDate) {
-    const target = new Date(targetDate);
+    const parts = targetDate.split('-').map(Number);
+    const target = new Date(parts[0], parts[1] - 1, parts[2]);
+
     const now = new Date();
+    now.setHours(0, 0, 0, 0);
 
     const diff = target - now;
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
     if (days <= 0) {
       return { days: 0, isOverdue: true };

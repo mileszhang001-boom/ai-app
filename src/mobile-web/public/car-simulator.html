@@ -202,6 +202,21 @@
       z-index: 100;
     }
 
+    /* 加载遮罩 */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: #0e1013;
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .loading-overlay.active {
+      opacity: 1;
+    }
+
     /* 单组件时隐藏导航 */
     .single-widget .nav-arrow,
     .single-widget .dot-indicator { display: none; }
@@ -234,6 +249,7 @@
     <!-- WebView 容器 -->
     <div class="webview-container" id="webviewContainer">
       <iframe id="widgetFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+      <div class="loading-overlay" id="loadingOverlay"></div>
     </div>
 
     <!-- 切换箭头 -->
@@ -320,7 +336,7 @@
       now.getMinutes().toString().padStart(2, '0');
   }
   updateClock();
-  setInterval(updateClock, 30000);
+  setInterval(updateClock, 1000);
 
   // ── 加载单个组件 ──
   function loadPreset(key) {
@@ -347,12 +363,17 @@
   }
 
   // ── 渲染当前组件 ──
+  const loadingOverlay = document.getElementById('loadingOverlay');
+
   function renderWidget(direction) {
     if (widgets.length === 0) return;
 
     const key = widgets[currentIndex];
     const preset = WIDGET_PRESETS[key];
     if (!preset) return;
+
+    // 显示加载遮罩（避免白屏闪烁）
+    loadingOverlay.classList.add('active');
 
     // 加载 iframe
     frame.src = preset.path;
@@ -374,6 +395,8 @@
       } catch (e) {
         // 跨域限制时静默处理
       }
+      // 淡出加载遮罩
+      setTimeout(() => loadingOverlay.classList.remove('active'), 100);
     };
   }
 
