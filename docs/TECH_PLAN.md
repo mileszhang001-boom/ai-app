@@ -433,12 +433,52 @@ QWEN_API_KEY=sk-xxx    # 阿里云通义千问（主力）
 
 修复内容：截图引擎时序 (add_init_script)、Mock 生成器「」括号提取 + 英文关键词 + 圣诞节 + 模糊 fallback、规则引擎 glow/hero-number 误报排除。
 
+### ✅ 模板真实服务接入（2026-03-21）
+
+| 模板 | 改动 | 状态 |
+|------|------|------|
+| **天气** | 新建 `weather_service/`，接入和风天气 API（城市查找 + 实时天气 + 3日预报），30分钟缓存，无 key 时 mock fallback | ✅ |
+| **新闻** | 后端返回 `url` 字段 + 模板 UX 重构（默认 3 条、摘要行、点击详情毛玻璃浮层） | ✅ |
+| **音乐** | JSBridge 新增 `getMediaSession()` / `onMediaSessionChange()` / `mediaControl()` + 模板接入 + 空状态 UI | ✅ |
+| **日历** | 新增 `GET /api/calendar/today`（按星期生成模拟日程） + 模板 fetch 逻辑 + 已过事件灰显 | ✅ |
+| **纪念日 ×4** | 纯本地计算，无需改动 | — |
+| **闹钟** | 纯本地计算，无需改动 | — |
+
+#### 天气服务架构
+
+```
+weather_service/
+├── __init__.py
+├── client.py      # 和风天气 API (QWeather) — 城市查找 + 实时 + 3日预报
+└── service.py     # 30分钟缓存 + mock fallback + 建议文案生成
+```
+
+- API Host: `{CREDENTIAL_ID}.qweatherapi.com`（新版 QWeather 账户专属域名）
+- 环境变量: `QWEATHER_API_KEY`, `QWEATHER_API_HOST`
+- 免费版每日 1000 次调用
+
+#### 新增 API Endpoints
+
+| Endpoint | 方法 | 说明 |
+|----------|------|------|
+| `/api/weather?city=北京` | GET | 实时天气 + 3日预报 + AI穿衣建议 |
+| `/api/calendar/today` | GET | 当日模拟日程（按星期变化，5-7 个事件） |
+
+#### JSBridge MediaSession 接口
+
+```javascript
+AIWidgetBridge.getMediaSession()        // → {song_name, artist, album, duration, position, isPlaying, albumArtUrl} | null
+AIWidgetBridge.onMediaSessionChange(cb) // 监听播放状态变化
+AIWidgetBridge.mediaControl(action)     // 'play'|'pause'|'next'|'prev'
+```
+
+车端实现：Android 宿主 App 通过 `MediaController` 读取系统 MediaSession，暴露给 WebView。开发环境提供 mock 数据。
+
 ### 🔲 下一步计划
 
 | 优先级 | 内容 | 预计工期 |
 |--------|------|---------|
 | P0 | 视觉质量持续优化 — 提高 color_08(cyan) 等低分 case 至 80+ | 1 天 |
-| P0 | 内容真实性 — 天气接入和风天气 API、新闻接入真实 API | 2-3 天 |
 | P1 | 多方案预览 — 一次生成 3 个风格变体供选择 | 2-3 天 |
 | P1 | 交互式微调 — "换个颜色"/"换个风格" 快捷调整 | 2-3 天 |
 | P2 | 手机端体验 — 生成中骨架屏、"哇"时刻弹出动画 | 2 天 |
@@ -686,7 +726,7 @@ shared/
 ├── tokens.css                 # Design Tokens (Liquid Glass) — 580+ 行
 ├── color-engine.js            # 动态配色引擎 (hex→调色板, 4.3KB)
 ├── visual-styles.css          # 4种视觉风格宏 (glass/minimal/material/pixel, 9.2KB)
-└── bridge.js                  # JSBridge Mock 封装
+└── bridge.js                  # JSBridge 封装 (含 MediaSession 接口)
 
 anniversary/
 ├── love/     {index.html, style.css, main.js}  — 恋爱纪念 (32KB)
@@ -710,8 +750,11 @@ ai_generator/
 ├── prompt.py                  # 模板配置 + NL/结构化 System Prompt
 ├── generator.py               # LLM 调用 (Qwen/GPT/Claude) + Mock
 └── validator.py               # Quality Gate (白名单+截断+clamp)
+weather_service/               # 天气服务 (和风天气 API)
+├── client.py                  # QWeather API 客户端
+└── service.py                 # 缓存 + mock fallback
 sync_service/                  # 同步推送 (轮询模式)
-news_service/                  # 新闻聚合
+news_service/                  # 新闻聚合 (RSS + AI 摘要)
 storage/                       # 元数据存储 (内存)
 ```
 

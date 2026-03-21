@@ -114,7 +114,19 @@
     fetchData: (params) => ({
       data: '{"news": []}',
       status: 200
-    })
+    }),
+
+    getMediaSession: () => ({
+      song_name: '晴天',
+      artist: '周杰伦',
+      album: '叶惠美',
+      duration: 269,
+      position: 45,
+      isPlaying: true,
+      albumArtUrl: ''
+    }),
+
+    mediaControl: () => ({ success: true })
   };
 
   /**
@@ -242,6 +254,59 @@
      */
     fetchData: function(url) {
       return nativeCall('fetchData', { url });
+    },
+
+    /**
+     * 获取当前 MediaSession 信息（音乐播放状态）
+     * @returns {Promise<{song_name, artist, album, duration, position, isPlaying, albumArtUrl}|null>}
+     */
+    getMediaSession: function() {
+      return nativeCall('getMediaSession');
+    },
+
+    /**
+     * 监听 MediaSession 变化（切歌、播放/暂停、进度跳转）
+     * @param {Function} callback - 回调函数，参数为 MediaSession 数据或 null
+     * @returns {Function} 取消监听的函数
+     */
+    onMediaSessionChange: function(callback) {
+      if (typeof callback !== 'function') return function() {};
+
+      if (!isCarEnvironment) {
+        // 开发环境：模拟每 3 秒更新进度
+        var session = {
+          song_name: '晴天', artist: '周杰伦', album: '叶惠美',
+          duration: 269, position: 45, isPlaying: true, albumArtUrl: ''
+        };
+        var timer = setInterval(function() {
+          if (session.isPlaying) {
+            session.position = (session.position + 3) % session.duration;
+          }
+          callback(Object.assign({}, session));
+        }, 3000);
+        return function() { clearInterval(timer); };
+      }
+
+      // 车机环境：注册 MediaSession 变化监听
+      var handlerName = 'onMediaSessionChange_' + Date.now();
+      window[handlerName] = function(data) {
+        callback(typeof data === 'string' ? JSON.parse(data) : data);
+      };
+      var bridge = window.XiaomiCar || window.miCarBridge;
+      bridge.on('mediaSessionChange', handlerName);
+      return function() {
+        delete window[handlerName];
+        bridge.off('mediaSessionChange', handlerName);
+      };
+    },
+
+    /**
+     * 媒体控制（播放/暂停/上一首/下一首）
+     * @param {string} action - 'play'|'pause'|'next'|'prev'
+     * @returns {Promise<{success: boolean}>}
+     */
+    mediaControl: function(action) {
+      return nativeCall('mediaControl', { action: action });
     },
 
     /**

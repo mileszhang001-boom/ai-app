@@ -36,13 +36,16 @@ ai-widget-workshop/
 │   └── TECH_PLAN.md                   # 技术规划 & 开发进度
 ├── src/
 │   ├── server/                        # 云端服务（FastAPI, port 8000）
-│   │   ├── main.py                    # API 入口
+│   │   ├── main.py                    # API 入口（含 /api/weather, /api/calendar/today）
 │   │   ├── ai_generator/             # AI 生成 Pipeline
 │   │   │   ├── prompt.py             #   模板注册 + System Prompt
 │   │   │   ├── generator.py          #   LLM 调用 + Mock 模式
 │   │   │   └── validator.py          #   Quality Gate（白名单+截断）
+│   │   ├── weather_service/          # 天气服务（和风天气 API）
+│   │   │   ├── client.py             #   QWeather API 客户端
+│   │   │   └── service.py            #   缓存 + mock fallback
 │   │   ├── sync_service/             # 组件同步推送
-│   │   ├── news_service/             # 新闻聚合
+│   │   ├── news_service/             # 新闻聚合（RSS + AI 摘要）
 │   │   └── storage/                  # 元数据存储
 │   ├── mobile-web/                    # 手机端 H5 Web App（Vite, port 3000）
 │   │   ├── src/pages/market.js       #   首页 AI 创建入口（9个场景卡片）
@@ -64,7 +67,7 @@ ai-widget-workshop/
 │   │       ├── tokens.css            #     Design Tokens (Liquid Glass)
 │   │       ├── color-engine.js       #     动态配色引擎（hex→完整调色板）
 │   │       ├── visual-styles.css     #     4种视觉风格宏（glass/minimal/material/pixel）
-│   │       └── bridge.js            #     JSBridge 封装
+│   │       └── bridge.js            #     JSBridge 封装（含 MediaSession 接口）
 │   └── car-host/                     # 车端宿主（Android, 模拟器）
 ├── quality/                           # 视觉质量保障系统
 │   ├── config.py                     #   权重/阈值/颜色色相表
@@ -85,6 +88,9 @@ ai-widget-workshop/
 | 云端框架 | Python FastAPI |
 | H5 模板 | Vanilla JS + CSS (Liquid Glass 设计语言) |
 | 手机端 | H5 Web App (Vite 构建) |
+| 天气数据 | 和风天气 QWeather API (30分钟缓存, mock fallback) |
+| 新闻数据 | RSS 聚合 + AI 摘要 (30分钟缓存) |
+| 音乐数据 | JSBridge MediaSession (车端原生桥接) |
 | 车端宿主 | Android App + WebView |
 | 部署 | Render (后端) + Netlify (前端) |
 
@@ -99,7 +105,7 @@ ai-widget-workshop/
 ## 快速启动
 
 ```bash
-# 后端
+# 后端（需配置 .env: QWEATHER_API_KEY, QWEATHER_API_HOST）
 cd src/server && pip install -r requirements.txt && python3 main.py
 
 # 前端

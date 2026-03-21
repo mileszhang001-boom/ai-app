@@ -1,6 +1,6 @@
 /**
  * 每日新闻 · Liquid Glass Edition
- * 毛玻璃新闻卡片 + 自动轮播高亮 + 交错淡入
+ * 毛玻璃新闻卡片 + 自动轮播高亮 + 点击详情浮层
  */
 
 (function() {
@@ -8,20 +8,20 @@
 
   var params = window.__WIDGET_PARAMS__ || {
     category: 'general',
-    max_items: 4
+    max_items: 3
   };
 
   var newsListEl = document.getElementById('newsList');
   var currentDateEl = document.getElementById('currentDate');
   var dotsEl = document.getElementById('carouselDots');
+  var detailOverlay = document.getElementById('newsDetail');
 
   var mockNews = [
-    { id: 1, title: 'AI在汽车领域取得新突破，智能驾驶进入新阶段', category: '科技', time: '1小时前' },
-    { id: 2, title: '小米汽车Q2交付量创新高', category: '汽车', time: '2小时前' },
-    { id: 3, title: 'A股三大指数集体上涨，新能源板块领涨', category: '财经', time: '3小时前' },
-    { id: 4, title: '全球首款固态电池量产车亮相', category: '科技', time: '4小时前' },
-    { id: 5, title: '春季自驾出行指南：10个最值得去的目的地', category: '生活', time: '5小时前' },
-    { id: 6, title: '国产大模型在多项基准测试中超越GPT-4', category: '科技', time: '6小时前' }
+    { id: 1, title: 'AI在汽车领域取得新突破，智能驾驶进入新阶段', summary: 'AI技术持续推动自动驾驶发展，多家车企宣布新一代智驾方案。', category: '科技', time: '1小时前', url: '', source: '科技日报' },
+    { id: 2, title: '小米汽车Q2交付量创新高', summary: '小米汽车第二季度累计交付超过预期目标，产能持续爬坡。', category: '汽车', time: '2小时前', url: '', source: '汽车之家' },
+    { id: 3, title: 'A股三大指数集体上涨，新能源板块领涨', summary: '受利好政策推动，新能源板块全线走强，机构看好后市表现。', category: '财经', time: '3小时前', url: '', source: '第一财经' },
+    { id: 4, title: '全球首款固态电池量产车亮相', summary: '固态电池技术实现量产突破，续航里程和安全性大幅提升。', category: '科技', time: '4小时前', url: '', source: '新浪科技' },
+    { id: 5, title: '春季自驾出行指南：10个最值得去的目的地', summary: '精选国内十大春季自驾路线，附详细攻略和注意事项。', category: '生活', time: '5小时前', url: '', source: '旅行家' }
   ];
 
   var cachedNews = null;
@@ -59,8 +59,11 @@
           return {
             id: item.id,
             title: item.title,
+            summary: item.summary || '',
             category: item.tag || item.category || '综合',
-            time: item.time || '刚刚'
+            time: item.time || '刚刚',
+            url: item.url || '',
+            source: item.source || ''
           };
         });
       } else {
@@ -97,9 +100,19 @@
         '<span class="news-item-title">' + escapeHtml(item.title) + '</span>' +
         '</div>';
 
+      var summaryHtml = item.summary
+        ? '<div class="news-item-summary">' + escapeHtml(item.summary) + '</div>'
+        : '';
+
       var timeHtml = '<div class="news-item-time">' + escapeHtml(item.time) + '</div>';
 
-      el.innerHTML = headerHtml + timeHtml;
+      el.innerHTML = headerHtml + summaryHtml + timeHtml;
+
+      // 点击显示详情浮层
+      el.addEventListener('click', function() {
+        showDetail(item);
+      });
+
       newsListEl.appendChild(el);
     });
 
@@ -108,6 +121,29 @@
 
     // 启动轮播高亮
     startCarousel(news.length);
+  }
+
+  function showDetail(item) {
+    if (!detailOverlay) return;
+
+    var sourceText = item.source ? ' · ' + escapeHtml(item.source) : '';
+
+    detailOverlay.innerHTML =
+      '<div class="detail-card">' +
+        '<div class="detail-category">' + escapeHtml(item.category) + '</div>' +
+        '<div class="detail-title">' + escapeHtml(item.title) + '</div>' +
+        '<div class="detail-summary">' + escapeHtml(item.summary || '暂无摘要') + '</div>' +
+        '<div class="detail-meta">' + escapeHtml(item.time) + sourceText + '</div>' +
+        '<div class="detail-close">点击关闭</div>' +
+      '</div>';
+
+    detailOverlay.classList.add('visible');
+
+    // 点击关闭
+    detailOverlay.addEventListener('click', function handler() {
+      detailOverlay.classList.remove('visible');
+      detailOverlay.removeEventListener('click', handler);
+    });
   }
 
   function renderDots(count) {
@@ -194,6 +230,7 @@
 
     // 每30分钟刷新
     setInterval(async function() {
+      cachedNews = null;
       var freshNews = await fetchNews();
       renderNews(freshNews);
     }, 30 * 60 * 1000);

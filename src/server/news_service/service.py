@@ -76,6 +76,7 @@ class NewsService:
                 "id": item.id,
                 "title": item.title,
                 "summary": item.summary,
+                "url": item.url,
                 "tag": item.category,
                 "category": item.category,
                 "time": time_str,

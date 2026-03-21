@@ -10,6 +10,12 @@ AI小组件云服务 - FastAPI 主应用
 - GET /api/widgets - 获取用户组件列表
 """
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -48,6 +54,9 @@ from sync_service.push import get_push_service
 
 # 新闻聚合服务
 from news_service import get_news_service
+
+# 天气服务
+from weather_service import get_weather_service
 
 
 # FastAPI 应用
@@ -597,6 +606,89 @@ async def refresh_news(category: str = None):
         return {"success": True, "message": f"Cache invalidated for: {category or 'all'}"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/weather")
+async def get_weather(city: str = "北京"):
+    """
+    获取天气数据
+
+    接入和风天气 API，30分钟缓存。无 API key 时返回 mock 数据。
+    """
+    try:
+        service = get_weather_service()
+        return await service.get_weather(city=city)
+    except Exception as e:
+        print(f"[API] Weather service error: {e}")
+        raise HTTPException(status_code=500, detail=f"Weather service error: {str(e)}")
+
+
+@app.get("/api/calendar/today")
+async def get_calendar_today():
+    """
+    获取当日模拟日程
+
+    按当前时间 + 星期几生成合理的模拟日程事件
+    """
+    now = datetime.now()
+    weekday = now.weekday()  # 0=Monday
+
+    # 基础事件池（按星期变化）
+    weekday_events = {
+        0: [  # 周一
+            {"time": "09:00", "title": "周一晨会", "location": "3楼会议室A"},
+            {"time": "10:30", "title": "产品需求评审", "location": "线上会议"},
+            {"time": "14:00", "title": "技术方案讨论", "location": "2楼小会议室"},
+            {"time": "15:30", "title": "代码Review", "location": "工位"},
+            {"time": "17:00", "title": "本周计划确认", "location": "3楼会议室A"},
+        ],
+        1: [  # 周二
+            {"time": "09:30", "title": "站会同步", "location": "工位"},
+            {"time": "11:00", "title": "UI设计走查", "location": "线上会议"},
+            {"time": "14:00", "title": "跨组技术对齐", "location": "5楼大会议室"},
+            {"time": "15:30", "title": "Bug修复冲刺", "location": "工位"},
+            {"time": "17:30", "title": "技术分享会", "location": "培训室"},
+        ],
+        2: [  # 周三
+            {"time": "09:00", "title": "项目进度同步", "location": "线上会议"},
+            {"time": "10:30", "title": "接口联调", "location": "工位"},
+            {"time": "14:00", "title": "性能优化讨论", "location": "2楼小会议室"},
+            {"time": "16:00", "title": "测试用例评审", "location": "线上会议"},
+            {"time": "17:00", "title": "文档更新", "location": "工位"},
+        ],
+        3: [  # 周四
+            {"time": "09:30", "title": "站会同步", "location": "工位"},
+            {"time": "11:00", "title": "产品体验走查", "location": "体验室"},
+            {"time": "14:00", "title": "需求排期会", "location": "3楼会议室A"},
+            {"time": "15:30", "title": "代码优化", "location": "工位"},
+            {"time": "17:00", "title": "1on1沟通", "location": "咖啡区"},
+        ],
+        4: [  # 周五
+            {"time": "09:00", "title": "周五晨会", "location": "3楼会议室A"},
+            {"time": "10:30", "title": "Sprint回顾", "location": "线上会议"},
+            {"time": "14:00", "title": "本周成果演示", "location": "5楼大会议室"},
+            {"time": "15:30", "title": "下周计划预排", "location": "工位"},
+            {"time": "17:00", "title": "周报总结", "location": "工位"},
+        ],
+        5: [  # 周六
+            {"time": "10:00", "title": "个人学习时间", "location": "家"},
+            {"time": "14:00", "title": "读书分享", "location": "线上"},
+            {"time": "16:00", "title": "开源项目贡献", "location": "咖啡馆"},
+        ],
+        6: [  # 周日
+            {"time": "10:00", "title": "周末运动", "location": "健身房"},
+            {"time": "14:00", "title": "下周准备", "location": "家"},
+            {"time": "16:00", "title": "休闲阅读", "location": "书房"},
+        ],
+    }
+
+    events = weekday_events.get(weekday, weekday_events[0])
+
+    return {
+        "events": events,
+        "date": now.strftime("%Y-%m-%d"),
+        "weekday": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][weekday],
+    }
 
 
 @app.get("/health")

@@ -506,6 +506,25 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   background: rgba(220, 160, 80, 0.15);
 }
 
+/* ── 空状态 ── */
+.widget-music .content.empty-state .song-name {
+  color: rgba(255, 255, 255, 0.45);
+}
+.widget-music .content.empty-state .artist {
+  color: rgba(255, 255, 255, 0.25);
+}
+.widget-music .content.empty-state .album-art-placeholder[data-empty="true"]::before {
+  content: '🎵';
+  font-size: 48px;
+  background: none;
+  border: none;
+  width: auto;
+  height: auto;
+}
+.widget-music .content.empty-state .album-art-placeholder[data-empty="true"]::after {
+  display: none;
+}
+
 /* ── 动态配色（color-engine） ── */
 [data-style="dynamic"] .widget-music {
   background: var(--dyn-bg);

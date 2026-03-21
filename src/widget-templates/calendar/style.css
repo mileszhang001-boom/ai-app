@@ -393,6 +393,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   letter-spacing: 0.3px;
 }
 
+/* ── 已过去的事件 ── */
+.widget-calendar .event-item.past {
+  opacity: 0.4;
+}
+
+.widget-calendar .event-item.past .event-dot {
+  background: rgba(140, 160, 200, 0.15);
+  box-shadow: none;
+}
+
 /* ── 动态配色（color-engine） ── */
 [data-style="dynamic"] .widget-calendar {
   background: var(--dyn-bg);
