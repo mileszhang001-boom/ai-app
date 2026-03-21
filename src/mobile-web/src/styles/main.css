@@ -327,7 +327,7 @@ html, body {
   border-radius: 20px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.15);
   width: 100%;
-  max-width: 240px;
+  max-width: 340px;
 }
 
 .preview-bezel::before {
@@ -366,6 +366,10 @@ html, body {
   padding: 12px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
   display: flex;
   gap: 10px;
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-primary);
+  z-index: 5;
 }
 
 /* 生成过程覆盖层 */

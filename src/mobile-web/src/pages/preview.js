@@ -190,7 +190,11 @@ export class PreviewPage {
       frame.innerHTML = '';
 
       // 用 896×1464 原始分辨率渲染，CSS scale 缩放到容器
-      const containerWidth = frame.clientWidth;
+      let containerWidth = frame.clientWidth;
+      if (containerWidth === 0) {
+        await new Promise(r => requestAnimationFrame(r));
+        containerWidth = frame.clientWidth;
+      }
       const scale = containerWidth / 896;
 
       const iframe = document.createElement('iframe');
