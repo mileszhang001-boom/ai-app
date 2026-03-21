@@ -246,11 +246,6 @@ class AIGenerator:
 
             data = self._parse_response(response_text)
 
-            # 检查是否为无法识别的情况
-            if data.get("_unrecognized"):
-                suggestions = "\n".join(f"  · {s}" for s in self.SUPPORTED_WIDGETS)
-                return False, None, f"暂时还不支持这类组件，试试以下场景：\n{suggestions}"
-
             component_type = data.get("component_type", "")
             theme = data.get("theme", "")
 
@@ -302,17 +297,37 @@ class AIGenerator:
     # ── 颜色关键词映射 ──
     COLOR_KEYWORDS = {
         "红": "#CC2244", "红色": "#CC2244", "red": "#CC2244",
+        "深红": "#991133", "深红色": "#991133", "暗红": "#991133",
+        "酒红": "#882244", "酒红色": "#882244",
         "蓝": "#2255CC", "蓝色": "#2255CC", "blue": "#2255CC",
+        "天蓝": "#44AADD", "天蓝色": "#44AADD",
+        "深蓝": "#1133AA", "深蓝色": "#1133AA",
+        "浅蓝": "#66BBEE", "浅蓝色": "#66BBEE",
+        "宝蓝": "#2244BB", "宝蓝色": "#2244BB",
+        "湖蓝": "#3399BB", "湖蓝色": "#3399BB",
         "粉": "#CC6688", "粉色": "#CC6688", "粉红": "#CC6688", "pink": "#CC6688",
+        "浅粉": "#DDAABB", "浅粉色": "#DDAABB",
+        "樱花粉": "#EE99AA", "樱花": "#EE99AA",
         "绿": "#22AA66", "绿色": "#22AA66", "green": "#22AA66",
+        "薄荷": "#55CCAA", "薄荷绿": "#55CCAA", "薄荷色": "#55CCAA",
+        "深绿": "#117744", "深绿色": "#117744",
+        "浅绿": "#77DDAA", "浅绿色": "#77DDAA",
         "金": "#CCAA33", "金色": "#CCAA33", "gold": "#CCAA33", "yellow": "#CCAA33",
+        "鹅黄": "#DDCC66", "鹅黄色": "#DDCC66",
         "紫": "#8844CC", "紫色": "#8844CC", "purple": "#8844CC",
+        "深紫": "#6622AA", "深紫色": "#6622AA",
+        "淡紫": "#AA77DD", "淡紫色": "#AA77DD", "浅紫": "#AA77DD",
         "橙": "#CC6622", "橙色": "#CC6622", "orange": "#CC6622",
         "青": "#22AAAA", "青色": "#22AAAA", "cyan": "#22AAAA",
         "白": "#AABBCC", "白色": "#AABBCC", "white": "#AABBCC",
         "黑": "#334455", "黑色": "#334455", "black": "#334455",
-        "玫瑰": "#CC4466", "霓虹紫": "#8844CC", "霓虹": "#8844CC",
+        "玫瑰": "#CC4466", "玫瑰金": "#CC8877", "玫瑰红": "#CC3355",
+        "霓虹紫": "#8844CC", "霓虹": "#8844CC",
         "香槟": "#CCAA66", "香槟色": "#CCAA66",
+        "珊瑚": "#DD6655", "珊瑚色": "#DD6655",
+        "灰": "#778899", "灰色": "#778899", "银灰": "#99AABB",
+        "咖啡": "#886644", "咖啡色": "#886644", "棕色": "#886644", "棕": "#886644",
+        "米色": "#CCBB99", "米白": "#CCBB99",
     }
 
     # ── 语义→视觉风格映射 ──
@@ -324,16 +339,16 @@ class AIGenerator:
     }
 
     def _extract_color(self, text: str) -> Optional[str]:
-        """从用户输入提取颜色 hex"""
+        """从用户输入提取颜色 hex（长关键词优先匹配）"""
         import re
         # 直接 hex
         hex_match = re.search(r'#[0-9A-Fa-f]{6}', text)
         if hex_match:
             return hex_match.group()
-        # 关键词
-        for kw, hex_val in self.COLOR_KEYWORDS.items():
+        # 按关键词长度降序匹配，确保"天蓝色"优先于"蓝"
+        for kw in sorted(self.COLOR_KEYWORDS.keys(), key=len, reverse=True):
             if kw in text:
-                return hex_val
+                return self.COLOR_KEYWORDS[kw]
         return None
 
     def _extract_visual_style(self, text: str) -> Optional[str]:
@@ -668,14 +683,15 @@ class AIGenerator:
         love_keywords = ["恋爱", "在一起", "结婚", "纪念", "另一半", "女朋友", "男朋友", "老婆", "老公", "对象", "爱", "周年", "love", "anniversary", "girlfriend", "boyfriend"]
         extracted_date = self._extract_date_enhanced(user_text, today, prefer_past=True)
         if any(k in text for k in love_keywords) or extracted_date:
-            d = extracted_date or "2024-06-01"
-
-            # 周年反推 start_date
-            if anniversary_years and not extracted_date:
-                d = (today - timedelta(days=anniversary_years * 365)).isoformat()
+            # 周年反推 start_date（优先级最高）
+            if anniversary_years:
+                ref_date = date.fromisoformat(extracted_date) if extracted_date else today
+                d = (ref_date - timedelta(days=anniversary_years * 365)).isoformat()
             # 天数里程碑反推
-            elif days_milestone and not extracted_date:
+            elif days_milestone:
                 d = (today - timedelta(days=days_milestone)).isoformat()
+            else:
+                d = extracted_date or "2024-06-01"
 
             days_diff = (today - date.fromisoformat(d)).days if d <= today.isoformat() else 0
             subtitle = self._generate_nl_subtitle("love", days_diff, user_text)
@@ -702,36 +718,27 @@ class AIGenerator:
                 "params": {"title": title[:20], "start_date": d, "subtitle": subtitle}
             }, user_text)
 
-        # 暖橙纪念（已有 "纪念" 关键词匹配到 love 分支，但如果没匹配到且有 "暖橙"）
-        # 兜底：模糊但合法的创建请求 → 随机返回展示型模板
-        generic_keywords = ["做", "生成", "创建", "来个", "卡片", "组件", "好看", "widget", "make", "create"]
-        if any(k in text for k in generic_keywords):
-            import random
-            fallback = random.choice(["weather", "music", "calendar"])
-            if fallback == "weather":
-                return self._build_result({
-                    "component_type": "weather", "theme": "realtime",
-                    "template_id": "weather_realtime", "style_preset": "clear-blue",
-                    "params": {"city": "北京", "weather_type": "sunny"}
-                }, user_text)
-            elif fallback == "music":
-                return self._build_result({
-                    "component_type": "music", "theme": "player",
-                    "template_id": "music_player", "style_preset": "dark-vinyl",
-                    "params": {"song_name": "晴天", "artist": "周杰伦", "lyrics_snippet": "故事的小黄花 从出生那年就飘着"}
-                }, user_text)
-            else:
-                return self._build_result({
-                    "component_type": "calendar", "theme": "schedule",
-                    "template_id": "calendar_schedule", "style_preset": "business-gray",
-                    "params": {"show_lunar": True}
-                }, user_text)
-
-        # 兜底：完全无法识别意图
-        return json.dumps({
-            "_unrecognized": True,
-            "_user_text": user_text
-        }, ensure_ascii=False)
+        # 兜底：无法精确匹配时，选最接近的展示型模板，永远不报错
+        import random
+        fallback = random.choice(["weather", "music", "calendar"])
+        if fallback == "weather":
+            return self._build_result({
+                "component_type": "weather", "theme": "realtime",
+                "template_id": "weather_realtime", "style_preset": "clear-blue",
+                "params": {"city": "北京", "weather_type": "sunny"}
+            }, user_text)
+        elif fallback == "music":
+            return self._build_result({
+                "component_type": "music", "theme": "player",
+                "template_id": "music_player", "style_preset": "dark-vinyl",
+                "params": {"song_name": "晴天", "artist": "周杰伦", "lyrics_snippet": "故事的小黄花 从出生那年就飘着"}
+            }, user_text)
+        else:
+            return self._build_result({
+                "component_type": "calendar", "theme": "schedule",
+                "template_id": "calendar_schedule", "style_preset": "business-gray",
+                "params": {"show_lunar": True}
+            }, user_text)
 
     def _generate_nl_subtitle(self, theme: str, days_diff: int, user_text: str) -> str:
         """为自然语言模式生成有创意的副标题（扩容+随机化+情感融入）"""

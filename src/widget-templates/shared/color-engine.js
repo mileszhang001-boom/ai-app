@@ -67,27 +67,27 @@
     var c = hexToRgb(hex);
     var hsl = rgbToHsl(c.r, c.g, c.b);
 
-    // 极浅色保护：饱和度至少 0.15
-    var sat = Math.max(hsl.s, 0.15);
+    // 极浅色保护：饱和度至少 0.20
+    var sat = Math.max(hsl.s, 0.20);
     // 极深色保护：亮度至少 0.10
     var baseLightness = Math.max(hsl.l, 0.10);
 
-    // 背景色：取 hue，低饱和低亮度
-    var bg1 = hslToRgb(hsl.h, sat * 0.30, 0.08);
-    var bg2 = hslToRgb(hsl.h, sat * 0.35, 0.09);
-    var bg3 = hslToRgb(hsl.h, sat * 0.25, 0.06);
+    // 背景色：取 hue，中饱和深亮度（从纯黑到"深色有色调"）
+    var bg1 = hslToRgb(hsl.h, sat * 0.50, 0.15);
+    var bg2 = hslToRgb(hsl.h, sat * 0.55, 0.17);
+    var bg3 = hslToRgb(hsl.h, sat * 0.40, 0.10);
 
     // 亮化版本 (用于 label/divider)
-    var bright = lighten(c, 0.15);
+    var bright = lighten(c, 0.20);
 
     var palette = {
       bgGradient: 'linear-gradient(155deg, rgb(' + bg1.r + ',' + bg1.g + ',' + bg1.b + ') 0%, rgb(' + bg2.r + ',' + bg2.g + ',' + bg2.b + ') 35%, rgb(' + bg3.r + ',' + bg3.g + ',' + bg3.b + ') 100%)',
-      glowPrimary: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.22)',
-      glowSecondary: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.12)',
-      glowTertiary: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.06)',
+      glowPrimary: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.32)',
+      glowSecondary: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.20)',
+      glowTertiary: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.10)',
       ambientLine: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.50)',
-      glassBg: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.04)',
-      glassBorder: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.10)',
+      glassBg: 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.10)',
+      glassBorder: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.16)',
       labelColor: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.50)',
       dividerColor: 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.20)',
       particleRgb: [bright.r, bright.g, bright.b],

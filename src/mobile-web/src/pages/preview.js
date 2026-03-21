@@ -47,7 +47,6 @@ export class PreviewPage {
       </div>
       <div class="preview-container">
         <div class="preview-bezel">
-          <div class="preview-bezel-label">SU7 行车桌面</div>
           <div class="preview-frame" id="previewFrame">
             <div class="loading">
               <div class="spinner"></div>
@@ -181,12 +180,23 @@ export class PreviewPage {
         html = html.replace(/<html/, `<html data-style="${widgetParams.style_preset}"`);
       }
 
+      // 替换 viewport: device-width → 896px 固定宽度
+      html = html.replace(
+        /width=device-width/g,
+        'width=896'
+      );
+
       html = html.replace('</head>', paramsScript + '</head>');
 
       frame.innerHTML = '';
+
+      // 用 896×1464 原始分辨率渲染，CSS scale 缩放到容器
+      const containerWidth = frame.clientWidth;
+      const scale = containerWidth / 896;
+
       const iframe = document.createElement('iframe');
       iframe.srcdoc = html;
-      iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:inherit;';
+      iframe.style.cssText = `width:896px;height:1464px;border:none;position:absolute;top:0;left:0;transform:scale(${scale});transform-origin:top left;`;
       frame.appendChild(iframe);
 
     } catch (error) {
