@@ -28,7 +28,7 @@ html, body {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 40px 28px 40px;
   box-sizing: border-box;
 

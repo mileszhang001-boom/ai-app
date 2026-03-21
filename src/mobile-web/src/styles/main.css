@@ -344,6 +344,8 @@ html, body {
 }
 
 .preview-frame iframe {
+  width: 100%;
+  height: 100%;
   border: none;
   opacity: 0;
   animation: previewFadeIn 0.5s ease-out 0.2s forwards;
