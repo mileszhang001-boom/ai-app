@@ -1,0 +1,548 @@
+/**
+ * 音乐播放器 · Liquid Glass
+ *
+ * 专辑封面模糊背景 + 毛玻璃控制栏 + 频谱可视化
+ * 风格预设：dark-vinyl / neon-purple / minimal-light
+ */
+
+/* 基础重置 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+
+/* ── 卡片容器 ── */
+.widget-music {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 28px 36px;
+  box-sizing: border-box;
+  background: linear-gradient(155deg, #1a1510 0%, #201810 35%, #141008 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── 专辑封面模糊背景 ── */
+.widget-music .album-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3a2820 0%, #1a1008 40%, #2a1a10 100%);
+  background-size: cover;
+  background-position: center;
+  filter: blur(60px) saturate(2.0);
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+  transform: scale(1.2);
+}
+
+/* ── 风格预设 ── */
+
+/* dark-vinyl（默认）：深炭 + 暖琥珀 */
+.widget-music,
+[data-style="dark-vinyl"] .widget-music,
+.widget-music[data-style="dark-vinyl"] {
+  background: linear-gradient(155deg, #1a1510 0%, #201810 35%, #141008 100%);
+}
+
+[data-style="dark-vinyl"] .widget-music .album-bg,
+.widget-music[data-style="dark-vinyl"] .album-bg {
+  background: linear-gradient(135deg, #3a2820 0%, #1a1008 40%, #2a1a10 100%);
+}
+
+/* neon-purple：深紫 + 霓虹紫 */
+[data-style="neon-purple"] .widget-music,
+.widget-music[data-style="neon-purple"] {
+  background: linear-gradient(155deg, #150d28 0%, #1e1040 35%, #120a20 100%);
+}
+
+[data-style="neon-purple"] .widget-music .album-bg,
+.widget-music[data-style="neon-purple"] .album-bg {
+  background: linear-gradient(135deg, #2a1050 0%, #150a30 40%, #201040 100%);
+}
+
+[data-style="neon-purple"] .widget-music .glow-primary,
+.widget-music[data-style="neon-purple"] .glow-primary {
+  background: radial-gradient(circle, rgba(160, 80, 255, 0.22) 0%, transparent 70%);
+}
+
+[data-style="neon-purple"] .widget-music .glow-secondary,
+.widget-music[data-style="neon-purple"] .glow-secondary {
+  background: radial-gradient(circle, rgba(200, 120, 255, 0.10) 0%, transparent 70%);
+}
+
+[data-style="neon-purple"] .widget-music .ambient-line,
+.widget-music[data-style="neon-purple"] .ambient-line {
+  background: linear-gradient(90deg, rgba(160, 80, 255, 0.50) 0%, transparent 100%);
+}
+
+[data-style="neon-purple"] .widget-music .album-art,
+.widget-music[data-style="neon-purple"] .album-art {
+  border-color: rgba(160, 80, 255, 0.15);
+  box-shadow:
+    0 4px 16px rgba(160, 80, 255, 0.15),
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(200, 140, 255, 0.10);
+}
+
+[data-style="neon-purple"] .widget-music .album-art-placeholder,
+.widget-music[data-style="neon-purple"] .album-art-placeholder {
+  background: linear-gradient(135deg, #2a1050 0%, #401080 50%, #1a0830 100%);
+}
+
+[data-style="neon-purple"] .widget-music .progress-fill,
+.widget-music[data-style="neon-purple"] .progress-fill {
+  background: linear-gradient(90deg, rgba(160, 80, 255, 0.60) 0%, rgba(200, 120, 255, 0.80) 100%);
+}
+
+[data-style="neon-purple"] .widget-music .progress-dot,
+.widget-music[data-style="neon-purple"] .progress-dot {
+  background: rgba(200, 140, 255, 0.90);
+  box-shadow: 0 0 8px rgba(160, 80, 255, 0.60), 0 0 20px rgba(160, 80, 255, 0.30);
+}
+
+[data-style="neon-purple"] .widget-music .glass-controls,
+.widget-music[data-style="neon-purple"] .glass-controls {
+  background: rgba(160, 80, 255, 0.04);
+  border-color: rgba(160, 80, 255, 0.10);
+}
+
+[data-style="neon-purple"] .widget-music .spectrum-bar,
+.widget-music[data-style="neon-purple"] .spectrum-bar {
+  background: rgba(160, 80, 255, 0.50);
+}
+
+[data-style="neon-purple"] .widget-music .control-btn-play,
+.widget-music[data-style="neon-purple"] .control-btn-play {
+  background: rgba(160, 80, 255, 0.12);
+  border-color: rgba(160, 80, 255, 0.20);
+}
+
+/* minimal-light：微亮暗底 + 纯白 */
+[data-style="minimal-light"] .widget-music,
+.widget-music[data-style="minimal-light"] {
+  background: linear-gradient(155deg, #1a1a22 0%, #202028 35%, #151518 100%);
+}
+
+[data-style="minimal-light"] .widget-music .album-bg,
+.widget-music[data-style="minimal-light"] .album-bg {
+  background: linear-gradient(135deg, #303040 0%, #1a1a22 40%, #252530 100%);
+}
+
+[data-style="minimal-light"] .widget-music .glow-primary,
+.widget-music[data-style="minimal-light"] .glow-primary {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+}
+
+[data-style="minimal-light"] .widget-music .glow-secondary,
+.widget-music[data-style="minimal-light"] .glow-secondary {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
+}
+
+[data-style="minimal-light"] .widget-music .ambient-line,
+.widget-music[data-style="minimal-light"] .ambient-line {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.20) 0%, transparent 100%);
+}
+
+[data-style="minimal-light"] .widget-music .album-art,
+.widget-music[data-style="minimal-light"] .album-art {
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 4px 16px rgba(255, 255, 255, 0.05),
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+[data-style="minimal-light"] .widget-music .album-art-placeholder,
+.widget-music[data-style="minimal-light"] .album-art-placeholder {
+  background: linear-gradient(135deg, #2a2a35 0%, #353540 50%, #1a1a22 100%);
+}
+
+[data-style="minimal-light"] .widget-music .progress-fill,
+.widget-music[data-style="minimal-light"] .progress-fill {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.50) 0%, rgba(255, 255, 255, 0.70) 100%);
+}
+
+[data-style="minimal-light"] .widget-music .progress-dot,
+.widget-music[data-style="minimal-light"] .progress-dot {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.40), 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+[data-style="minimal-light"] .widget-music .glass-controls,
+.widget-music[data-style="minimal-light"] .glass-controls {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-style="minimal-light"] .widget-music .spectrum-bar,
+.widget-music[data-style="minimal-light"] .spectrum-bar {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+[data-style="minimal-light"] .widget-music .control-btn-play,
+.widget-music[data-style="minimal-light"] .control-btn-play {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── 光晕 ── */
+.widget-music .glow-primary {
+  position: absolute;
+  top: 5%;
+  right: -10%;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220, 160, 80, 0.16) 0%, transparent 70%);
+  filter: blur(55px);
+  pointer-events: none;
+  z-index: 0;
+  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
+}
+
+.widget-music .glow-secondary {
+  position: absolute;
+  bottom: 25%;
+  left: -12%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 140, 60, 0.08) 0%, transparent 70%);
+  filter: blur(45px);
+  pointer-events: none;
+  z-index: 0;
+  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+/* ── 氛围光线 ── */
+.widget-music .ambient-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(220, 160, 80, 0.45) 0%, transparent 100%);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 内容层 ── */
+.widget-music .content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── 专辑封面 ── */
+.widget-music .album-art {
+  width: 180px;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 4px 16px rgba(220, 160, 80, 0.10),
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  margin-bottom: 28px;
+  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.widget-music .album-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.widget-music .album-art-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2a1a10 0%, #3a2818 50%, #1a1008 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Vinyl record decoration on placeholder */
+.widget-music .album-art-placeholder::before {
+  content: '';
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 30%,
+    rgba(255, 255, 255, 0.05) 31%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.04) 51%,
+    rgba(255, 255, 255, 0.01) 70%,
+    rgba(255, 255, 255, 0.03) 71%,
+    transparent 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.widget-music .album-art-placeholder::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── 歌曲信息 ── */
+.widget-music .track-info {
+  text-align: center;
+  margin-bottom: 12px;
+  animation: stagger-fadeIn 0.5s ease-out both;
+  animation-delay: 0.1s;
+}
+
+.widget-music .song-name {
+  font-family: var(--font-cn-family);
+  font-size: 18px;
+  font-weight: var(--font-weight-medium, 500);
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+}
+
+.widget-music .artist {
+  font-family: var(--font-cn-family);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+/* ── 歌词行 ── */
+.widget-music .lyrics-line {
+  font-family: var(--font-cn-family);
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.40);
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 0 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+  animation: stagger-fadeIn 0.5s ease-out both;
+  animation-delay: 0.2s;
+}
+
+/* ── 频谱可视化 ── */
+.widget-music .spectrum {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  margin-bottom: 24px;
+  animation: stagger-fadeIn 0.5s ease-out both;
+  animation-delay: 0.25s;
+}
+
+.widget-music .spectrum-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(220, 160, 80, 0.50);
+  animation: spectrum-bounce 0.8s ease-in-out infinite alternate;
+}
+
+.widget-music .spectrum-bar:nth-child(1) { height: 8px;  animation-delay: 0s;    animation-duration: 0.7s; }
+.widget-music .spectrum-bar:nth-child(2) { height: 16px; animation-delay: 0.15s; animation-duration: 0.9s; }
+.widget-music .spectrum-bar:nth-child(3) { height: 24px; animation-delay: 0.05s; animation-duration: 0.6s; }
+.widget-music .spectrum-bar:nth-child(4) { height: 12px; animation-delay: 0.25s; animation-duration: 0.85s; }
+.widget-music .spectrum-bar:nth-child(5) { height: 6px;  animation-delay: 0.10s; animation-duration: 0.75s; }
+
+/* Spectrum paused state */
+.widget-music .spectrum.paused .spectrum-bar {
+  animation-play-state: paused;
+}
+
+@keyframes spectrum-bounce {
+  0%   { height: 4px; }
+  100% { height: 24px; }
+}
+
+/* ── 进度条 ── */
+.widget-music .progress-bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1px;
+  margin-bottom: 8px;
+  position: relative;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: stagger-fadeIn 0.5s ease-out both;
+  animation-delay: 0.3s;
+}
+
+.widget-music .progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, rgba(220, 160, 80, 0.55) 0%, rgba(240, 180, 100, 0.80) 100%);
+  border-radius: 1px;
+  position: relative;
+  transition: width 0.3s linear;
+}
+
+.widget-music .progress-dot {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(240, 190, 110, 0.90);
+  box-shadow: 0 0 8px rgba(220, 160, 80, 0.50), 0 0 20px rgba(220, 160, 80, 0.20);
+  animation: breathing-glow 3s ease-in-out infinite;
+}
+
+/* ── 时间行 ── */
+.widget-music .time-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  animation: stagger-fadeIn 0.5s ease-out both;
+  animation-delay: 0.3s;
+}
+
+.widget-music .time-elapsed,
+.widget-music .time-total {
+  font-family: var(--font-en-family);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.30);
+  letter-spacing: 0.5px;
+}
+
+/* ── 毛玻璃控制栏 ── */
+.widget-music .glass-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(220, 160, 80, 0.04);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 14px 32px;
+  margin-top: auto;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
+  animation-delay: 0.35s;
+  animation-fill-mode: both;
+}
+
+.widget-music .control-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.widget-music .control-btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.widget-music .control-btn-play {
+  width: 56px;
+  height: 56px;
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.80);
+  background: rgba(220, 160, 80, 0.08);
+  border: 1px solid rgba(220, 160, 80, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.widget-music .control-btn-play:active {
+  transform: scale(0.90);
+  background: rgba(220, 160, 80, 0.15);
+}
+
+/* ── 动态配色（color-engine） ── */
+[data-style="dynamic"] .widget-music {
+  background: var(--dyn-bg);
+}
+
+/* ── WebView 兼容 ── */
+@supports not ((-webkit-backdrop-filter: blur(16px)) or (backdrop-filter: blur(16px))) {
+  .widget-music .glass-controls {
+    background: rgba(20, 16, 10, 0.85);
+  }
+  .widget-music .album-art {
+    backdrop-filter: none;
+  }
+}
+
+@supports not (filter: blur(50px)) {
+  .widget-music .glow-primary,
+  .widget-music .glow-secondary {
+    filter: none;
+    opacity: 0.5;
+  }
+  .widget-music .album-bg {
+    filter: none;
+    opacity: 0.15;
+  }
+}
+
+@supports not ((-webkit-mask-image: linear-gradient(black, black)) or (mask-image: linear-gradient(black, black))) {
+  .widget-music .lyrics-line {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* ── 响应式（开发预览） ── */
+@media (max-width: 900px) {
+  .widget-music {
+    width: 100%;
+    height: 100%;
+  }
+}

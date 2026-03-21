@@ -1,7 +1,7 @@
 /**
- * 恋爱纪念日 · 玫瑰（Rose）
+ * 恋爱纪念日 · 玫瑰（Rose） — Liquid Glass Edition
  *
- * 底部对齐布局
+ * 底部对齐布局 + 毛玻璃信息卡片 + 粒子系统
  * 支持风格预设切换
  */
 
@@ -29,12 +29,23 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 40px 28px 32px;
+  padding: 40px 28px 40px;
   box-sizing: border-box;
 
   /* 默认玫瑰渐变背景 */
   background: var(--love-bg-dark, linear-gradient(155deg, #1e0e24 0%, #261530 35%, #180e1e 100%));
   border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── 粒子画布 ── */
+.widget-love .particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ── 风格预设：基于 data-style 属性 ── */
@@ -47,17 +58,28 @@ html, body {
 
 [data-style="vibrant-orange"] .widget-love .glow-primary,
 .widget-love[data-style="vibrant-orange"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 106, 0, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 106, 0, 0.22) 0%, transparent 70%);
 }
 
 [data-style="vibrant-orange"] .widget-love .glow-secondary,
 .widget-love[data-style="vibrant-orange"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 180, 60, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 180, 60, 0.12) 0%, transparent 70%);
+}
+
+[data-style="vibrant-orange"] .widget-love .glow-tertiary,
+.widget-love[data-style="vibrant-orange"] .glow-tertiary {
+  background: radial-gradient(circle, rgba(255, 140, 40, 0.06) 0%, transparent 70%);
 }
 
 [data-style="vibrant-orange"] .widget-love .ambient-line,
 .widget-love[data-style="vibrant-orange"] .ambient-line {
   background: linear-gradient(90deg, rgba(255, 140, 60, 0.50) 0%, transparent 100%);
+}
+
+[data-style="vibrant-orange"] .widget-love .glass-card,
+.widget-love[data-style="vibrant-orange"] .glass-card {
+  background: rgba(255, 140, 60, 0.04);
+  border-color: rgba(255, 160, 80, 0.10);
 }
 
 [data-style="vibrant-orange"] .widget-love .unit-label,
@@ -78,17 +100,28 @@ html, body {
 
 [data-style="ocean-blue"] .widget-love .glow-primary,
 .widget-love[data-style="ocean-blue"] .glow-primary {
-  background: radial-gradient(circle, rgba(0, 122, 255, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.22) 0%, transparent 70%);
 }
 
 [data-style="ocean-blue"] .widget-love .glow-secondary,
 .widget-love[data-style="ocean-blue"] .glow-secondary {
-  background: radial-gradient(circle, rgba(0, 180, 255, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.12) 0%, transparent 70%);
+}
+
+[data-style="ocean-blue"] .widget-love .glow-tertiary,
+.widget-love[data-style="ocean-blue"] .glow-tertiary {
+  background: radial-gradient(circle, rgba(0, 150, 255, 0.06) 0%, transparent 70%);
 }
 
 [data-style="ocean-blue"] .widget-love .ambient-line,
 .widget-love[data-style="ocean-blue"] .ambient-line {
   background: linear-gradient(90deg, rgba(0, 140, 220, 0.50) 0%, transparent 100%);
+}
+
+[data-style="ocean-blue"] .widget-love .glass-card,
+.widget-love[data-style="ocean-blue"] .glass-card {
+  background: rgba(0, 140, 220, 0.04);
+  border-color: rgba(0, 160, 230, 0.10);
 }
 
 [data-style="ocean-blue"] .widget-love .unit-label,
@@ -109,17 +142,28 @@ html, body {
 
 [data-style="forest-green"] .widget-love .glow-primary,
 .widget-love[data-style="forest-green"] .glow-primary {
-  background: radial-gradient(circle, rgba(0, 200, 83, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 200, 83, 0.22) 0%, transparent 70%);
 }
 
 [data-style="forest-green"] .widget-love .glow-secondary,
 .widget-love[data-style="forest-green"] .glow-secondary {
-  background: radial-gradient(circle, rgba(100, 220, 120, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(100, 220, 120, 0.12) 0%, transparent 70%);
+}
+
+[data-style="forest-green"] .widget-love .glow-tertiary,
+.widget-love[data-style="forest-green"] .glow-tertiary {
+  background: radial-gradient(circle, rgba(60, 210, 100, 0.06) 0%, transparent 70%);
 }
 
 [data-style="forest-green"] .widget-love .ambient-line,
 .widget-love[data-style="forest-green"] .ambient-line {
   background: linear-gradient(90deg, rgba(80, 200, 100, 0.50) 0%, transparent 100%);
+}
+
+[data-style="forest-green"] .widget-love .glass-card,
+.widget-love[data-style="forest-green"] .glass-card {
+  background: rgba(80, 200, 100, 0.04);
+  border-color: rgba(100, 200, 120, 0.10);
 }
 
 [data-style="forest-green"] .widget-love .unit-label,
@@ -140,17 +184,28 @@ html, body {
 
 [data-style="sweet-pink"] .widget-love .glow-primary,
 .widget-love[data-style="sweet-pink"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 107, 157, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.22) 0%, transparent 70%);
 }
 
 [data-style="sweet-pink"] .widget-love .glow-secondary,
 .widget-love[data-style="sweet-pink"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 142, 83, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 142, 83, 0.12) 0%, transparent 70%);
+}
+
+[data-style="sweet-pink"] .widget-love .glow-tertiary,
+.widget-love[data-style="sweet-pink"] .glow-tertiary {
+  background: radial-gradient(circle, rgba(255, 120, 140, 0.06) 0%, transparent 70%);
 }
 
 [data-style="sweet-pink"] .widget-love .ambient-line,
 .widget-love[data-style="sweet-pink"] .ambient-line {
   background: linear-gradient(90deg, rgba(255, 120, 130, 0.50) 0%, transparent 100%);
+}
+
+[data-style="sweet-pink"] .widget-love .glass-card,
+.widget-love[data-style="sweet-pink"] .glass-card {
+  background: rgba(255, 120, 130, 0.04);
+  border-color: rgba(255, 140, 150, 0.10);
 }
 
 [data-style="sweet-pink"] .widget-love .unit-label,
@@ -171,17 +226,28 @@ html, body {
 
 [data-style="soft-purple"] .widget-love .glow-primary,
 .widget-love[data-style="soft-purple"] .glow-primary {
-  background: radial-gradient(circle, rgba(124, 77, 255, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(124, 77, 255, 0.22) 0%, transparent 70%);
 }
 
 [data-style="soft-purple"] .widget-love .glow-secondary,
 .widget-love[data-style="soft-purple"] .glow-secondary {
-  background: radial-gradient(circle, rgba(179, 136, 255, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(179, 136, 255, 0.12) 0%, transparent 70%);
+}
+
+[data-style="soft-purple"] .widget-love .glow-tertiary,
+.widget-love[data-style="soft-purple"] .glow-tertiary {
+  background: radial-gradient(circle, rgba(150, 100, 255, 0.06) 0%, transparent 70%);
 }
 
 [data-style="soft-purple"] .widget-love .ambient-line,
 .widget-love[data-style="soft-purple"] .ambient-line {
   background: linear-gradient(90deg, rgba(160, 110, 255, 0.50) 0%, transparent 100%);
+}
+
+[data-style="soft-purple"] .widget-love .glass-card,
+.widget-love[data-style="soft-purple"] .glass-card {
+  background: rgba(160, 110, 255, 0.04);
+  border-color: rgba(170, 130, 255, 0.10);
 }
 
 [data-style="soft-purple"] .widget-love .unit-label,
@@ -202,17 +268,28 @@ html, body {
 
 [data-style="warm-yellow"] .widget-love .glow-primary,
 .widget-love[data-style="warm-yellow"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 214, 0, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 214, 0, 0.22) 0%, transparent 70%);
 }
 
 [data-style="warm-yellow"] .widget-love .glow-secondary,
 .widget-love[data-style="warm-yellow"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 171, 0, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 171, 0, 0.12) 0%, transparent 70%);
+}
+
+[data-style="warm-yellow"] .widget-love .glow-tertiary,
+.widget-love[data-style="warm-yellow"] .glow-tertiary {
+  background: radial-gradient(circle, rgba(255, 190, 30, 0.06) 0%, transparent 70%);
 }
 
 [data-style="warm-yellow"] .widget-love .ambient-line,
 .widget-love[data-style="warm-yellow"] .ambient-line {
   background: linear-gradient(90deg, rgba(255, 190, 60, 0.50) 0%, transparent 100%);
+}
+
+[data-style="warm-yellow"] .widget-love .glass-card,
+.widget-love[data-style="warm-yellow"] .glass-card {
+  background: rgba(255, 190, 60, 0.04);
+  border-color: rgba(255, 200, 80, 0.10);
 }
 
 [data-style="warm-yellow"] .widget-love .unit-label,
@@ -225,31 +302,89 @@ html, body {
   background: rgba(255, 200, 80, 0.20);
 }
 
-/* ── 背景光晕 ── */
+/* 极简暗 */
+[data-style="minimal-dark"] .widget-love,
+.widget-love[data-style="minimal-dark"] {
+  background: linear-gradient(155deg, #1a1a2e 0%, #16213e 35%, #0f0f1a 100%);
+}
 
-/* 主光晕：右上角 */
+[data-style="minimal-dark"] .widget-love .glow-primary,
+.widget-love[data-style="minimal-dark"] .glow-primary {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+}
+
+[data-style="minimal-dark"] .widget-love .glow-secondary,
+.widget-love[data-style="minimal-dark"] .glow-secondary {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+}
+
+[data-style="minimal-dark"] .widget-love .glow-tertiary,
+.widget-love[data-style="minimal-dark"] .glow-tertiary {
+  background: none;
+}
+
+[data-style="minimal-dark"] .widget-love .ambient-line,
+.widget-love[data-style="minimal-dark"] .ambient-line {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+}
+
+[data-style="minimal-dark"] .widget-love .glass-card,
+.widget-love[data-style="minimal-dark"] .glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-style="minimal-dark"] .widget-love .unit-label,
+.widget-love[data-style="minimal-dark"] .unit-label {
+  color: rgba(255, 255, 255, 0.30);
+}
+
+[data-style="minimal-dark"] .widget-love .divider,
+.widget-love[data-style="minimal-dark"] .divider {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+/* ── 背景光晕 — 三层呼吸系统 ── */
+
+/* 主光晕：右上角，缓慢呼吸 */
 .widget-love .glow-primary {
   position: absolute;
-  top: 10%;
-  right: -5%;
-  width: 220px;
-  height: 220px;
+  top: 8%;
+  right: -8%;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 120, 180, 0.18) 0%, transparent 70%);
-  filter: blur(50px);
+  background: radial-gradient(circle, rgba(200, 120, 180, 0.22) 0%, transparent 70%);
+  filter: blur(60px);
   pointer-events: none;
+  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
 }
 
 /* 副光晕：左下角 */
 .widget-love .glow-secondary {
   position: absolute;
-  bottom: 25%;
-  left: -10%;
-  width: 160px;
-  height: 160px;
+  bottom: 20%;
+  left: -12%;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 150, 100, 0.10) 0%, transparent 70%);
-  filter: blur(35px);
+  background: radial-gradient(circle, rgba(255, 150, 100, 0.12) 0%, transparent 70%);
+  filter: blur(45px);
+  pointer-events: none;
+  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+/* 第三光晕：中部漫反射 */
+.widget-love .glow-tertiary {
+  position: absolute;
+  top: 40%;
+  left: 30%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 140, 180, 0.06) 0%, transparent 60%);
+  filter: blur(80px);
   pointer-events: none;
 }
 
@@ -266,10 +401,39 @@ html, body {
   pointer-events: none;
 }
 
-/* ── 内容区 ── */
-.widget-love .content {
+/* ── 毛玻璃信息卡片 ── */
+.widget-love .glass-card {
   position: relative;
   z-index: 1;
+  background: rgba(200, 120, 180, 0.04);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 32px 24px 28px;
+  box-shadow:
+    var(--glass-inner-glow),
+    var(--shadow-subtle);
+  overflow: hidden;
+  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
+}
+
+/* 高光扫过效果 */
+.widget-love .glass-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  animation: light-sweep var(--anim-sweep-duration, 3s) ease-in-out infinite;
+  animation-delay: 2s;
+  pointer-events: none;
 }
 
 /* ── 核心数字 ── */
@@ -280,20 +444,27 @@ html, body {
   letter-spacing: var(--font-hero-letter-spacing);
   line-height: var(--font-hero-line-height);
   margin-bottom: var(--gap-hero-to-unit);
+  perspective: 500px;
 
   /* 数字渐变色：白色渐变 */
   background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.6) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-
-  /* 动画 */
-  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
 }
 
-/* 数字更新脉冲动画 */
-.widget-love .hero-number.updating {
-  animation: number-pulse var(--anim-pulse-duration, 0.4s) var(--anim-pulse-easing, cubic-bezier(0.34, 1.56, 0.64, 1));
+/* 数字翻牌动画 */
+.widget-love .digit-group {
+  display: inline-block;
+  transform-origin: center bottom;
+}
+
+.widget-love .digit-group.flip-out {
+  animation: digit-flip-out var(--anim-digit-flip-duration, 0.3s) ease-in forwards;
+}
+
+.widget-love .digit-group.flip-in {
+  animation: digit-flip-in var(--anim-digit-flip-duration, 0.3s) ease-out forwards;
 }
 
 /* ── 英文单位标注 ── */
@@ -334,9 +505,13 @@ html, body {
   letter-spacing: 0.2px;
 }
 
+/* ── 动态配色（color-engine） ── */
+[data-style="dynamic"] .widget-love {
+  background: var(--dyn-bg);
+}
+
 /* ── WebView 兼容性 ── */
 
-/* 不支持 background-clip: text 的浏览器降级 */
 @supports not (-webkit-background-clip: text) {
   .widget-love .hero-number {
     background: none;
@@ -345,10 +520,16 @@ html, body {
   }
 }
 
-/* 不支持 filter: blur 的浏览器降级 */
+@supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
+  .widget-love .glass-card {
+    background: rgba(30, 20, 35, 0.85);
+  }
+}
+
 @supports not (filter: blur(50px)) {
   .widget-love .glow-primary,
-  .widget-love .glow-secondary {
+  .widget-love .glow-secondary,
+  .widget-love .glow-tertiary {
     filter: none;
     opacity: 0.5;
   }

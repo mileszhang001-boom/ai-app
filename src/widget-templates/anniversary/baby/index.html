@@ -10,22 +10,37 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/tokens.css">
+  <link rel="stylesheet" href="../../shared/visual-styles.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="widget-baby">
-    <!-- 居中光晕 -->
+    <!-- 粒子画布 -->
+    <canvas class="particle-canvas" id="particleCanvas"></canvas>
+
+    <!-- 主光晕：偏右上，呼吸动效 -->
     <div class="glow-primary"></div>
 
-    <!-- 氛围光线 -->
+    <!-- 副光晕：偏左下 -->
+    <div class="glow-secondary"></div>
+
+    <!-- 第三光晕：中部漫反射 -->
+    <div class="glow-tertiary"></div>
+
+    <!-- 氛围光线：底部渐隐的微光线条 -->
     <div class="ambient-line"></div>
 
-    <!-- 内容区 -->
-    <div class="content">
-      <!-- 核心数字 -->
-      <div class="hero-number" id="dayCounter">186</div>
+    <!-- 毛玻璃信息卡片 -->
+    <div class="glass-card">
+      <!-- 高光扫过效果 -->
+      <div class="glass-highlight"></div>
 
-      <!-- 英文单位 -->
+      <!-- 核心数字 — 翻牌容器 -->
+      <div class="hero-number" id="dayCounter">
+        <span class="digit-group" id="digitGroup">0</span>
+      </div>
+
+      <!-- 英文单位：极度弱化 -->
       <div class="unit-label">days growing</div>
 
       <!-- 分割线 -->
@@ -35,11 +50,12 @@
       <div class="subtitle-cn"></div>
 
       <!-- 中文辅助信息 -->
-      <div class="caption-cn">小橙子 · 宝宝成长</div>
+      <div class="caption-cn">宝宝成长 · 纪念日</div>
     </div>
   </div>
 
   <script src="../../shared/bridge.js"></script>
+  <script src="../../shared/color-engine.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

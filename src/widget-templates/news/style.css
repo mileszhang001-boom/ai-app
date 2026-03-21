@@ -1,8 +1,7 @@
 /**
- * 每日新闻 · 科技蓝（Tech）
+ * 每日新闻 · 科技蓝 — Liquid Glass Edition
  *
- * 居中布局
- * 4条信息单屏显示
+ * 毛玻璃新闻卡片 + 自动轮播 + 交错淡入
  * 支持风格预设切换
  */
 
@@ -32,139 +31,136 @@ html, body {
   padding: 32px 24px 28px;
   box-sizing: border-box;
 
-  /* 默认科技蓝渐变背景 */
   background: var(--news-bg-dark, linear-gradient(180deg, #111316 0%, #0e1013 100%));
   border: 1px solid rgba(255,255,255, 0.04);
 }
 
-/* ── 风格预设：基于 data-style 属性 ── */
+/* ── 背景光晕 ── */
+.widget-news .glow-primary {
+  position: absolute;
+  top: -5%;
+  right: -10%;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(100, 150, 220, 0.10) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  animation: breathing-glow 5s ease-in-out infinite;
+}
+
+/* ── 风格预设 ── */
 
 /* 科技蓝 - 默认 */
-[data-style="tech-blue"] .widget-news,
-.widget-news[data-style="tech-blue"] {
-  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
-}
-
-[data-style="tech-blue"] .widget-news .header,
-.widget-news[data-style="tech-blue"] .header {
-  border-bottom: 2px solid rgba(100, 150, 220, 0.15);
-}
-
-[data-style="tech-blue"] .widget-news .header::before,
-.widget-news[data-style="tech-blue"] .header::before {
-  background: rgba(100, 150, 220, 1);
-}
-
+[data-style="tech-blue"] .widget-news .header-indicator,
+.widget-news[data-style="tech-blue"] .header-indicator { background: rgba(100, 150, 220, 1); }
 [data-style="tech-blue"] .widget-news .category-label,
-.widget-news[data-style="tech-blue"] .category-label {
-  color: rgba(100, 150, 220, 0.70);
+.widget-news[data-style="tech-blue"] .category-label { color: rgba(100, 150, 220, 0.70); }
+[data-style="tech-blue"] .widget-news .news-item,
+.widget-news[data-style="tech-blue"] .news-item {
+  background: rgba(100, 150, 220, 0.04);
+  border-color: rgba(100, 150, 220, 0.08);
 }
-
 [data-style="tech-blue"] .widget-news .news-item-category,
 .widget-news[data-style="tech-blue"] .news-item-category {
   background: rgba(100, 150, 220, 0.10);
   color: rgba(100, 150, 220, 0.70);
 }
-
 [data-style="tech-blue"] .widget-news .ambient-line,
 .widget-news[data-style="tech-blue"] .ambient-line {
   background: linear-gradient(90deg, rgba(100, 150, 220, 0.35) 0%, transparent 100%);
 }
+[data-style="tech-blue"] .widget-news .glow-primary,
+.widget-news[data-style="tech-blue"] .glow-primary {
+  background: radial-gradient(circle, rgba(100, 150, 220, 0.12) 0%, transparent 70%);
+}
+[data-style="tech-blue"] .widget-news .carousel-dot.active,
+.widget-news[data-style="tech-blue"] .carousel-dot.active {
+  background: rgba(100, 150, 220, 0.70);
+}
 
 /* 小米橙 */
-[data-style="xiaomi-orange"] .widget-news,
-.widget-news[data-style="xiaomi-orange"] {
-  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
-}
-
-[data-style="xiaomi-orange"] .widget-news .header,
-.widget-news[data-style="xiaomi-orange"] .header {
-  border-bottom: 2px solid rgba(255, 106, 0, 0.15);
-}
-
-[data-style="xiaomi-orange"] .widget-news .header::before,
-.widget-news[data-style="xiaomi-orange"] .header::before {
-  background: #FF6A00;
-}
-
+[data-style="xiaomi-orange"] .widget-news .header-indicator,
+.widget-news[data-style="xiaomi-orange"] .header-indicator { background: #FF6A00; }
 [data-style="xiaomi-orange"] .widget-news .category-label,
-.widget-news[data-style="xiaomi-orange"] .category-label {
-  color: rgba(255, 106, 0, 0.70);
+.widget-news[data-style="xiaomi-orange"] .category-label { color: rgba(255, 106, 0, 0.70); }
+[data-style="xiaomi-orange"] .widget-news .news-item,
+.widget-news[data-style="xiaomi-orange"] .news-item {
+  background: rgba(255, 106, 0, 0.04);
+  border-color: rgba(255, 106, 0, 0.08);
 }
-
 [data-style="xiaomi-orange"] .widget-news .news-item-category,
 .widget-news[data-style="xiaomi-orange"] .news-item-category {
   background: rgba(255, 106, 0, 0.10);
   color: rgba(255, 106, 0, 0.70);
 }
-
 [data-style="xiaomi-orange"] .widget-news .ambient-line,
 .widget-news[data-style="xiaomi-orange"] .ambient-line {
   background: linear-gradient(90deg, rgba(255, 106, 0, 0.35) 0%, transparent 100%);
 }
+[data-style="xiaomi-orange"] .widget-news .glow-primary,
+.widget-news[data-style="xiaomi-orange"] .glow-primary {
+  background: radial-gradient(circle, rgba(255, 106, 0, 0.12) 0%, transparent 70%);
+}
+[data-style="xiaomi-orange"] .widget-news .carousel-dot.active,
+.widget-news[data-style="xiaomi-orange"] .carousel-dot.active {
+  background: rgba(255, 106, 0, 0.70);
+}
 
 /* 海洋蓝 */
-[data-style="ocean-blue"] .widget-news,
-.widget-news[data-style="ocean-blue"] {
-  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
-}
-
-[data-style="ocean-blue"] .widget-news .header,
-.widget-news[data-style="ocean-blue"] .header {
-  border-bottom: 2px solid rgba(0, 122, 255, 0.15);
-}
-
-[data-style="ocean-blue"] .widget-news .header::before,
-.widget-news[data-style="ocean-blue"] .header::before {
-  background: rgba(0, 122, 255, 1);
-}
-
+[data-style="ocean-blue"] .widget-news .header-indicator,
+.widget-news[data-style="ocean-blue"] .header-indicator { background: rgba(0, 122, 255, 1); }
 [data-style="ocean-blue"] .widget-news .category-label,
-.widget-news[data-style="ocean-blue"] .category-label {
-  color: rgba(0, 122, 255, 0.70);
+.widget-news[data-style="ocean-blue"] .category-label { color: rgba(0, 122, 255, 0.70); }
+[data-style="ocean-blue"] .widget-news .news-item,
+.widget-news[data-style="ocean-blue"] .news-item {
+  background: rgba(0, 122, 255, 0.04);
+  border-color: rgba(0, 122, 255, 0.08);
 }
-
 [data-style="ocean-blue"] .widget-news .news-item-category,
 .widget-news[data-style="ocean-blue"] .news-item-category {
   background: rgba(0, 122, 255, 0.10);
   color: rgba(0, 122, 255, 0.70);
 }
-
 [data-style="ocean-blue"] .widget-news .ambient-line,
 .widget-news[data-style="ocean-blue"] .ambient-line {
   background: linear-gradient(90deg, rgba(0, 122, 255, 0.35) 0%, transparent 100%);
 }
+[data-style="ocean-blue"] .widget-news .glow-primary,
+.widget-news[data-style="ocean-blue"] .glow-primary {
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.12) 0%, transparent 70%);
+}
+[data-style="ocean-blue"] .widget-news .carousel-dot.active,
+.widget-news[data-style="ocean-blue"] .carousel-dot.active {
+  background: rgba(0, 122, 255, 0.70);
+}
 
 /* 森林绿 */
-[data-style="forest-green"] .widget-news,
-.widget-news[data-style="forest-green"] {
-  background: linear-gradient(180deg, #111316 0%, #0e1013 100%);
-}
-
-[data-style="forest-green"] .widget-news .header,
-.widget-news[data-style="forest-green"] .header {
-  border-bottom: 2px solid rgba(0, 200, 83, 0.15);
-}
-
-[data-style="forest-green"] .widget-news .header::before,
-.widget-news[data-style="forest-green"] .header::before {
-  background: rgba(0, 200, 83, 1);
-}
-
+[data-style="forest-green"] .widget-news .header-indicator,
+.widget-news[data-style="forest-green"] .header-indicator { background: rgba(0, 200, 83, 1); }
 [data-style="forest-green"] .widget-news .category-label,
-.widget-news[data-style="forest-green"] .category-label {
-  color: rgba(0, 200, 83, 0.70);
+.widget-news[data-style="forest-green"] .category-label { color: rgba(0, 200, 83, 0.70); }
+[data-style="forest-green"] .widget-news .news-item,
+.widget-news[data-style="forest-green"] .news-item {
+  background: rgba(0, 200, 83, 0.04);
+  border-color: rgba(0, 200, 83, 0.08);
 }
-
 [data-style="forest-green"] .widget-news .news-item-category,
 .widget-news[data-style="forest-green"] .news-item-category {
   background: rgba(0, 200, 83, 0.10);
   color: rgba(0, 200, 83, 0.70);
 }
-
 [data-style="forest-green"] .widget-news .ambient-line,
 .widget-news[data-style="forest-green"] .ambient-line {
   background: linear-gradient(90deg, rgba(0, 200, 83, 0.35) 0%, transparent 100%);
+}
+[data-style="forest-green"] .widget-news .glow-primary,
+.widget-news[data-style="forest-green"] .glow-primary {
+  background: radial-gradient(circle, rgba(0, 200, 83, 0.12) 0%, transparent 70%);
+}
+[data-style="forest-green"] .widget-news .carousel-dot.active,
+.widget-news[data-style="forest-green"] .carousel-dot.active {
+  background: rgba(0, 200, 83, 0.70);
 }
 
 /* ── 内容区 ── */
@@ -182,15 +178,18 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 2px solid rgba(100, 150, 220, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* 左侧竖线 */
-.widget-news .header::before {
-  content: '';
-  display: block;
+.widget-news .header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-news .header-indicator {
   width: 3px;
   height: 14px;
   background: rgba(100, 150, 220, 1);
@@ -204,7 +203,6 @@ html, body {
   letter-spacing: var(--letter-spacing-category, 2px);
   text-transform: uppercase;
   color: var(--news-label-dark);
-  margin-left: 8px;
 }
 
 .widget-news .date {
@@ -213,42 +211,47 @@ html, body {
   color: rgba(255,255,255, 0.30);
 }
 
-/* ── 新闻列表 ── */
+/* ── 新闻列表 — 毛玻璃卡片 ── */
 .widget-news .news-list {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  overflow-y: auto;
+  gap: 12px;
+  overflow: hidden;
   min-height: 0;
-  padding-right: 4px;
 }
 
-/* 隐藏滚动条 */
-.widget-news .news-list::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-.widget-news .news-list {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* 新闻项 */
+/* 新闻项 — 独立毛玻璃卡片 */
 .widget-news .news-item {
-  padding: 12px 0;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  animation: fadeInUp 0.4s ease-out;
+  gap: 6px;
+  background: rgba(100, 150, 220, 0.04);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  animation: stagger-fadeIn 0.5s ease-out both;
+  transition: background 0.3s ease;
+}
+
+.widget-news .news-item:nth-child(1) { animation-delay: 0s; }
+.widget-news .news-item:nth-child(2) { animation-delay: 0.08s; }
+.widget-news .news-item:nth-child(3) { animation-delay: 0.16s; }
+.widget-news .news-item:nth-child(4) { animation-delay: 0.24s; }
+
+/* 新闻高亮（轮播当前项） */
+.widget-news .news-item.highlighted {
+  background: rgba(100, 150, 220, 0.08);
+  border-color: rgba(255, 255, 255, 0.10);
 }
 
 /* 第一行：标签 + 标题 */
 .widget-news .news-item-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .widget-news .news-item-category {
@@ -262,10 +265,11 @@ html, body {
   padding: 2px 8px;
   border-radius: 4px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .widget-news .news-item-title {
-  font-family: var(--font-family-body, 'SF Pro Text');
+  font-family: var(--font-cn-family, 'SF Pro Text');
   font-size: 14px;
   font-weight: var(--font-weight-regular, 400);
   color: rgba(255, 255, 255, 0.85);
@@ -277,24 +281,34 @@ html, body {
 
 /* 第二行：时间 */
 .widget-news .news-item-time {
-  font-family: var(--font-family-body, 'SF Pro Text');
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.30);
+  font-family: var(--font-cn-family, 'SF Pro Text');
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.25);
 }
 
-/* 列表分割线 */
-.widget-news .news-item:not(:last-child)::after {
-  content: '';
-  display: block;
-  height: 1px;
-  background: linear-gradient(90deg,
-    rgba(255,255,255, 0.05) 0%,
-    rgba(255,255,255, 0.01) 100%
-  );
-  margin-top: 16px;
+/* ── 轮播指示器 ── */
+.widget-news .carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 12px;
 }
 
-/* 骨架屏动画 */
+.widget-news .carousel-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.widget-news .carousel-dot.active {
+  width: 16px;
+  border-radius: 2px;
+  background: rgba(100, 150, 220, 0.70);
+}
+
+/* ── 骨架屏 ── */
 .widget-news .news-item.skeleton {
   pointer-events: none;
 }
@@ -322,6 +336,7 @@ html, body {
   animation: shimmer 1.5s infinite;
   width: 70%;
   height: 18px;
+  border-radius: 4px;
 }
 
 .widget-news .news-item.skeleton .news-item-time {
@@ -333,14 +348,15 @@ html, body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   width: 40px;
-  height: 14px;
+  height: 12px;
+  border-radius: 3px;
 }
 
 /* ── 底部区域 ── */
 .widget-news .footer {
   display: flex;
   flex-shrink: 0;
-  text-align: center;
+  align-items: center;
   padding-top: 12px;
   gap: 12px;
 }
@@ -348,54 +364,47 @@ html, body {
 .widget-news .divider {
   width: 24px;
   height: 1px;
-  background: rgba(255,255,255, 0.20);
+  background: rgba(255,255,255, 0.15);
 }
 
 .widget-news .footer-text {
-  font-family: var(--font-family-body, 'SF Pro Text');
+  font-family: var(--font-cn-family, 'SF Pro Text');
   font-size: var(--font-size-caption, 12px);
   font-weight: var(--font-weight-regular, 400);
-  color: rgba(255, 255, 255, 0.40);
+  color: rgba(255, 255, 255, 0.30);
 }
 
-/* ── 氛围光线（底部） ── */
+/* ── 氛围光线 ── */
 .widget-news .ambient-line {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 40%;
   height: 2px;
-  background: linear-gradient(90deg,
-    rgba(100, 150, 220, 0.35) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, rgba(100, 150, 220, 0.35) 0%, transparent 100%);
   border-radius: 1px;
   pointer-events: none;
 }
 
 /* ── 动画 ── */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── 动态配色（color-engine） ── */
+[data-style="dynamic"] .widget-news {
+  background: var(--dyn-bg);
+}
+
+/* ── WebView 兼容 ── */
+@supports not ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+  .widget-news .news-item {
+    background: rgba(30, 35, 50, 0.70);
   }
 }
 
-/* ─── 响应式（开发预览） ─── */
+/* ─── 响应式 ─── */
 @media (max-width: 900px) {
   .widget-news {
     width: 100%;

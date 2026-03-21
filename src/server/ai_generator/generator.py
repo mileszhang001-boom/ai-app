@@ -8,7 +8,8 @@ AI 生成服务
 import os
 import json
 import time
-from datetime import datetime, date
+import random
+from datetime import datetime, date, timedelta
 from typing import Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 
@@ -218,6 +219,9 @@ class AIGenerator:
         "放假倒计时（如：国庆倒计时）",
         "每日新闻摘要（如：想看今天的新闻）",
         "闹钟（如：每天早上7点叫我起床）",
+        "实时天气（如：北京今天天气怎么样）",
+        "音乐播放器（如：给我来个音乐播放器）",
+        "日历日程（如：今天有什么会议）",
     ]
 
     def generate_from_nl(self, user_text: str) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
@@ -266,6 +270,12 @@ class AIGenerator:
                 "params": cleaned
             }
 
+            # 透传 primary_color 和 visual_style
+            if data.get("primary_color"):
+                result["primary_color"] = data["primary_color"]
+            if data.get("visual_style"):
+                result["visual_style"] = data["visual_style"]
+
             return True, result, None
 
         except Exception as e:
@@ -289,6 +299,127 @@ class AIGenerator:
         else:
             return self._call_qwen(system_prompt, user_message)
 
+    # ── 颜色关键词映射 ──
+    COLOR_KEYWORDS = {
+        "红": "#CC2244", "红色": "#CC2244",
+        "蓝": "#2255CC", "蓝色": "#2255CC",
+        "粉": "#CC6688", "粉色": "#CC6688", "粉红": "#CC6688",
+        "绿": "#22AA66", "绿色": "#22AA66",
+        "金": "#CCAA33", "金色": "#CCAA33",
+        "紫": "#8844CC", "紫色": "#8844CC",
+        "橙": "#CC6622", "橙色": "#CC6622",
+        "青": "#22AAAA", "青色": "#22AAAA",
+        "白": "#AABBCC", "白色": "#AABBCC",
+        "黑": "#334455", "黑色": "#334455",
+        "玫瑰": "#CC4466", "霓虹紫": "#8844CC", "霓虹": "#8844CC",
+        "香槟": "#CCAA66", "香槟色": "#CCAA66",
+    }
+
+    # ── 语义→视觉风格映射 ──
+    STYLE_KEYWORDS = {
+        "minimal": ["简约", "简洁", "极简", "商务", "专业", "正式", "科技", "未来", "极客"],
+        "material": ["活力", "青春", "运动", "大胆", "个性", "潮流"],
+        "pixel": ["复古", "怀旧", "童年", "像素", "8bit", "像素风"],
+        "glass": ["浪漫", "温柔", "甜蜜", "优雅", "高级", "奢华", "自然", "清新", "治愈"],
+    }
+
+    def _extract_color(self, text: str) -> Optional[str]:
+        """从用户输入提取颜色 hex"""
+        import re
+        # 直接 hex
+        hex_match = re.search(r'#[0-9A-Fa-f]{6}', text)
+        if hex_match:
+            return hex_match.group()
+        # 关键词
+        for kw, hex_val in self.COLOR_KEYWORDS.items():
+            if kw in text:
+                return hex_val
+        return None
+
+    def _extract_visual_style(self, text: str) -> Optional[str]:
+        """从用户输入提取视觉风格"""
+        for style, keywords in self.STYLE_KEYWORDS.items():
+            for kw in keywords:
+                if kw in text:
+                    return style
+        return None
+
+    def _extract_date_enhanced(self, user_text: str, today: date, prefer_past: bool = False) -> Optional[str]:
+        """增强日期提取：支持明天/后天/下周X/X月X日/N周年反推
+        prefer_past: True时，X月X日如果已过则保留当年（用于start_date等过去日期场景）
+        """
+        import re
+        text = user_text
+
+        # 标准格式: 2024-06-01 or 2024年6月1日
+        date_match = re.search(r'(\d{4})[年/-](\d{1,2})[月/-](\d{1,2})', text)
+        if date_match:
+            y, m, d = date_match.group(1), date_match.group(2).zfill(2), date_match.group(3).zfill(2)
+            return f"{y}-{m}-{d}"
+
+        # 明天/后天/大后天
+        if "大后天" in text:
+            return (today + timedelta(days=3)).isoformat()
+        if "后天" in text:
+            return (today + timedelta(days=2)).isoformat()
+        if "明天" in text:
+            return (today + timedelta(days=1)).isoformat()
+
+        # 下周X
+        weekday_map = {"一": 0, "二": 1, "三": 2, "四": 3, "五": 4, "六": 5, "日": 6, "天": 6}
+        weekday_match = re.search(r'下周([一二三四五六日天])', text)
+        if weekday_match:
+            target_wd = weekday_map.get(weekday_match.group(1), 0)
+            current_wd = today.weekday()
+            days_ahead = (target_wd - current_wd + 7) % 7 + 7  # next week
+            return (today + timedelta(days=days_ahead)).isoformat()
+
+        # X月X日 (无年份)
+        short_date = re.search(r'(\d{1,2})[月](\d{1,2})[日号]', text)
+        if short_date:
+            m, d = int(short_date.group(1)), int(short_date.group(2))
+            target = date(today.year, m, d)
+            if not prefer_past and target < today:
+                # 未来日期场景：已过则取明年
+                target = date(today.year + 1, m, d)
+            # prefer_past: 保留当年（宝宝出生日/恋爱纪念日等）
+            return target.isoformat()
+
+        return None
+
+    def _extract_anniversary_years(self, text: str) -> Optional[int]:
+        """提取周年数：'十周年' → 10"""
+        import re
+        cn_num = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10,
+                  "二十": 20, "三十": 30, "四十": 40, "五十": 50}
+        match = re.search(r'(\d+|[一二三四五六七八九十百]+)\s*(?:周年|年)', text)
+        if match:
+            val = match.group(1)
+            if val.isdigit():
+                return int(val)
+            return cn_num.get(val)
+        return None
+
+    def _extract_days_milestone(self, text: str) -> Optional[int]:
+        """提取天数里程碑：'100天' → 100"""
+        import re
+        match = re.search(r'(\d+)\s*天', text)
+        if match:
+            return int(match.group(1))
+        return None
+
+    def _build_result(self, base: dict, text: str) -> str:
+        """构建结果 JSON，自动注入 primary_color 和 visual_style"""
+        color = self._extract_color(text)
+        visual = self._extract_visual_style(text)
+        if color:
+            base["primary_color"] = color
+            # 当有自定义颜色时，style_preset 设为 dynamic
+            base["style_preset"] = "dynamic"
+        if visual:
+            base["visual_style"] = visual
+        return json.dumps(base, ensure_ascii=False)
+
     def _mock_nl_response(self, user_text: str) -> str:
         """自然语言模式的模拟响应（用于无 API Key 测试）"""
         import re
@@ -296,22 +427,19 @@ class AIGenerator:
         text = user_text.lower()
         print(f"[DEBUG] Mock NL response for: {user_text}")
 
-        # 提取日期 — 支持多种格式
-        date_match = re.search(r'(\d{4})[年/-](\d{1,2})[月/-](\d{1,2})', user_text)
+        today = date.today()
+
+        # 时间提取
         time_match = re.search(r'(\d{1,2})[点:：时](\d{0,2})', user_text)
-
-        extracted_date = None
-        if date_match:
-            y, m, d = date_match.group(1), date_match.group(2).zfill(2), date_match.group(3).zfill(2)
-            extracted_date = f"{y}-{m}-{d}"
-
         extracted_time = None
         if time_match:
             h = time_match.group(1).zfill(2)
             m = time_match.group(2).zfill(2) if time_match.group(2) else "00"
             extracted_time = f"{h}:{m}"
 
-        today = date.today()
+        # 周年反推 start_date
+        anniversary_years = self._extract_anniversary_years(user_text)
+        days_milestone = self._extract_days_milestone(user_text)
 
         # ---- 意图识别 ----
         # 闹钟
@@ -329,45 +457,64 @@ class AIGenerator:
             elif "周末" in text:
                 repeat = "weekends"
 
-            return json.dumps({
+            return self._build_result({
                 "component_type": "alarm",
                 "theme": "clock",
                 "template_id": "alarm_clock",
-                "style_preset": "digital-neon" if "霓虹" in text or "数码" in text else "analog-minimal",
+                "style_preset": "digital-neon" if "霓虹" in text or "数码" in text else "vibrant-orange",
                 "params": {"alarm_time": t, "label": label, "repeat": repeat}
-            }, ensure_ascii=False)
+            }, user_text)
 
         # 新闻
         news_keywords = ["新闻", "资讯", "热点", "头条", "每日"]
         if any(k in text for k in news_keywords) and "纪念" not in text:
-            return json.dumps({
+            return self._build_result({
                 "component_type": "news",
                 "theme": "daily",
                 "template_id": "news_daily",
                 "style_preset": "minimal-dark",
                 "params": {"category": "tech" if "科技" in text else "general", "max_items": 5}
-            }, ensure_ascii=False)
+            }, user_text)
 
         # 宝宝
-        baby_keywords = ["宝宝", "孩子", "出生", "满月", "周岁", "儿子", "女儿", "baby"]
-        if any(k in text for k in baby_keywords):
+        baby_keywords = ["宝宝", "孩子", "出生", "满月", "周岁", "儿子", "女儿", "baby", "小朋友"]
+        # 额外检测：'我家XXX...天' 模式也视为宝宝
+        baby_pattern = bool(re.search(r'我家.{1,4}(?:今天|已经|刚好|满).{0,4}\d+天', user_text))
+        if any(k in text for k in baby_keywords) or baby_pattern:
+            extracted_date = self._extract_date_enhanced(user_text, today, prefer_past=True)
             d = extracted_date or today.isoformat()
+            # 天数里程碑反推 start_date: "100天了" → start_date = today - 100
+            if days_milestone and not extracted_date:
+                d = (today - timedelta(days=days_milestone)).isoformat()
             days_diff = (today - date.fromisoformat(d)).days if d <= today.isoformat() else 0
             subtitle = self._generate_nl_subtitle("baby", days_diff, user_text)
+
+            # 智能 title
             title = "宝宝成长记"
-            # 从用户输入中提取名字
-            name_match = re.search(r'(?:叫|叫做|名字是|名叫)[\s]*([^\s,，。、]{1,4})', user_text)
+            name_match = re.search(r'(?:叫|叫做|名字是|名叫|小名)[\s]*([^\s,，。、]{1,4})', user_text)
+            baby_name_match = re.search(r'(?:我家|我的)[\s]*([^\s,，。、]{1,4}?)(?:今天|刚好|已经|出生)', user_text)
             if name_match:
                 title = f"{name_match.group(1)}的成长记"
-            return json.dumps({
+            elif baby_name_match:
+                name = baby_name_match.group(1)
+                if name and len(name) <= 4:
+                    title = f"{name}的成长记"
+            if days_milestone:
+                if days_milestone == 100:
+                    title = title.replace("成长记", "百天纪念") if "成长记" in title else "宝宝百天纪念"
+                elif days_milestone == 1000:
+                    title = title.replace("成长记", "千日纪念") if "成长记" in title else "宝宝千日纪念"
+
+            return self._build_result({
                 "component_type": "anniversary", "mode": "countup", "theme": "baby",
                 "template_id": "anniversary_baby", "style_preset": "soft-purple",
                 "params": {"title": title[:20], "start_date": d, "subtitle": subtitle}
-            }, ensure_ascii=False)
+            }, user_text)
 
         # 放假/倒计时
         holiday_keywords = ["放假", "倒计时", "假期", "国庆", "春节", "五一", "元旦", "过年", "中秋", "端午"]
         if any(k in text for k in holiday_keywords):
+            extracted_date = self._extract_date_enhanced(user_text, today, prefer_past=False)
             # 推断目标日期
             if extracted_date:
                 target = extracted_date
@@ -376,7 +523,6 @@ class AIGenerator:
                 if date.fromisoformat(target) < today:
                     target = f"{today.year + 1}-10-01"
             elif "春节" in text or "过年" in text:
-                # 简化处理：大约1月底/2月初
                 target = f"{today.year + 1}-01-29"
             elif "五一" in text:
                 target = f"{today.year}-05-01"
@@ -388,39 +534,123 @@ class AIGenerator:
                 target = f"{today.year}-09-17"
                 if date.fromisoformat(target) < today:
                     target = f"{today.year + 1}-09-17"
+            elif "端午" in text:
+                target = f"{today.year}-06-10"
+                if date.fromisoformat(target) < today:
+                    target = f"{today.year + 1}-06-10"
             else:
                 target = f"{today.year}-10-01"
 
             days_left = (date.fromisoformat(target) - today).days
+
+            # 智能 title
             title = "假期倒计时"
             if "国庆" in text:
-                title = "国庆快乐"
+                title = "国庆假期倒计时"
             elif "春节" in text or "过年" in text:
                 title = "春节倒计时"
             elif "五一" in text:
-                title = "五一假期"
+                title = "五一小长假"
+            elif "端午" in text:
+                title = "端午节倒计时"
+            elif "中秋" in text:
+                title = "中秋节倒计时"
+            elif "元旦" in text:
+                title = "元旦倒计时"
 
             subtitle = self._generate_nl_subtitle("holiday", days_left, user_text)
-            return json.dumps({
+            return self._build_result({
                 "component_type": "anniversary", "mode": "countdown", "theme": "holiday",
                 "template_id": "anniversary_holiday", "style_preset": "vibrant-orange",
                 "params": {"title": title[:20], "target_date": target, "subtitle": subtitle}
-            }, ensure_ascii=False)
+            }, user_text)
+
+        # 天气
+        weather_keywords = ["天气", "温度", "穿什么", "下雨", "出行", "气温", "多少度", "冷", "热"]
+        if any(k in text for k in weather_keywords):
+            city = "北京"
+            city_match = re.search(r'(北京|上海|广州|深圳|杭州|成都|武汉|南京|重庆|西安|苏州|长沙|天津|郑州|合肥|厦门|青岛|大连)', user_text)
+            if city_match:
+                city = city_match.group(1)
+            weather_type = "sunny"
+            if "雨" in text: weather_type = "rainy"
+            elif "雪" in text: weather_type = "snowy"
+            elif "阴" in text or "云" in text: weather_type = "cloudy"
+            return self._build_result({
+                "component_type": "weather", "theme": "realtime",
+                "template_id": "weather_realtime", "style_preset": "clear-blue",
+                "params": {"city": city, "weather_type": weather_type}
+            }, user_text)
+
+        # 音乐
+        music_keywords = ["音乐", "歌", "播放", "听歌", "播放器", "歌曲"]
+        if any(k in text for k in music_keywords):
+            song = "晴天"
+            artist = "周杰伦"
+            lyrics = "故事的小黄花 从出生那年就飘着"
+            if "周杰伦" in text or "jay" in text:
+                pass
+            elif "薛之谦" in text:
+                song, artist, lyrics = "演员", "薛之谦", "简单点 说话的方式简单点"
+            elif "陈奕迅" in text:
+                song, artist, lyrics = "十年", "陈奕迅", "十年之后 我们是朋友"
+            elif "林俊杰" in text or "jj" in text:
+                song, artist, lyrics = "江南", "林俊杰", "风到这里就是粘 粘住过客的思念"
+
+            preset = "dark-vinyl"
+            if "霓虹" in text or "紫" in text:
+                preset = "neon-purple"
+            elif "简约" in text or "极简" in text:
+                preset = "minimal-light"
+
+            return self._build_result({
+                "component_type": "music", "theme": "player",
+                "template_id": "music_player", "style_preset": preset,
+                "params": {"song_name": song, "artist": artist, "lyrics_snippet": lyrics}
+            }, user_text)
+
+        # 日历/日程
+        calendar_keywords = ["日历", "日程", "安排", "会议", "行程", "今天有什么"]
+        if any(k in text for k in calendar_keywords):
+            return self._build_result({
+                "component_type": "calendar", "theme": "schedule",
+                "template_id": "calendar_schedule", "style_preset": "business-gray",
+                "params": {"show_lunar": True}
+            }, user_text)
 
         # 恋爱 / 纪念日
-        love_keywords = ["恋爱", "在一起", "结婚", "纪念", "另一半", "女朋友", "男朋友", "老婆", "老公", "对象", "爱"]
+        love_keywords = ["恋爱", "在一起", "结婚", "纪念", "另一半", "女朋友", "男朋友", "老婆", "老公", "对象", "爱", "周年"]
+        extracted_date = self._extract_date_enhanced(user_text, today, prefer_past=True)
         if any(k in text for k in love_keywords) or extracted_date:
             d = extracted_date or "2024-06-01"
+
+            # 周年反推 start_date
+            if anniversary_years and not extracted_date:
+                d = (today - timedelta(days=anniversary_years * 365)).isoformat()
+            # 天数里程碑反推
+            elif days_milestone and not extracted_date:
+                d = (today - timedelta(days=days_milestone)).isoformat()
+
             days_diff = (today - date.fromisoformat(d)).days if d <= today.isoformat() else 0
             subtitle = self._generate_nl_subtitle("love", days_diff, user_text)
+
+            # 智能 title
             title = "恋爱纪念"
             if "结婚" in text:
-                title = "结婚纪念日"
-            return json.dumps({
+                if anniversary_years:
+                    title = f"结婚{anniversary_years}周年"
+                else:
+                    title = "结婚纪念日"
+            elif anniversary_years:
+                title = f"在一起{anniversary_years}周年"
+            elif "在一起" in text and days_milestone:
+                title = f"在一起第{days_milestone}天"
+
+            return self._build_result({
                 "component_type": "anniversary", "mode": "countup", "theme": "love",
                 "template_id": "anniversary_love", "style_preset": "sweet-pink",
                 "params": {"title": title[:20], "start_date": d, "subtitle": subtitle}
-            }, ensure_ascii=False)
+            }, user_text)
 
         # 兜底：无法识别意图，返回特殊标记
         return json.dumps({
@@ -429,51 +659,114 @@ class AIGenerator:
         }, ensure_ascii=False)
 
     def _generate_nl_subtitle(self, theme: str, days_diff: int, user_text: str) -> str:
-        """为自然语言模式生成有创意的副标题"""
-        days_abs = abs(days_diff)
+        """为自然语言模式生成有创意的副标题（扩容+随机化+情感融入）"""
+        text = user_text.lower()
 
         if theme == "love":
-            if days_abs <= 30:
-                options = ["甜蜜的开始", "每一刻都是心动", "最好的日子刚刚开始"]
-            elif days_abs <= 100:
-                options = ["每一天都算数", "爱在日常里生长", "100天的小确幸"]
-            elif days_abs <= 365:
-                options = ["爱已悄然生长", "最好的时光是有你的日子", "日子有你才完整"]
-            elif days_abs <= 730:
-                options = ["两年了，依然心动", "时光温柔，因为有你", "爱已满两载春秋"]
-            elif days_abs <= 1095:
-                options = ["三年如一日的心动", "时光不负深情", "千日情深"]
+            # 检测情感关键词
+            is_romantic = any(k in text for k in ["浪漫", "温柔", "甜蜜", "温馨"])
+            is_bold = any(k in text for k in ["高级", "奢华", "大气", "酷"])
+
+            if abs(days_diff) <= 30:
+                options = ["甜蜜的开始", "每一刻都是心动", "从今天起记录我们",
+                           "有你的日子天天是纪念日", "第一个月未来还长",
+                           "日子因为你而发光", "这是我们的第一章", "心动是遇见你那一刻"]
+            elif abs(days_diff) <= 100:
+                options = ["每一天都算数", "爱在日常里生长", "小确幸的日子",
+                           "平凡的每一天因你不凡", "一起走过的路都算风景",
+                           "最好的时光正在发生", "我们的故事才刚刚开始", "有你就是好天气"]
+            elif abs(days_diff) <= 365:
+                options = ["爱已悄然生长", "最好的时光是有你的日子", "日子有你才完整",
+                           "一年四季都有你", "365天的温度不曾消退",
+                           "一整年的心动不止", "最好的一年因为有你", "时光温柔以待"]
+            elif abs(days_diff) <= 730:
+                options = ["两年了依然心动", "时光温柔因为有你", "爱已满两载春秋",
+                           "七百多天的默契", "两年是新的开始", "我们的第二年更精彩"]
+            elif abs(days_diff) <= 1095:
+                options = ["三年如一日的心动", "时光不负深情", "千日情深",
+                           "一千天每天都有你", "三年是我最好的选择"]
+            elif abs(days_diff) <= 3650:
+                options = ["余生都是你", "岁月流转爱意永驻", "最长情的告白",
+                           "感谢你选择了我", "你是我最好的选择",
+                           "携手走过的每一步都算数", "白首不相离"]
             else:
-                options = ["余生都是你", "岁月流转，爱意永驻", "最长情的告白"]
-            return options[days_abs % len(options)]
+                options = ["十年如一日的深情", "余生都是你", "岁月流转爱意永驻",
+                           "最长情的告白", "十年是开始不是结束",
+                           "携手走过的每一步都算数", "感谢你选择了我",
+                           "你是我最好的选择", "十年后的我们依然在一起", "白首不相离"]
+            if is_romantic:
+                options = [o for o in options if any(c in o for c in "心动温柔甜蜜")] or options
+            return random.choice(options)
 
         elif theme == "baby":
-            if days_abs <= 7:
-                options = ["欢迎来到这个世界", "小天使降临", "你是最好的礼物"]
-            elif days_abs <= 30:
-                options = ["小小的你，大大的世界", "每天都在长大", "满月快乐"]
-            elif days_abs <= 100:
-                options = ["百天的小可爱", "每一天都是新奇迹", "茁壮成长中"]
-            elif days_abs <= 365:
-                options = ["一岁啦！", "第一年的精彩", "从爬到走的日子"]
+            if abs(days_diff) <= 7:
+                options = ["欢迎来到这个世界", "小天使降临", "你是最好的礼物",
+                           "全世界最柔软的存在", "妈妈爱你", "小小的你大大的爱"]
+            elif abs(days_diff) <= 30:
+                options = ["小小的你大大的世界", "每天都在长大", "满月快乐",
+                           "你的每一天都是礼物", "一个月啦时间真快"]
+            elif abs(days_diff) <= 100:
+                options = ["百天的小可爱", "每一天都是新奇迹", "茁壮成长中",
+                           "一百天的小确幸", "你的笑容是最好的礼物",
+                           "小小冒险家启程了", "每个第一次都珍贵"]
+            elif abs(days_diff) <= 365:
+                options = ["一岁啦生日快乐", "第一年的精彩", "从爬到走的日子",
+                           "世界因你而精彩", "小小的你已经一岁啦"]
+            elif abs(days_diff) <= 730:
+                options = ["两岁啦小小少年", "每天都是新冒险", "你的世界越来越大"]
             else:
-                options = ["时光见证你的成长", "每一天都在闪光", "最棒的小朋友"]
-            return options[days_abs % len(options)]
+                options = ["时光见证你的成长", "每一天都在闪光", "最棒的小朋友",
+                           "你是全世界最棒的", "茁壮成长未来可期"]
+            return random.choice(options)
 
         elif theme == "holiday":
-            if days_diff <= 0:
-                options = ["假期快乐！", "放假啦！", "享受假期吧"]
-            elif days_diff <= 3:
-                options = ["再坚持一下就放假啦", "近在眼前的快乐", "倒计时开始！"]
-            elif days_diff <= 7:
-                options = ["一周后见，快乐", "假期在向你招手", "快了快了"]
-            elif days_diff <= 30:
-                options = ["期待的心情最美好", "每天都在靠近假期", "值得等待的快乐"]
-            else:
-                options = ["美好的事情值得等待", "心里有期待，日子就有光", "遥远但值得"]
-            return options[days_abs % len(options)]
+            # 检测具体节日用于选择文案
+            is_national = "国庆" in text
+            is_spring = "春节" in text or "过年" in text
+            is_may = "五一" in text
+            is_excited = any(k in text for k in ["兴奋", "激动", "太期待", "冲"])
 
-        return "每一天都值得记录"
+            if is_national:
+                holiday_pool = ["给祖国母亲庆生", "十一小长假在路上了", "七天假期倒计时中",
+                                "这个国庆你想去哪", "十一黄金周即将到来",
+                                "假期的快乐提前预定", "国庆七天乐倒计时"]
+            elif is_spring:
+                holiday_pool = ["回家过年的日子近了", "年味儿越来越浓", "春节团圆倒计时",
+                                "新年快乐即将到来", "又要过年啦", "回家的路越来越短"]
+            elif is_may:
+                holiday_pool = ["五一小长假冲冲冲", "劳动最光荣但也要休息",
+                                "五一出游计划启动", "小长假在向你招手", "五一快乐提前预定"]
+            else:
+                holiday_pool = None
+
+            if holiday_pool:
+                return random.choice(holiday_pool)
+
+            if days_diff <= 0:
+                options = ["假期快乐", "放假啦尽情享受", "享受假期吧",
+                           "快乐的时光开始了", "假期模式已开启"]
+            elif days_diff <= 3:
+                options = ["再坚持一下就放假啦", "近在眼前的快乐", "倒计时开始",
+                           "假期触手可及", "再忍忍就到了"]
+            elif days_diff <= 7:
+                options = ["一周后见快乐", "假期在向你招手", "快了快了",
+                           "下周就是假期了", "假期已经在路上"]
+            elif days_diff <= 30:
+                options = ["期待的心情最美好", "每天都在靠近假期", "值得等待的快乐",
+                           "好日子在前方等你", "心中有期待日子有奔头",
+                           "再坚持一下就放假啦"]
+            else:
+                options = ["美好的事情值得等待", "心里有期待日子就有光", "遥远但值得",
+                           "假期在向你招手", "快乐的日子要来了",
+                           "值得期待的假期", "期待的心情最美好",
+                           "美好的事情值得等待"]
+
+            if is_excited:
+                options = [o for o in options if any(c in o for c in "冲快乐开启")] or options
+
+            return random.choice(options)
+
+        return random.choice(["每一天都值得记录", "日子有你更精彩", "美好正在发生"])
 
     def _mock_response(self, user_message: str) -> str:
         """模拟响应（用于测试）"""
@@ -652,7 +945,7 @@ class AIGenerator:
             result = {
                 "component_type": "alarm",
                 "template_id": "alarm_clock",
-                "style_preset": user_style or "analog-minimal",
+                "style_preset": user_style or "vibrant-orange",
                 "params": {
                     "alarm_time": user_time or "07:30",
                     "label": user_label or "工作日闹钟",

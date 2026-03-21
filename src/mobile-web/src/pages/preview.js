@@ -16,6 +16,12 @@ const TEMPLATE_URL_MAP = {
   'news':                '/widget-templates/news/index.html',
   'alarm-clock':         '/widget-templates/alarm/index.html',
   'alarm':               '/widget-templates/alarm/index.html',
+  'weather-realtime':    '/widget-templates/weather/index.html',
+  'weather':             '/widget-templates/weather/index.html',
+  'music-player':        '/widget-templates/music/index.html',
+  'music':               '/widget-templates/music/index.html',
+  'calendar-schedule':   '/widget-templates/calendar/index.html',
+  'calendar':            '/widget-templates/calendar/index.html',
 };
 
 export class PreviewPage {
@@ -78,6 +84,14 @@ export class PreviewPage {
 
     if (data.style_preset) {
       p.style_preset = data.style_preset;
+    }
+
+    // 透传动态配色 + 视觉风格
+    if (data.primary_color) {
+      p.primary_color = data.primary_color;
+    }
+    if (data.visual_style) {
+      p.visual_style = data.visual_style;
     }
 
     if (data.component_type === 'anniversary') {
@@ -159,8 +173,10 @@ export class PreviewPage {
       html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${Date.now()}"`);
       html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${Date.now()}"`);
 
-      // 3. 处理 ../../shared/bridge.js
+      // 3. 处理 ../../shared/bridge.js 和 color-engine.js
       html = html.replace(/src="\.\.\/\.\.\/shared\/bridge\.js"/g, `src="/widget-templates/shared/bridge.js?v=${Date.now()}"`);
+      html = html.replace(/src="\.\.\/\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
+      html = html.replace(/src="\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
 
       // 4. 添加 data-style 属性到 html 元素（如果存在 style_preset）
       if (widgetParams.style_preset) {

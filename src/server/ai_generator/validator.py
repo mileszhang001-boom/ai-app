@@ -21,6 +21,9 @@ VALID_TEMPLATE_IDS = {
     "anniversary_love", "anniversary_baby", "anniversary_holiday", "anniversary_warm",
     "news_daily",
     "alarm_clock",
+    "weather_realtime",
+    "music_player",
+    "calendar_schedule",
 }
 
 VALID_STYLE_PRESETS = {
@@ -30,17 +33,29 @@ VALID_STYLE_PRESETS = {
     "ocean-blue", "warm-yellow",
     # anniversary / holiday
     "forest-green",
-    # anniversary / warm (与 love 共享 + 额外)
     # news
-    "clean-light",
+    "clean-light", "tech-blue", "xiaomi-orange",
     # alarm
-    "analog-minimal", "digital-neon",
+    "digital-neon",
+    # weather
+    "clear-blue", "twilight", "warm-sun",
+    # music
+    "dark-vinyl", "neon-purple", "minimal-light",
+    # calendar
+    "business-gray", "nature-green", "elegant-white",
+    # dynamic (color-engine)
+    "dynamic",
 }
+
+VALID_VISUAL_STYLES = {"glass", "minimal", "material", "pixel"}
 
 VALID_THEMES = {
     "anniversary": {"love", "baby", "holiday", "warm"},
     "news": {"daily"},
     "alarm": {"clock"},
+    "weather": {"realtime"},
+    "music": {"player"},
+    "calendar": {"schedule"},
 }
 
 
@@ -106,7 +121,25 @@ class ComponentValidator:
             if errors:
                 return False, errors, None
 
-            # 6. params 校验（含自动截断）
+            # 6. primary_color 格式校验（可选）
+            primary_color = data.get("primary_color")
+            if primary_color:
+                import re
+                if not re.match(r'^#[0-9A-Fa-f]{6}$', primary_color):
+                    errors.append(f"Invalid primary_color format: {primary_color}, expected #RRGGBB")
+
+            # 7. visual_style 枚举校验（可选）
+            visual_style = data.get("visual_style")
+            if visual_style and visual_style not in VALID_VISUAL_STYLES:
+                errors.append(
+                    f"Invalid visual_style: {visual_style}. "
+                    f"Must be one of {sorted(VALID_VISUAL_STYLES)}"
+                )
+
+            if errors:
+                return False, errors, None
+
+            # 8. params 校验（含自动截断）
             self._validate_params(
                 component_type, theme,
                 data.get("params", {}),
@@ -177,6 +210,10 @@ class ComponentValidator:
         """校验 style_preset 白名单（基于 component_type/theme 的可用风格）"""
         if not style_preset:
             errors.append("style_preset is missing")
+            return
+
+        # "dynamic" 总是合法的（由 color-engine 驱动）
+        if style_preset == "dynamic":
             return
 
         # 先查模板定义的可用风格
@@ -277,8 +314,27 @@ class ComponentValidator:
             },
             "alarm": {
                 "clock": {
-                    "default_hours": {"type": "number", "required": False},
+                    "alarm_time": {"type": "string", "required": False},
                     "label": {"type": "string", "required": False, "maxLength": 15},
+                    "repeat": {"type": "string", "required": False},
+                },
+            },
+            "weather": {
+                "realtime": {
+                    "city": {"type": "string", "required": False, "maxLength": 20, "default": "北京"},
+                    "weather_type": {"type": "enum", "values": ["sunny", "cloudy", "rainy", "snowy"], "default": "sunny"},
+                },
+            },
+            "music": {
+                "player": {
+                    "song_name": {"type": "string", "required": False, "maxLength": 30},
+                    "artist": {"type": "string", "required": False, "maxLength": 20},
+                    "lyrics_snippet": {"type": "string", "required": False, "maxLength": 50},
+                },
+            },
+            "calendar": {
+                "schedule": {
+                    "show_lunar": {"type": "boolean", "required": False, "default": True},
                 },
             },
         }

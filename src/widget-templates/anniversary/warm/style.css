@@ -1,8 +1,8 @@
 /**
- * 温暖纪念 · Ambient Light
+ * 温暖纪念 · 琥珀（Amber） — Liquid Glass Edition
  *
- * 居中布局
- * 主题色：琥珀橙
+ * 底部对齐布局 + 毛玻璃信息卡片 + 粒子系统
+ * 主题色：琥珀橙 / 萤火虫暖光
  */
 
 /* 基础重置 */
@@ -28,14 +28,13 @@ html, body {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 28px 32px;  /* 增加上方留白 */
+  justify-content: flex-end;
+  padding: 40px 28px 40px;
   box-sizing: border-box;
 
-  /* 深色背景 - 增强橙色调 */
-  background: linear-gradient(150deg, #221810 0%, #2a1c14 40%, #1c1410 100%);
-  border: 1px solid var(--dark-card-border);
+  /* 深色背景 — 琥珀暗调 */
+  background: var(--warm-bg-dark, linear-gradient(150deg, #1f1510 0%, #261a12 40%, #1a1210 100%));
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* 浅色主题适配 */
@@ -44,93 +43,146 @@ html, body {
   border: 1px solid var(--light-card-border);
 }
 
-/* ── 背景光晕 ── */
-
-/* 主光晕：右上偏 */
-.widget-warm .glow-primary {
+/* ── 粒子画布 ── */
+.widget-warm .particle-canvas {
   position: absolute;
-  top: 10%;
-  right: -5%;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--warm-glow) 0%, transparent 70%);
-  filter: blur(35px);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  z-index: 0;
 }
 
-/* 副光晕：左下偏，更弱 */
+/* ── 背景光晕 — 三层呼吸系统 ── */
+
+/* 主光晕：右上角，缓慢呼吸 */
+.widget-warm .glow-primary {
+  position: absolute;
+  top: 8%;
+  right: -8%;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 140, 60, 0.22) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
+}
+
+/* 副光晕：左下角 */
 .widget-warm .glow-secondary {
   position: absolute;
   bottom: 20%;
-  left: -15%;
-  width: 150px;
-  height: 150px;
+  left: -12%;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--warm-glow-alt) 0%, transparent 70%);
-  filter: blur(28px);
+  background: radial-gradient(circle, rgba(255, 180, 100, 0.12) 0%, transparent 70%);
+  filter: blur(45px);
+  pointer-events: none;
+  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+/* 第三光晕：中部漫反射 */
+.widget-warm .glow-tertiary {
+  position: absolute;
+  top: 40%;
+  left: 30%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 160, 80, 0.06) 0%, transparent 60%);
+  filter: blur(80px);
   pointer-events: none;
 }
 
-/* ── 氛围光线（Ambient Light Line） ── */
+/* ── 氛围光线（底部） ── */
 .widget-warm .ambient-line {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 50%;
-  height: 2px;  /* 从 1px 增加到 2px，更可见 */
-  background: linear-gradient(
-    90deg,
-    var(--warm-ambient) 0%,
-    transparent 100%
-  );
+  width: 55%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 150, 60, 0.50) 0%, transparent 100%);
   border-radius: 1px;
-  opacity: 1;  /* 确保可见 */
+  opacity: 1;
   pointer-events: none;
 }
 
-/* ── 内容区 ── */
-.widget-warm .content {
+/* ── 毛玻璃信息卡片 ── */
+.widget-warm .glass-card {
   position: relative;
   z-index: 1;
-  text-align: center;
+  background: rgba(255, 140, 60, 0.04);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: 1px solid rgba(255, 180, 100, 0.08);
+  border-radius: 16px;
+  padding: 32px 24px 28px;
+  box-shadow:
+    var(--glass-inner-glow),
+    var(--shadow-subtle);
+  overflow: hidden;
+  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
+}
+
+/* 高光扫过效果 */
+.widget-warm .glass-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 200, 120, 0.04) 50%,
+    transparent 100%
+  );
+  animation: light-sweep var(--anim-sweep-duration, 3s) ease-in-out infinite;
+  animation-delay: 2s;
+  pointer-events: none;
 }
 
 /* ── 核心数字 ── */
 .widget-warm .hero-number {
-  font-family: 'Bebas Neue', 'DIN Alternate', 'SF Pro Display', system-ui;
+  font-family: var(--font-hero-family);
   font-size: var(--size-hero-md);
   font-weight: var(--font-hero-weight);
   letter-spacing: var(--font-hero-letter-spacing);
   line-height: var(--font-hero-line-height);
   margin-bottom: var(--gap-hero-to-unit);
+  perspective: 500px;
 
-  /* 数字渐变色：深色模式 */
-  background: var(--warm-number-gradient);
+  /* 数字渐变色：白色渐变 */
+  background: linear-gradient(180deg, #ffffff 20%, rgba(255, 255, 255, 0.6) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-
-  /* 动画 */
-  animation: entrance-fadeIn 0.6s ease-out;
 }
 
-/* 浅色模式数字渐变 */
-[data-theme="light"] .widget-warm .hero-number {
-  background: var(--warm-number-gradient-light);
+/* 数字翻牌动画 */
+.widget-warm .digit-group {
+  display: inline-block;
+  transform-origin: center bottom;
 }
 
-/* 数字更新脉冲动画 */
-.widget-warm .hero-number.updating {
-  animation: number-pulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+.widget-warm .digit-group.flip-out {
+  animation: digit-flip-out var(--anim-digit-flip-duration, 0.3s) ease-in forwards;
 }
 
-/* ── 英文单位标注：极度弱化 ── */
+.widget-warm .digit-group.flip-in {
+  animation: digit-flip-in var(--anim-digit-flip-duration, 0.3s) ease-out forwards;
+}
+
+/* ── 英文单位标注 ── */
 .widget-warm .unit-label {
   font-family: var(--font-en-family);
   font-size: var(--size-unit);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: var(--letter-spacing-unit-wide);
+  font-weight: var(--font-weight-medium, 500);
+  letter-spacing: var(--letter-spacing-unit, 3px);
   text-transform: uppercase;
   color: var(--warm-label-dark);
   margin-bottom: var(--gap-unit-to-divider);
@@ -142,19 +194,19 @@ html, body {
 
 /* ── 分割线 ── */
 .widget-warm .divider {
-  width: var(--divider-width-small);
-  height: var(--divider-height);
+  width: 24px;
+  height: 1px;
   background: var(--warm-line);
-  margin: 0 auto var(--gap-hero-divider);
+  margin-bottom: var(--gap-divider-to-subtitle);
 }
 
 /* ── 中文副标题 ── */
 .widget-warm .subtitle-cn {
   font-family: var(--font-cn-family);
   font-size: var(--size-subtitle);
-  font-weight: var(--font-weight-regular);
-  color: var(--dark-text-primary);
-  opacity: 0.85;
+  font-weight: var(--font-weight-regular, 400);
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: var(--letter-spacing-body, 0.3px);
   margin-bottom: var(--gap-subtitle-caption);
 }
 
@@ -163,12 +215,12 @@ html, body {
   opacity: 0.8;
 }
 
-/* ── 中文辅助信息：最弱 ── */
+/* ── 中文辅助信息 ── */
 .widget-warm .caption-cn {
   font-family: var(--font-cn-family);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-regular);
-  color: var(--dark-text-tertiary);
+  font-size: var(--size-caption);
+  font-weight: var(--font-weight-regular, 400);
+  color: rgba(255, 255, 255, 0.30);
   letter-spacing: 0.2px;
 }
 
@@ -176,51 +228,31 @@ html, body {
   color: var(--light-text-tertiary);
 }
 
-/* ── 动画 ── */
-
-/* 卡片首次加载 */
-@keyframes entrance-fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 数字更新脉冲 */
-@keyframes number-pulse {
-  0% {
-    transform: scale(0.96);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* ── 动态配色（color-engine） ── */
+[data-style="dynamic"] .widget-warm {
+  background: var(--dyn-bg);
 }
 
 /* ── WebView 兼容性 ── */
 
-/* 不支持 background-clip: text 的浏览器降级 */
 @supports not (-webkit-background-clip: text) {
   .widget-warm .hero-number {
     background: none;
     -webkit-text-fill-color: initial;
-    color: var(--dark-text-primary);
-  }
-
-  [data-theme="light"] .widget-warm .hero-number {
-    color: var(--light-text-primary);
+    color: #ffffff;
   }
 }
 
-/* 不支持 filter: blur 的浏览器降级 */
-@supports not (filter: blur(35px)) {
+@supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
+  .widget-warm .glass-card {
+    background: rgba(40, 28, 18, 0.85);
+  }
+}
+
+@supports not (filter: blur(50px)) {
   .widget-warm .glow-primary,
-  .widget-warm .glow-secondary {
+  .widget-warm .glow-secondary,
+  .widget-warm .glow-tertiary {
     filter: none;
     opacity: 0.5;
   }

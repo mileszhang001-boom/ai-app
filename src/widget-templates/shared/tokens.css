@@ -503,6 +503,43 @@
   --style-sweet-pink-accent: #FFFFFF;
 }
 
+/* ── Glassmorphism / Liquid Glass 系统 ── */
+:root {
+  /* 毛玻璃效果 */
+  --glass-blur: blur(20px);
+  --glass-blur-heavy: blur(40px);
+  --glass-blur-light: blur(12px);
+  --glass-saturate: saturate(1.8);
+  --glass-saturate-heavy: saturate(2.2);
+
+  /* 毛玻璃背景 */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-medium: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.10);
+
+  /* 折射边框 — 模拟玻璃边缘光 */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-border-bright: 1px solid rgba(255, 255, 255, 0.15);
+  --glass-border-subtle: 1px solid rgba(255, 255, 255, 0.04);
+
+  /* 内发光 — 模拟玻璃内部散射 */
+  --glass-inner-glow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-inner-glow-bright: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  /* 深度阴影系统 — 多层模拟真实深度 */
+  --shadow-elevated:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    0 24px 48px rgba(0, 0, 0, 0.15);
+  --shadow-floating:
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 16px 32px rgba(0, 0, 0, 0.25),
+    0 48px 80px rgba(0, 0, 0, 0.2);
+  --shadow-subtle:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
 /* ── 动效预设（统一运动语言） ── */
 
 /* 卡片首次加载淡入 */
@@ -539,4 +576,54 @@
 :root {
   --anim-slide-duration: 0.3s;
   --anim-slide-easing: ease-out;
+}
+
+/* 呼吸光效 — 光晕缓慢脉动 */
+@keyframes breathing-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.05); }
+}
+
+/* 数字翻牌 — 单个数字翻转 */
+@keyframes digit-flip-out {
+  0%   { transform: rotateX(0deg);   opacity: 1; }
+  100% { transform: rotateX(-90deg); opacity: 0; }
+}
+@keyframes digit-flip-in {
+  0%   { transform: rotateX(90deg); opacity: 0; }
+  100% { transform: rotateX(0deg);  opacity: 1; }
+}
+
+/* 交错淡入 — 列表项依次出现 */
+@keyframes stagger-fadeIn {
+  0%   { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 浮动漂移 — 粒子缓慢漂浮 */
+@keyframes float-drift {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  25%      { transform: translateY(-20px) translateX(10px); }
+  50%      { transform: translateY(-10px) translateX(-5px); }
+  75%      { transform: translateY(-30px) translateX(8px); }
+}
+
+/* 光线扫过 — 高光从左到右扫过 */
+@keyframes light-sweep {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(300%) skewX(-15deg); }
+}
+
+/* 进度环绘制 */
+@keyframes progress-ring-draw {
+  0%   { stroke-dashoffset: var(--ring-circumference, 283); }
+  100% { stroke-dashoffset: var(--ring-offset, 0); }
+}
+
+:root {
+  --anim-breathing-duration: 4s;
+  --anim-digit-flip-duration: 0.3s;
+  --anim-stagger-delay: 0.08s;
+  --anim-float-duration: 8s;
+  --anim-sweep-duration: 3s;
 }
