@@ -53,12 +53,11 @@ export class PreviewPage {
             </div>
           </div>
         </div>
-        <div class="preview-label">896 × 1464 · 1/3 屏卡片预览</div>
       </div>
 
       <div class="preview-actions">
         <button id="syncBtn" class="btn">同步到车机</button>
-        <button id="editBtn" class="btn btn-secondary">编辑参数</button>
+        <button id="editBtn" class="btn btn-secondary">微调效果</button>
       </div>
     `;
 
@@ -216,7 +215,7 @@ export class PreviewPage {
 
   bindEvents() {
     document.getElementById('previewBackBtn').addEventListener('click', () => {
-      this.router.navigate('market');
+      this.router.back();
     });
 
     document.getElementById('syncBtn').addEventListener('click', () => {
@@ -224,10 +223,7 @@ export class PreviewPage {
     });
 
     document.getElementById('editBtn').addEventListener('click', () => {
-      this.router.navigate('config', {
-        type: this.currentData?.component_type,
-        theme: this.currentData?.theme
-      });
+      this.showTweakSheet();
     });
   }
 
@@ -259,6 +255,109 @@ export class PreviewPage {
       btn.disabled = false;
       btn.textContent = '同步到车机';
     }
+  }
+
+  showTweakSheet() {
+    // 移除已有面板
+    const existing = document.querySelector('.tweak-sheet-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'tweak-sheet-overlay';
+    overlay.innerHTML = `
+      <div class="tweak-sheet">
+        <div class="tweak-handle"></div>
+        <div class="tweak-title">微调效果</div>
+        <div class="tweak-hint">告诉 AI 你想调整什么</div>
+        <div class="tweak-input-wrapper">
+          <textarea id="tweakInput" class="nl-input" rows="2" placeholder="换成蓝色、改成极简风格..."></textarea>
+          <button id="tweakSendBtn" class="nl-send-btn" disabled aria-label="发送">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <div id="tweakResult" style="display:none;">
+          <div class="analysis-text" id="tweakText" style="margin:12px 0 8px;"></div>
+          <button id="tweakConfirmBtn" class="btn">确认应用</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const tweakInput = overlay.querySelector('#tweakInput');
+    const tweakSendBtn = overlay.querySelector('#tweakSendBtn');
+    const tweakResult = overlay.querySelector('#tweakResult');
+    const tweakText = overlay.querySelector('#tweakText');
+    const tweakConfirmBtn = overlay.querySelector('#tweakConfirmBtn');
+    let tweakData = null;
+
+    // 输入启用/禁用按钮
+    tweakInput.addEventListener('input', () => {
+      tweakSendBtn.disabled = !tweakInput.value.trim();
+    });
+
+    // 回车发送
+    tweakInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (tweakInput.value.trim()) tweakSendBtn.click();
+      }
+    });
+
+    // 发送微调请求
+    tweakSendBtn.addEventListener('click', async () => {
+      const text = tweakInput.value.trim();
+      if (!text) return;
+
+      tweakSendBtn.disabled = true;
+      tweakSendBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div>';
+      tweakInput.disabled = true;
+
+      try {
+        const response = await this.api.chatGenerate(text, this.currentData);
+        if (response.success) {
+          tweakData = response.data;
+          tweakText.textContent = '调整为：' + (response.data.description || '已更新');
+          tweakResult.style.display = '';
+        } else {
+          showToast(response.error || '调整失败', 'error');
+        }
+      } catch (err) {
+        console.error('微调失败:', err);
+        showToast('调整失败，请重试', 'error');
+      } finally {
+        tweakSendBtn.disabled = false;
+        tweakSendBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+        tweakInput.disabled = false;
+        tweakInput.value = '';
+      }
+    });
+
+    // 确认应用
+    tweakConfirmBtn.addEventListener('click', () => {
+      if (!tweakData) return;
+      this.currentData = tweakData;
+      overlay.remove();
+
+      // 在 iframe 重新加载期间显示 loading
+      const frame = document.getElementById('previewFrame');
+      if (frame) {
+        frame.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      }
+      this.renderComponent();
+    });
+
+    // 点击遮罩关闭
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+      }
+    });
+
+    // 自动聚焦
+    setTimeout(() => tweakInput.focus(), 100);
   }
 
   showSyncSuccess() {

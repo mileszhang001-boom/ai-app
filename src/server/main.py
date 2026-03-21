@@ -81,6 +81,7 @@ class GenerateRequest(BaseModel):
 class ChatGenerateRequest(BaseModel):
     """自然语言生成请求"""
     text: str = Field(..., description="用户的自然语言输入，如'帮我做一个恋爱纪念日'")
+    base_data: Optional[Dict[str, Any]] = Field(None, description="已有参数，用于微调合并")
     model: Optional[str] = Field("qwen-plus", description="LLM 模型")
 
 
@@ -385,14 +386,16 @@ async def chat_generate(request: ChatGenerateRequest):
         config = GenerateConfig(model=request.model)
         generator = get_generator(config)
 
-        success, data, error = generator.generate_from_nl(request.text.strip())
+        success, data, error = generator.generate_from_nl(request.text.strip(), base_data=request.base_data)
 
         if success:
             widget_id = f"widget_{uuid.uuid4().hex[:12]}"
+            description = generator.build_description(data)
             return GenerateResponse(
                 success=True,
                 data={
                     "widget_id": widget_id,
+                    "description": description,
                     **data
                 }
             )

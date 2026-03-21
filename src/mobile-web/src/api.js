@@ -56,8 +56,10 @@ export class APIClient {
   }
 
   // AI 生成组件（自然语言模式）
-  async chatGenerate(text) {
-    return this.post('/api/chat-generate', { text });
+  async chatGenerate(text, baseData = null) {
+    const body = { text };
+    if (baseData) body.base_data = baseData;
+    return this.post('/api/chat-generate', body);
   }
 
   // 渲染组件

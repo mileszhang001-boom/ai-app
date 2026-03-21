@@ -224,7 +224,47 @@ class AIGenerator:
         "日历日程（如：今天有什么会议）",
     ]
 
-    def generate_from_nl(self, user_text: str) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
+    # ── 组件中文名映射 ──
+    COMP_NAMES = {
+        ("anniversary", "love"): "恋爱纪念日",
+        ("anniversary", "baby"): "宝宝成长记录",
+        ("anniversary", "holiday"): "放假倒计时",
+        ("anniversary", "warm"): "暖橙纪念",
+        ("news", "daily"): "每日新闻",
+        ("alarm", "clock"): "智能闹钟",
+        ("weather", "realtime"): "实时天气",
+        ("music", "player"): "音乐播放器",
+        ("calendar", "schedule"): "日历日程",
+    }
+
+    STYLE_CN = {"glass": "毛玻璃", "minimal": "极简", "material": "质感", "pixel": "像素"}
+
+    def build_description(self, data: dict) -> str:
+        """从结构化参数拼出中文摘要，不依赖 LLM"""
+        COLOR_REVERSE = {v: k for k, v in self.COLOR_KEYWORDS.items() if len(k) >= 2}
+
+        name = self.COMP_NAMES.get((data.get("component_type"), data.get("theme")), "卡片")
+        parts = [f"一张「{name}」卡片"]
+        params = data.get("params", {})
+        if params.get("title"):
+            parts.append(f"标题「{params['title']}」")
+        if data.get("primary_color"):
+            cn = COLOR_REVERSE.get(data["primary_color"], data["primary_color"])
+            parts.append(f"{cn}色调")
+        if data.get("visual_style"):
+            parts.append(f"{self.STYLE_CN.get(data['visual_style'], '毛玻璃')}风格")
+        if params.get("subtitle"):
+            parts.append(f"文案「{params['subtitle']}」")
+        # 特殊字段
+        if params.get("city"):
+            parts.append(f"城市「{params['city']}」")
+        if params.get("song_name"):
+            parts.append(f"歌曲「{params['song_name']}」")
+        if params.get("alarm_time"):
+            parts.append(f"时间 {params['alarm_time']}")
+        return "，".join(parts)
+
+    def generate_from_nl(self, user_text: str, base_data: dict = None) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
         """
         自然语言生成组件参数
 
@@ -233,6 +273,7 @@ class AIGenerator:
 
         Args:
             user_text: 用户的自然语言输入
+            base_data: 已有参数（用于微调合并）
 
         Returns:
             (success, data, error_message)
@@ -241,7 +282,7 @@ class AIGenerator:
             system_prompt = get_nl_system_prompt()
             user_message = user_text.strip()
 
-            response_text = self._call_llm_nl(system_prompt, user_message)
+            response_text = self._call_llm_nl(system_prompt, user_message, base_data=base_data)
             print(f"[DEBUG] NL LLM Response: {response_text[:500]}")
 
             data = self._parse_response(response_text)
@@ -276,23 +317,29 @@ class AIGenerator:
         except Exception as e:
             return False, None, str(e)
 
-    def _call_llm_nl(self, system_prompt: str, user_message: str) -> str:
+    def _call_llm_nl(self, system_prompt: str, user_message: str, base_data: dict = None) -> str:
         """调用 LLM API（自然语言模式）"""
         if not HTTPX_AVAILABLE:
             raise RuntimeError("httpx is required")
 
         if not self.api_key:
-            return self._mock_nl_response(user_message)
+            # mock 模式用原始文本，不注入 JSON
+            return self._mock_nl_response(user_message, base_data=base_data)
+
+        # 微调模式：将 base_data 注入 user message（仅 LLM 调用）
+        llm_message = user_message
+        if base_data:
+            llm_message += f"\n\n当前卡片参数（用户要求微调，请理解用户意图后输出修改后的完整 JSON）：\n{json.dumps(base_data, ensure_ascii=False)}"
 
         # 复用已有的 LLM 调用逻辑
         if self.config.model.startswith("qwen"):
-            return self._call_qwen(system_prompt, user_message)
+            return self._call_qwen(system_prompt, llm_message)
         elif self.config.model.startswith("gpt"):
-            return self._call_openai(system_prompt, user_message)
+            return self._call_openai(system_prompt, llm_message)
         elif self.config.model.startswith("claude"):
-            return self._call_anthropic(system_prompt, user_message)
+            return self._call_anthropic(system_prompt, llm_message)
         else:
-            return self._call_qwen(system_prompt, user_message)
+            return self._call_qwen(system_prompt, llm_message)
 
     # ── 颜色关键词映射 ──
     COLOR_KEYWORDS = {
@@ -451,9 +498,62 @@ class AIGenerator:
                 results[match.group(1)] = match.group(2)
         return results
 
-    def _mock_nl_response(self, user_text: str) -> str:
+    def _mock_refine_response(self, user_text: str, base_data: dict) -> str:
+        """mock 模式微调 — 关键词提取 + 合并（能力有限，仅 dev 用）"""
+        import copy
+        merged = copy.deepcopy(base_data)
+
+        color = self._extract_color(user_text)
+        style = self._extract_visual_style(user_text)
+        bracketed = self._extract_bracketed(user_text)
+
+        if color:
+            merged["primary_color"] = color
+            merged["style_preset"] = "dynamic"
+        if style:
+            merged["visual_style"] = style
+        if bracketed.get("标题"):
+            merged.setdefault("params", {})["title"] = bracketed["标题"][:20]
+        if bracketed.get("副标题"):
+            merged.setdefault("params", {})["subtitle"] = bracketed["副标题"]
+        if bracketed.get("歌名"):
+            merged.setdefault("params", {})["song_name"] = bracketed["歌名"]
+        if bracketed.get("歌手"):
+            merged.setdefault("params", {})["artist"] = bracketed["歌手"]
+        if bracketed.get("城市") or bracketed.get("城市名"):
+            merged.setdefault("params", {})["city"] = bracketed.get("城市") or bracketed.get("城市名")
+
+        return json.dumps(merged, ensure_ascii=False)
+
+    def _detect_intent_change(self, user_text: str, base_data: dict) -> bool:
+        """检测用户是否改变了意图（出现了不同类型的关键词）"""
+        text = user_text.lower()
+        current_type = base_data.get("component_type", "")
+
+        type_keywords = {
+            "alarm": ["闹钟", "起床", "叫我", "提醒我", "alarm"],
+            "news": ["新闻", "资讯", "热点", "头条", "news"],
+            "weather": ["天气", "温度", "穿什么", "下雨", "weather"],
+            "music": ["音乐", "歌", "播放", "听歌", "播放器", "music"],
+            "calendar": ["日历", "日程", "安排", "会议", "calendar"],
+            "anniversary": ["纪念", "在一起", "结婚", "放假", "倒计时", "宝宝", "恋爱"],
+        }
+
+        for comp_type, keywords in type_keywords.items():
+            if comp_type != current_type and any(k in text for k in keywords):
+                return True
+        return False
+
+    def _mock_nl_response(self, user_text: str, base_data: dict = None) -> str:
         """自然语言模式的模拟响应（用于无 API Key 测试）"""
         import re
+
+        # 微调模式：base_data 存在时尝试合并
+        if base_data:
+            has_new_intent = self._detect_intent_change(user_text, base_data)
+            if not has_new_intent:
+                return self._mock_refine_response(user_text, base_data)
+            # 有新意图 → 走全量分析，忽略 base_data
 
         text = user_text.lower()
         print(f"[DEBUG] Mock NL response for: {user_text}")
@@ -1108,8 +1208,9 @@ async def generate_widget(
 
 
 async def generate_widget_from_nl(
-    user_text: str
+    user_text: str,
+    base_data: dict = None
 ) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
     """异步生成组件参数（自然语言模式）"""
     generator = get_generator()
-    return generator.generate_from_nl(user_text)
+    return generator.generate_from_nl(user_text, base_data=base_data)

@@ -39,9 +39,15 @@ export class TemplateMarket {
     this.placeholderIndex = 0;
     this.placeholderTimer = null;
     this.isGenerating = false;
+    this.analysisData = null;   // 上一次分析结果（用于微调上下文）
   }
 
   async render() {
+    // 清理残留状态（从预览页返回时）
+    this.stopPlaceholderAnimation();
+    this.analysisData = null;
+    this.isGenerating = false;
+
     const container = document.getElementById('page-market');
     this.renderPage(container);
   }
@@ -57,7 +63,6 @@ export class TemplateMarket {
         <!-- Hero 区域 -->
         <div class="hero-section">
           <div class="hero-tagline">告诉 AI 你的想法</div>
-          <div class="hero-subtitle">一句话，生成你的专属车机卡片</div>
         </div>
 
         <!-- AI 输入区域 -->
@@ -69,7 +74,7 @@ export class TemplateMarket {
               rows="3"
               maxlength="200"
             ></textarea>
-            <button id="nlSendBtn" class="nl-send-btn" disabled>
+            <button id="nlSendBtn" class="nl-send-btn" disabled aria-label="发送">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"/>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -78,8 +83,18 @@ export class TemplateMarket {
           </div>
         </div>
 
+        <!-- 分析气泡 -->
+        <div id="analysisBubble" class="analysis-bubble" style="display:none;">
+          <div class="analysis-icon">✨</div>
+          <div class="analysis-text" id="analysisText"></div>
+          <div class="analysis-actions">
+            <button id="analysisConfirmBtn" class="btn">确认生成</button>
+          </div>
+          <div class="analysis-hint">不满意？直接输入修改意见</div>
+        </div>
+
         <!-- 场景卡片 -->
-        <div class="scene-section">
+        <div class="scene-section" id="sceneSection">
           <div class="scene-label">试试这些场景</div>
           <div class="scene-grid">
             ${SCENE_CARDS.map(s => `
@@ -110,8 +125,10 @@ export class TemplateMarket {
         this.stopPlaceholderAnimation();
         input.classList.add('has-content');
       } else {
+        // 清空输入 → 重置分析状态
         this.startPlaceholderAnimation();
         input.classList.remove('has-content');
+        this.resetAnalysis();
       }
     });
 
@@ -135,11 +152,72 @@ export class TemplateMarket {
         const text = card.dataset.text;
         input.value = text;
         input.classList.add('has-content');
-        sendBtn.disabled = false;
         this.stopPlaceholderAnimation();
         this.handleNLGenerate(text);
       });
     });
+
+    // 确认生成按钮
+    const confirmBtn = container.querySelector('#analysisConfirmBtn');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        this.confirmGenerate();
+      });
+    }
+  }
+
+  resetAnalysis() {
+    this.analysisData = null;
+    const bubble = document.getElementById('analysisBubble');
+    const sceneSection = document.getElementById('sceneSection');
+    if (bubble) bubble.style.display = 'none';
+    if (sceneSection) sceneSection.style.display = '';
+    const input = document.getElementById('nlInput');
+    if (input) input.placeholder = PLACEHOLDER_EXAMPLES[this.placeholderIndex];
+  }
+
+  showAnalysisBubble(description) {
+    const bubble = document.getElementById('analysisBubble');
+    const textEl = document.getElementById('analysisText');
+    const sceneSection = document.getElementById('sceneSection');
+
+    if (textEl) textEl.textContent = '我猜你想做：' + description;
+    if (bubble) {
+      bubble.style.display = '';
+      bubble.style.animation = 'none';
+      // force reflow
+      bubble.offsetHeight;
+      bubble.style.animation = 'slideUp 0.3s ease-out';
+    }
+    // 收起场景卡片
+    if (sceneSection) sceneSection.style.display = 'none';
+
+    // 更新输入框 placeholder
+    const input = document.getElementById('nlInput');
+    if (input) {
+      input.value = '';
+      input.placeholder = '继续输入来调整...';
+    }
+  }
+
+  confirmGenerate() {
+    if (!this.analysisData) return;
+
+    // 短暂 overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'generate-overlay';
+    overlay.innerHTML = `
+      <div class="nl-gen-content">
+        <div class="spinner-lg"></div>
+        <div class="gen-step">渲染你的专属卡片…</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    setTimeout(() => {
+      overlay.remove();
+      this.router.navigate('preview', { data: this.analysisData });
+    }, 600);
   }
 
   startPlaceholderAnimation() {
@@ -178,27 +256,20 @@ export class TemplateMarket {
     const sendBtn = document.getElementById('nlSendBtn');
     const input = document.getElementById('nlInput');
 
-    // 显示加载状态
+    // 发送按钮显示 spinner（不用全屏 overlay）
     sendBtn.disabled = true;
     sendBtn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div>';
     input.disabled = true;
 
-    // 显示全屏生成进度
-    const overlay = this.showGenerateOverlay(text);
-
     try {
-      const response = await this.api.chatGenerate(text);
+      // 有 analysisData 时作为微调上下文
+      const response = await this.api.chatGenerate(text, this.analysisData);
 
       if (response.success) {
-        // 完成最后一步动画
-        this.updateOverlayStep(overlay, 2);
-        await new Promise(r => setTimeout(r, 500));
-        overlay.remove();
-        this.router.navigate('preview', { data: response.data });
+        this.analysisData = response.data;
+        this.showAnalysisBubble(response.data.description || '卡片');
       } else {
-        overlay.remove();
         const errorMsg = response.error || '请换一种说法试试';
-        // 如果是"暂不支持"类错误，显示带建议的提示面板
         if (errorMsg.includes('暂时还不支持')) {
           this.showUnsupportedHint(errorMsg);
         } else {
@@ -206,7 +277,6 @@ export class TemplateMarket {
         }
       }
     } catch (error) {
-      overlay.remove();
       console.error('NL生成失败:', error);
       showToast('生成失败，请重试', 'error');
     } finally {
@@ -222,41 +292,6 @@ export class TemplateMarket {
       }
       if (input) input.disabled = false;
     }
-  }
-
-  showGenerateOverlay(userText) {
-    const overlay = document.createElement('div');
-    overlay.className = 'generate-overlay';
-    // 截取用户输入的前 30 字作为展示
-    const displayText = userText.length > 30 ? userText.slice(0, 30) + '…' : userText;
-    overlay.innerHTML = `
-      <div class="nl-gen-content">
-        <div class="nl-gen-user-msg">"${displayText}"</div>
-        <div class="spinner-lg"></div>
-        <div class="gen-step" data-step="0">理解你的想法…</div>
-        <div class="gen-step dim" data-step="1">AI 选择模板 & 生成创意文案…</div>
-        <div class="gen-step dim" data-step="2">渲染你的专属卡片…</div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-
-    // 自动推进步骤
-    setTimeout(() => this.updateOverlayStep(overlay, 1), 600);
-
-    return overlay;
-  }
-
-  updateOverlayStep(overlay, activeStep) {
-    if (!overlay.parentNode) return;
-    overlay.querySelectorAll('.gen-step').forEach(el => {
-      const step = parseInt(el.dataset.step);
-      el.classList.toggle('dim', step > activeStep);
-      if (step < activeStep) {
-        el.style.color = 'rgba(0,200,83,0.7)';
-        const text = el.textContent.replace(/^✓\s*/, '');
-        el.textContent = '✓ ' + text;
-      }
-    });
   }
 
   showUnsupportedHint(message) {

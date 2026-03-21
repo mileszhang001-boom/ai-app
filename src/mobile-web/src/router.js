@@ -22,6 +22,9 @@ export class PageRouter {
       return;
     }
 
+    // 清理残留浮层
+    document.querySelectorAll('.generate-overlay, .tweak-sheet-overlay, .sync-success-overlay').forEach(el => el.remove());
+
     if (this.currentPageName) {
       this.pageStack.push({
         name: this.currentPageName,
@@ -53,6 +56,9 @@ export class PageRouter {
   }
 
   back() {
+    // 清理残留浮层
+    document.querySelectorAll('.generate-overlay, .tweak-sheet-overlay, .sync-success-overlay').forEach(el => el.remove());
+
     if (this.pageStack.length > 0) {
       const prev = this.pageStack.pop();
       const page = this.pages[prev.name];
