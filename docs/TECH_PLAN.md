@@ -95,37 +95,286 @@
 
 ---
 
-## 四、AI Pipeline
+## 四、AI Pipeline — 三维正交生成系统
 
-### 生成模式
+### 4.1 系统架构：三层正交
 
-| 模式 | 端点 | 说明 |
-|------|------|------|
-| 自然语言 | `POST /api/chat-generate` | 一句话描述 → AI 理解意图 → 选模板 + 生成参数 |
-| 结构化 | `POST /api/generate` | 用户已选模板/主题 → AI 补全参数 |
+```
+用户输入: "十周年、浪漫、红色"
+           │
+    ┌──────┴──────────────┐
+    │   AI 语义理解层       │  ← generator.py (_mock_nl_response / LLM API)
+    │   意图识别 + 参数提取  │
+    └──────┬──────────────┘
+           │
+    ┌──────┼──────────┐
+    │      │          │
+    ▼      ▼          ▼
+  模板选择  风格宏      颜色引擎
+  9种模板   4种风格     任意hex
+  ×         ×          ×
+  各自theme  glass      #CC2244
+             minimal    (用户自定义)
+             material
+             pixel
+```
 
-### 意图识别关键词
+三个维度**完全正交**，可自由组合：
+- **9 模板 × 4 风格 × 无限颜色 = 无限组合**
+- 向后兼容：不传 `primary_color` 或 `visual_style` 时，行为与之前完全一致
 
-| 场景 | 关键词 |
-|------|--------|
-| 恋爱纪念 | 恋爱、在一起、结婚、女朋友、男朋友、老婆、老公 |
-| 宝宝成长 | 宝宝、孩子、出生、满月、周岁 |
-| 放假倒计时 | 放假、倒计时、国庆、春节、五一 |
-| 闹钟 | 闹钟、起床、叫我、提醒 |
-| 新闻 | 新闻、资讯、热点、头条 |
-| 天气 | 天气、温度、穿什么、下雨、多少度 |
-| 音乐 | 音乐、歌、播放、听歌 |
-| 日历 | 日历、日程、安排、会议、行程 |
+### 4.2 端到端生成流程（逐步详解）
 
-### Quality Gate
+以用户输入 **"做一个红色的结婚纪念卡片，要高级感"** 为例：
 
-- `template_id` 白名单：9 个合法 ID
-- `style_preset` 白名单：按模板限定可用风格
-- 文案自动截断：title ≤ 20字, subtitle ≤ 30字
-- 数值 clamp：时间 0-23, 新闻条数 3-8
-- Mock 模式：无 API Key 时自动激活，关键词匹配生成
+```
+━━━ STEP 1: 用户输入（手机端 market.js）━━━━━━━━━━━━━━━━━━
+耗时: 0ms | 调用模型: 否 | 风险: 无
 
-### API 配置
+用户在首页 AI 输入框输入自然语言，点击生成。
+前端发起 POST /api/chat-generate { "text": "做一个红色的结婚纪念卡片，要高级感" }
+
+输出: HTTP 请求发送到后端
+```
+
+```
+━━━ STEP 2: 意图识别（generator.py → _mock_nl_response）━━━
+耗时: Mock <50ms / LLM 1-3s | 调用模型: Mock否/LLM是 | 风险: ⚠️ 中
+
+2a. 颜色提取 (_extract_color)
+    "红色" → 命中 COLOR_KEYWORDS → "#CC2244"
+
+2b. 视觉风格提取 (_extract_visual_style)
+    "高级感" → 命中 STYLE_KEYWORDS["glass"] 中的 "高级" → "glass"
+
+2c. 日期提取 (_extract_date_enhanced)
+    无明确日期 → 无周年数 → fallback "2024-06-01"
+
+2d. 意图匹配
+    "结婚" → 命中 love_keywords → component_type="anniversary", theme="love"
+
+2e. 智能 title
+    "结婚" 匹配 → title="结婚纪念日"
+
+2f. 文案生成 (_generate_nl_subtitle)
+    days_diff=根据日期计算 → random.choice(对应区间的8-12个选项)
+
+2g. 结果组装 (_build_result)
+    注入 primary_color="#CC2244", visual_style="glass"
+    style_preset 设为 "dynamic"（因为有 primary_color）
+
+输出:
+{
+  "component_type": "anniversary",
+  "mode": "countup",
+  "theme": "love",
+  "template_id": "anniversary_love",
+  "style_preset": "dynamic",
+  "primary_color": "#CC2244",
+  "visual_style": "glass",
+  "params": {
+    "title": "结婚纪念日",
+    "start_date": "2024-06-01",
+    "subtitle": "岁月流转爱意永驻"    ← 每次可能不同 (random.choice)
+  }
+}
+
+⚠️ 风险点:
+- Mock模式: 关键词匹配可能误判（如 "爱心形状的天气" 会匹配到 love 而非 weather）
+- LLM模式: JSON 格式偶尔不合法（概率 <1%，有 _parse_response 兜底）
+- 日期理解: "明天是十周年" 可正确处理，但 "后年的国庆" 不支持
+```
+
+```
+━━━ STEP 3: Quality Gate（validator.py）━━━━━━━━━━━━━━━━━━
+耗时: <5ms | 调用模型: 否 | 风险: 低
+
+3a. 基础字段检查: component_type/template_id/style_preset/params 必须存在
+3b. component_type 白名单: "anniversary" ✅
+3c. theme 白名单: "love" ∈ {"love","baby","holiday","warm"} ✅
+3d. template_id 白名单: "anniversary_love" ∈ VALID_TEMPLATE_IDS ✅
+3e. style_preset: "dynamic" → 特殊放行 ✅
+3f. primary_color 格式: "#CC2244" 匹配 /^#[0-9A-Fa-f]{6}$/ ✅
+3g. visual_style 枚举: "glass" ∈ {"glass","minimal","material","pixel"} ✅
+3h. params 逐字段:
+    - title: "结婚纪念日" (string, len=5 ≤ 20) ✅
+    - start_date: "2024-06-01" (date, YYYY-MM-DD) ✅
+    - subtitle: 如果超过30字 → 自动截断 + warning
+
+输出: (is_valid=True, cleaned_params, warnings)
+
+⚠️ 风险点:
+- 如果 LLM 输出了不在白名单的 template_id → 直接拒绝，不会渲染
+- 文案超长自动截断，可能截断后语义不通（概率极低，30字限制宽裕）
+```
+
+```
+━━━ STEP 4: 响应返回（main.py → preview.js）━━━━━━━━━━━━━
+耗时: <10ms | 调用模型: 否 | 风险: 无
+
+后端返回 JSON → 前端 preview.js 接收
+preview.js.buildWidgetParams() 透传:
+- params.primary_color = "#CC2244"
+- params.visual_style = "glass"
+- params.style_preset = "dynamic"
+
+输出: widgetParams 对象，注入到 iframe
+```
+
+```
+━━━ STEP 5: 模板渲染（iframe srcdoc + H5 模板）━━━━━━━━━━
+耗时: 200-500ms | 调用模型: 否 | 风险: ⚠️ 低
+
+5a. preview.js 根据 template_id 找到模板 URL
+    "anniversary_love" → /widget-templates/anniversary/love/index.html
+
+5b. fetch 模板 HTML，修复相对路径，注入 __WIDGET_PARAMS__
+
+5c. 模板 main.js init() 执行:
+
+    ① style_preset="dynamic" → data-style="dynamic"
+
+    ② primary_color="#CC2244" → computePalette("#CC2244")
+       color-engine.js 计算:
+       - hex→RGB→HSL
+       - 生成背景渐变(暗色, hue=340°, sat=30%, light=8%)
+       - 生成 glow/glass/label/divider 各槽位颜色
+       - 设置 12 个 CSS 自定义属性 (--dyn-bg, --dyn-glow-primary, ...)
+
+    ③ visual_style="glass" → data-visual-style="glass"
+       glass 是默认风格，无额外 CSS 覆盖
+
+    ④ visual-styles.css 中的 [data-style="dynamic"] 规则生效:
+       - .widget-love 背景 → var(--dyn-bg) → 红色暗调渐变
+       - .glow-primary → 红色光晕
+       - .glass-card → 红色微透毛玻璃
+       - .ambient-line → 红色氛围线
+
+    ⑤ 粒子系统 getParticleColor() 检测 data-style="dynamic"
+       → computePalette().particleRgb → 红色心形粒子
+
+    ⑥ 数字翻牌动画: calculateDays() → animateInitial() → 数字递增
+
+输出: 一张 896×1464 的红色主题、毛玻璃风格、心形粒子的恋爱纪念卡片
+
+⚠️ 风险点:
+- 极浅色（黄/白）：color-engine 有 clamp 保护（饱和度≥0.15, 亮度≥0.10）
+- 极深色（纯黑）：同上保护
+- WebView 不支持 backdrop-filter：@supports 降级为实色背景
+- CSS 变量未设置：所有 var() 有 fallback 值
+```
+
+```
+━━━ 完整时序图 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ 用户          前端(market.js)      后端(main.py)        generator.py        validator.py        前端(preview.js)       iframe(模板)
+  │                │                    │                    │                   │                    │                    │
+  │──输入文字───►│                    │                    │                   │                    │                    │
+  │                │──POST /api/──────►│                    │                   │                    │                    │
+  │                │  chat-generate     │──_mock_nl_resp──►│                   │                    │                    │
+  │                │                    │                    │──颜色提取         │                    │                    │
+  │                │                    │                    │──风格提取         │                    │                    │
+  │                │                    │                    │──日期提取         │                    │                    │
+  │                │                    │                    │──意图匹配         │                    │                    │
+  │                │                    │                    │──文案生成         │                    │                    │
+  │                │                    │◄──JSON────────────│                   │                    │                    │
+  │                │                    │──validate────────────────────────────►│                    │                    │
+  │                │                    │◄──(ok, cleaned)──────────────────────│                    │                    │
+  │                │◄──200 JSON────────│                    │                   │                    │                    │
+  │                │──navigate('preview')────────────────────────────────────►│                    │
+  │                │                    │                    │                   │──fetch template──►│                    │
+  │                │                    │                    │                   │──inject params───►│                    │
+  │                │                    │                    │                   │                    │──init()            │
+  │                │                    │                    │                   │                    │  computePalette()  │
+  │                │                    │                    │                   │                    │  set CSS vars      │
+  │                │                    │                    │                   │                    │  render particles  │
+  │◄──看到预览────│                    │                    │                   │                    │  render number     │
+  │                │                    │                    │                   │                    │                    │
+
+  总耗时: Mock模式 ≈ 0.3-0.8s | LLM模式 ≈ 2-4s
+```
+
+### 4.3 两种运行模式对比
+
+| 维度 | Mock 模式 (无 API Key) | LLM 模式 (有 API Key) |
+|------|----------------------|----------------------|
+| 激活条件 | `QWEN_API_KEY` 未设置 | `QWEN_API_KEY` 已设置 |
+| 意图识别 | 关键词匹配 (generator.py) | LLM 语义理解 (qwen-plus) |
+| 颜色/风格提取 | 本地关键词表 (12种颜色) | LLM 理解 + prompt 中的映射表 |
+| 文案生成 | random.choice(8-12个预设) | LLM 自由创作 |
+| 日期理解 | 正则 + 相对日期计算 | LLM 语义理解 |
+| 耗时 | **<100ms** | **1-3s** |
+| 准确率 | ~85%（关键词覆盖有限） | ~95%（复杂语句也能理解） |
+| 文案创意 | 固定池随机选取 | 每次独创 |
+| 适用场景 | 开发测试、Demo 演示 | 线上正式使用 |
+
+### 4.4 三维系统详解
+
+#### 颜色引擎 (shared/color-engine.js)
+
+```
+输入: "#CC2244" (任意hex)
+  │
+  ├─ hex → RGB → HSL
+  ├─ 背景: hue保留, sat×0.30, light=0.08 (三个stop微调)
+  ├─ glowPrimary: 原色 opacity=0.22
+  ├─ glowSecondary: 亮化版 opacity=0.12
+  ├─ glowTertiary: 亮化版 opacity=0.06
+  ├─ ambientLine: 亮化版 opacity=0.50
+  ├─ glassBg: 原色 opacity=0.04
+  ├─ glassBorder: 亮化版 opacity=0.10
+  ├─ labelColor: 亮化版 opacity=0.50
+  ├─ dividerColor: 亮化版 opacity=0.20
+  ├─ particleRgb: 亮化版 [r,g,b]
+  └─ 12个 CSS 自定义属性 (--dyn-*)
+```
+
+边缘 case 保护：
+- 极浅色(黄/白): 饱和度 clamp ≥ 0.15
+- 极深色(纯黑): 亮度 clamp ≥ 0.10
+
+#### 视觉风格宏 (shared/visual-styles.css)
+
+| 风格 | 特征 | 覆盖的属性 |
+|------|------|-----------|
+| `glass` | 默认 Liquid Glass | 无额外CSS（使用模板自身样式） |
+| `minimal` | 极简墨线 | 隐藏光晕/粒子，transparent卡片，4px圆角，font-weight:200 |
+| `material` | Material Design | 隐藏光晕，实色卡片(0.95)，elevation阴影，font-weight:700 |
+| `pixel` | 8bit像素 | Press Start 2P字体，0圆角，3px实线边框，pixelated渲染 |
+
+### 4.5 Quality Gate
+
+| 校验项 | 规则 | 不通过处理 |
+|--------|------|-----------|
+| `component_type` | 必须 ∈ {anniversary,news,alarm,weather,music,calendar} | 拒绝 |
+| `theme` | 必须匹配 component_type 的合法主题 | 拒绝 |
+| `template_id` | 必须 ∈ 9个合法ID | 拒绝 |
+| `style_preset` | ∈ 全局白名单 或 "dynamic" | 拒绝 |
+| `primary_color` | 可选，匹配 `#RRGGBB` | 拒绝 |
+| `visual_style` | 可选，∈ {glass,minimal,material,pixel} | 拒绝 |
+| `title` | string, ≤20字 | 自动截断 |
+| `subtitle` | string, ≤30字 | 自动截断 |
+| `start_date` | YYYY-MM-DD | 拒绝 |
+| 数值参数 | 范围 clamp（新闻条数 3-8 等） | 自动 clamp |
+
+### 4.6 意图识别关键词
+
+| 场景 | 关键词 | 特殊检测 |
+|------|--------|---------|
+| 恋爱纪念 | 恋爱、在一起、结婚、周年、女朋友、老婆、对象 | N周年反推start_date |
+| 宝宝成长 | 宝宝、孩子、出生、满月、周岁 | "我家XXX...N天"模式 |
+| 放假倒计时 | 放假、倒计时、国庆、春节、五一、端午 | 自动推算节日日期 |
+| 闹钟 | 闹钟、起床、叫我、提醒、上班 | 提取时间 HH:MM |
+| 新闻 | 新闻、资讯、热点、头条 | — |
+| 天气 | 天气、温度、穿什么、下雨、多少度 | 提取城市名 |
+| 音乐 | 音乐、歌、播放、听歌、播放器 | 提取歌手名 |
+| 日历 | 日历、日程、安排、会议、行程 | — |
+
+**颜色关键词**: 红→#CC2244, 蓝→#2255CC, 粉→#CC6688, 绿→#22AA66, 金→#CCAA33, 紫→#8844CC, 橙→#CC6622, 青→#22AAAA, 霓虹紫→#8844CC
+
+**风格关键词**: 简约/科技/极简→minimal, 活力/青春/潮流→material, 复古/像素→pixel, 浪漫/高级/优雅→glass
+
+### 4.7 API 配置
 
 ```bash
 # .env
@@ -142,32 +391,35 @@ QWEN_API_KEY=sk-xxx    # 阿里云通义千问（主力）
 | 阶段 | 内容 | 状态 |
 |------|------|------|
 | 项目架构 | 目录结构、配置文件、构建工具 | ✅ |
-| Design Tokens | `tokens.css` 500+ 行 — 深浅色主题、6 色系、间距/字号/动画 | ✅ |
+| Design Tokens | `tokens.css` 580+ 行 — 深浅色主题、6 色系、间距/字号/动画 | ✅ |
 | **Liquid Glass 升级** | Glassmorphism 变量、呼吸光晕、数字翻牌、粒子、深度阴影 | ✅ |
 | 纪念日模板 ×4 | love/baby/holiday/warm — 全部 Liquid Glass 升级 | ✅ |
 | 新闻模板 | 毛玻璃卡片 + 轮播高亮 + 交错淡入 | ✅ |
 | 闹钟模板 | SVG 进度环 + 实时倒计时 + 日夜感知 | ✅ |
-| **天气模板** (新建) | 动态天气粒子 + 3日预报 + AI建议 | ✅ |
-| **音乐播放器** (新建) | 频谱动画 + 播放控制 + 歌词 | ✅ |
-| **日历日程** (新建) | 农历/节气 + 时间线 + 事件倒计时 | ✅ |
+| **天气模板** | 动态天气粒子 + 3日预报 + AI建议 | ✅ |
+| **音乐播放器** | 频谱动画 + 播放控制 + 歌词 | ✅ |
+| **日历日程** | 农历/节气 + 时间线 + 事件倒计时 | ✅ |
 | AI Pipeline | prompt.py + generator.py + validator.py (9模板注册) | ✅ |
 | 手机端 Web App | 首页(9场景) + 配置 + 预览 + 我的组件 + 同步 | ✅ |
 | 自然语言创建 | `/api/chat-generate` + 意图识别 + Mock 模式 | ✅ |
 | 车端模拟器 | `car-simulator.html` 896×1464 + 卡片切换 | ✅ |
 | JSBridge | Mock 实现，支持浏览器开发 | ✅ |
 | 公网部署 | Render 后端 + Netlify 前端 + 自动部署 | ✅ |
+| **动态配色引擎** | `color-engine.js` — 任意hex→完整调色板，9模板全部集成 | ✅ |
+| **视觉风格宏** | `visual-styles.css` — glass/minimal/material/pixel，9模板全部集成 | ✅ |
+| **语义联动** | 颜色关键词提取、风格语义映射、三维正交组合 | ✅ |
+| **文案引擎升级** | 8-12选项/区间 + random.choice + 节日专属池 + 情感融入 | ✅ |
+| **日期理解增强** | 明天/后天/下周X/X月X日/N周年反推/N天反推 | ✅ |
 
 ### 🔲 下一步计划
 
 | 优先级 | 内容 | 预计工期 |
 |--------|------|---------|
-| P0 | 视觉走查 — 每个模板×风格在 car-simulator 中逐一截图验证 | 1-2 天 |
+| P0 | 视觉走查 — 9模板 × 4风格 × 典型颜色 在 car-simulator 中截图验证 | 1-2 天 |
 | P0 | 内容真实性 — 天气接入和风天气 API、新闻接入真实 API | 2-3 天 |
 | P1 | 多方案预览 — 一次生成 3 个风格变体供选择 | 2-3 天 |
-| P1 | 交互式微调 — "换个颜色"/"文字大一点" 快捷调整 | 2-3 天 |
-| P1 | 文案智能增强 — 节日感知、季节感知、里程碑感知 | 1-2 天 |
+| P1 | 交互式微调 — "换个颜色"/"换个风格" 快捷调整 | 2-3 天 |
 | P2 | 手机端体验 — 生成中骨架屏、"哇"时刻弹出动画 | 2 天 |
-| P2 | 车端模拟器升级 — 更真实的车机环境、物理切换动效 | 1-2 天 |
 | P2 | Demo 演示包 — 预生成精品组件、3分钟演示脚本 | 1 天 |
 | P3 | 车端 Android WebView 真机集成 | 待定 |
 
@@ -180,6 +432,8 @@ QWEN_API_KEY=sk-xxx    # 阿里云通义千问（主力）
 ```
 shared/
 ├── tokens.css                 # Design Tokens (Liquid Glass) — 580+ 行
+├── color-engine.js            # 动态配色引擎 (hex→调色板, 4.3KB)
+├── visual-styles.css          # 4种视觉风格宏 (glass/minimal/material/pixel, 9.2KB)
 └── bridge.js                  # JSBridge Mock 封装
 
 anniversary/

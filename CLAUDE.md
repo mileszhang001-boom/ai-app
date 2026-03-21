@@ -17,7 +17,7 @@
 2. **车端渲染：H5 + WebView 沙箱** — 组件以 H5 运行在 Android WebView 中，通过 JSBridge 访问车机能力。
 3. **手机端：H5 Web App**（Vite + Vanilla JS）— 追求最快交付速度。
 4. **车端卡片尺寸：896×1464 逻辑像素**（行车桌面 1/3 屏）。
-5. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画。
+5. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画。支持 4 种视觉风格（glass/minimal/material/pixel）+ 动态配色引擎。
 6. **组件类型（9个模板）**：
    - 纪念日 4 主题（恋爱/宝宝/放假/暖橙）
    - 每日新闻
@@ -62,6 +62,8 @@ ai-widget-workshop/
 │   │   ├── calendar/                 #   日历日程（时间线+农历）
 │   │   └── shared/
 │   │       ├── tokens.css            #     Design Tokens (Liquid Glass)
+│   │       ├── color-engine.js       #     动态配色引擎（hex→完整调色板）
+│   │       ├── visual-styles.css     #     4种视觉风格宏（glass/minimal/material/pixel）
 │   │       └── bridge.js            #     JSBridge 封装
 │   └── car-host/                     # 车端宿主（Android, 模拟器）
 └── tests/
