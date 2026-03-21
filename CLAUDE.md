@@ -66,6 +66,14 @@ ai-widget-workshop/
 │   │       ├── visual-styles.css     #     4种视觉风格宏（glass/minimal/material/pixel）
 │   │       └── bridge.js            #     JSBridge 封装
 │   └── car-host/                     # 车端宿主（Android, 模拟器）
+├── quality/                           # 视觉质量保障系统
+│   ├── config.py                     #   权重/阈值/颜色色相表
+│   ├── screenshot.py                 #   Playwright 截图引擎 (896×1464)
+│   ├── rule_checks.py                #   8 项规则检查 (DOM+Pillow)
+│   ├── vision_scorer.py              #   视觉模型评分 (可选)
+│   ├── test_queries.py               #   50 条测试语料
+│   ├── batch_runner.py               #   批量测试编排
+│   └── report.py                     #   HTML 报告生成
 └── tests/
 ```
 

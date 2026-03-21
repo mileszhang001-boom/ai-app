@@ -24,7 +24,7 @@
   /* 文本色 */
   --dark-text-primary: #ffffff;
   --dark-text-secondary: rgba(255, 255, 255, 0.55);
-  --dark-text-tertiary: rgba(255, 255, 255, 0.30);
+  --dark-text-tertiary: rgba(255, 255, 255, 0.45);
   --dark-text-disabled: rgba(255, 255, 255, 0.25);
 
   /* 系统强调色 - 小米橙 */

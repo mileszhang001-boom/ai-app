@@ -41,3 +41,4 @@ src/server/__pycache__/
 # Generated widget bundles
 src/widget-templates/dist/
 *.zip
+quality_reports/

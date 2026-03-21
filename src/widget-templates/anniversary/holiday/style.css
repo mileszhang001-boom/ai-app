@@ -542,6 +542,10 @@ html, body {
   color: rgba(255, 255, 255, 0.75);
   letter-spacing: var(--letter-spacing-body, 0.3px);
   margin-bottom: var(--gap-subtitle-caption);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* ── 中文辅助信息 ── */

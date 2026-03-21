@@ -411,11 +411,33 @@ QWEN_API_KEY=sk-xxx    # 阿里云通义千问（主力）
 | **文案引擎升级** | 8-12选项/区间 + random.choice + 节日专属池 + 情感融入 | ✅ |
 | **日期理解增强** | 明天/后天/下周X/X月X日/N周年反推/N天反推 | ✅ |
 
+### ✅ 视觉质量保障系统
+
+| 阶段 | 内容 | 状态 |
+|------|------|------|
+| 预修复 | 5 个已知 CSS Bug（溢出/对比度/字号） | ✅ |
+| 截图引擎 | Playwright 896×1464 自动截图 | ✅ |
+| 规则引擎 | 8 项自动检查（溢出/对比度/颜色/布局/字体/内容/风格/粒子） | ✅ |
+| 测试语料 | 50 条测试 query（6 个类别覆盖） | ✅ |
+| 报告系统 | HTML 报告（截图 + 分数 + issue + 回归对比） | ✅ |
+| 视觉模型 | Claude Vision 主观评分（可选） | ✅ stub |
+
+### ✅ 第一轮视觉质量评估（50 case 全部通过）
+
+| 指标 | 首轮 | 修复后 |
+|------|------|--------|
+| 通过率 | 44/50 (88%) | **50/50 (100%)** |
+| 平均分 | 79 | **85** |
+| 生成失败 | 1 | **0** |
+| 最低分 | 0 | **66** |
+
+修复内容：截图引擎时序 (add_init_script)、Mock 生成器「」括号提取 + 英文关键词 + 圣诞节 + 模糊 fallback、规则引擎 glow/hero-number 误报排除。
+
 ### 🔲 下一步计划
 
 | 优先级 | 内容 | 预计工期 |
 |--------|------|---------|
-| P0 | 视觉走查 — 9模板 × 4风格 × 典型颜色 在 car-simulator 中截图验证 | 1-2 天 |
+| P0 | 视觉质量持续优化 — 提高 color_08(cyan) 等低分 case 至 80+ | 1 天 |
 | P0 | 内容真实性 — 天气接入和风天气 API、新闻接入真实 API | 2-3 天 |
 | P1 | 多方案预览 — 一次生成 3 个风格变体供选择 | 2-3 天 |
 | P1 | 交互式微调 — "换个颜色"/"换个风格" 快捷调整 | 2-3 天 |
@@ -425,7 +447,237 @@ QWEN_API_KEY=sk-xxx    # 阿里云通义千问（主力）
 
 ---
 
-## 六、文件清单
+## 六、视觉质量保障系统
+
+> "用户说红色，卡片是否真的红了？文字是否溢出？对比度是否可读？"
+
+传统的人工视觉走查无法覆盖 **9 模板 × 4 风格 × 无限颜色** 的组合空间。质量保障系统通过自动化的 **评分 → 诊断 → 修复** 闭环，使每次生成的卡片可被量化评估，bad case 可追溯到具体代码位置。
+
+### 6.1 设计原则
+
+从 WidgetSmith / Apple Widgets / 理想桌面大师等竞品中提炼：
+
+| 原则 | 要求 | 检测方式 |
+|------|------|---------|
+| 三层信息层级 | 卡片最多 3 层（hero数字 → 标签 → 辅助文案） | 规则引擎 R4 |
+| 2秒可读 | 主信息在 2 秒内必须看清（车载场景不能分心） | 规则引擎 R2 对比度 |
+| 色彩同族 | 所有颜色源自同一色调家族（color-engine 保证） | 规则引擎 R3 色相对比 |
+| 暗色安全 | 不出现纯白 #FFFFFF，文字带透明度过渡到背景 | 规则引擎 R2 WCAG |
+| 边距呼吸 | 内容距卡片边缘 ≥ 24px | 规则引擎 R4 边界检测 |
+| 动效克制 | 粒子/光晕增强氛围，不遮挡内容 | 规则引擎 R8 粒子健康 |
+
+### 6.2 系统架构
+
+```
+              ┌─────────────────────────────────────────┐
+              │         batch_runner.py                  │
+              │  遍历 50 条测试 query → 逐条执行管线     │
+              └────────────┬────────────────────────────┘
+                           │
+          ┌────────────────┼────────────────────┐
+          ▼                ▼                    ▼
+ ① API 生成           ② 截图渲染            ③ 评分
+ POST /api/            Playwright             规则引擎
+ chat-generate         896×1464               8项检查
+ → JSON params         → PNG screenshot       → 0-100 分
+          │                │                    │
+          └────────────────┴────────────────────┘
+                           │
+              ┌────────────▼────────────────────┐
+              │         report.py                │
+              │  HTML 报告：截图 + 分数 + issue   │
+              │  + 修复建议 + 回归对比            │
+              └─────────────────────────────────┘
+```
+
+### 6.3 截图引擎 (Playwright)
+
+用 Playwright (Python) 启动 Chromium 无头浏览器，直接以 896×1464 视口打开模板页面截图。
+
+**流程**：
+
+1. 调用 `POST /api/chat-generate` 获取生成结果 JSON
+2. 根据 `component_type` + `theme` 拼接模板 URL（通过 Vite dev server 访问）
+3. 注入 `window.__WIDGET_PARAMS__`，设置 `data-style` 和 `data-visual-style` 属性
+4. 等待字体加载 (`document.fonts.ready`) + 动画稳定 (2s)
+5. 截图保存为 PNG
+
+**关键设计**：
+
+- 不走 iframe srcdoc，直接 `page.goto` 模板 URL → 更稳定，路径解析与生产一致
+- 通过 `page.evaluate` 注入参数 → reload → 再次注入 → 等待渲染，模拟真实预览行为
+- 批量模式复用同一 Browser 实例，避免反复启动 Chromium 的开销
+
+### 6.4 规则引擎 — 8 项自动检查
+
+在 Playwright page context 中执行 JS 检查 + Pillow 分析截图像素：
+
+| # | 检查项 | 权重 | 方法 | 检测内容 |
+|---|--------|------|------|---------|
+| R1 | **文字溢出** | 20% | DOM: `scrollWidth > clientWidth` | 所有文字元素是否超出容器 |
+| R2 | **对比度** | 15% | DOM 取前景色 + Pillow 采样背景色 → WCAG 比值 | 文字与背景对比度 ≥ 4.5:1 |
+| R3 | **颜色遵从** | 15% | Pillow: 提取截图上半区主色调 hue → 与请求颜色比对 | 用户说红色，卡片是否红色 |
+| R4 | **布局完整** | 15% | DOM: 所有元素 `getBoundingClientRect()` 在 0-896 / 0-1464 内 | 无元素超出卡片边界 |
+| R5 | **字体加载** | 10% | DOM: `document.fonts` 枚举状态 | Bebas Neue / Press Start 2P 是否加载成功 |
+| R6 | **内容填充** | 10% | DOM: 扫描可见文本，检查 `--` 或 `undefined` 占位 | 参数是否成功注入 |
+| R7 | **风格正确** | 10% | DOM: 检查 `data-visual-style` + 特定元素 display 状态 | minimal 该隐藏粒子的确隐藏了 |
+| R8 | **粒子健康** | 5% | DOM: `canvas.getImageData` 检查非零像素 | 粒子系统是否正常运行 |
+
+**评分规则**：
+
+- 每项检查输出 0-100 分（通过=100，按严重程度递减）
+- 综合分 = Σ (检查分 × 权重)
+- **≥ 80 优秀** / **60-79 合格** / **< 60 需修复**
+
+### 6.5 颜色匹配算法
+
+颜色遵从 (R3) 是本系统最核心的检查——它回答"用户说红色，卡片是否真的红了"。
+
+```
+用户输入 "红色"
+    │
+    ├─ 关键词匹配 → 预期色相 hue=0°, 容差=30°
+    │  (12种颜色关键词: 红/蓝/紫/绿/橙/粉/黄/青 + 英文)
+    │
+    └─ 若是 hex 值 "#CC2244" → RGB→HSV → hue=350°, 容差=30°
+
+截图分析
+    │
+    ├─ Pillow 打开截图，裁剪上半区（hero 区域）
+    ├─ 逐像素转 HSV，过滤低饱和度(s<0.15)和低明度(v<0.10)的像素
+    ├─ 收集有效像素的 hue 值，取中位数作为"主色调"
+    │
+    └─ 计算色相角距离 = |主色调 - 预期色相| (环形取最小值)
+
+判定
+    │
+    ├─ 距离 ≤ 容差 → PASS
+    └─ 距离 > 容差 → FAIL, 得分按距离/容差比例衰减
+```
+
+### 6.6 测试语料 — 50 条
+
+| 类别 | 数量 | 目的 | 典型 case |
+|------|------|------|----------|
+| 颜色 × 模板 | 12 | 验证 12 种颜色关键词在不同模板下的配色效果 | "红色恋爱纪念日"、"蓝色天气"、"#CC2244" |
+| 视觉风格 | 8 | 验证 4 种风格在不同模板下的结构覆盖 | "极简天气"、"像素风恋爱纪念" |
+| 文本压力 | 10 | 长标题/副标题/歌词/建议文本的溢出检测 | 30字标题、60字副标题 |
+| 意图边界 | 10 | 模糊意图/冲突关键词/只有日期等边缘 case | "今天天气怎么样"、"做个好看的卡片" |
+| 三维组合 | 5 | 颜色 + 风格 + 模板同时指定 | "红色像素风恋爱纪念日" |
+| 向后兼容 | 5 | 不带颜色/风格的传统输入，确认不回归 | "恋爱纪念日，2024-06-01" |
+
+每条 query 附带 `expected_type`、`expected_color`、`expected_style`、`min_score`，支持自动判定通过/失败。
+
+### 6.7 HTML 报告
+
+报告包含：
+
+- **总览面板**：总数 / 优秀 / 合格 / 失败 / 平均分
+- **逐 case 卡片**：截图 + 分数 + 失败检查项 + issue 列表
+- **回归对比**：与上次运行对比，显示分数 +/- 变化
+- **筛选器**：按 All / Failed / Passed / Excellent 过滤
+
+### 6.8 视觉模型评分（可选 Phase）
+
+规则引擎覆盖结构性问题（溢出/对比度/颜色/布局），但无法评估主观质量：
+- "这张卡片看起来高级吗？"
+- "布局是否和谐？"
+- "和 Apple CarPlay 同级别吗？"
+
+视觉模型评分通过 Claude Vision API 对截图做 6 维打分：
+
+| 维度 | 权重 | 评估内容 |
+|------|------|---------|
+| 意图匹配 | 25% | 卡片类型是否对应用户需求 |
+| 配色匹配 | 20% | 配色是否与描述一致 |
+| 文字可读 | 20% | 手臂距离是否清晰辨认 |
+| 布局质量 | 15% | 层级清晰、留白舒适 |
+| 美观质感 | 10% | 对标 Apple/Tesla 车机品质 |
+| 暗色和谐 | 10% | 暗色环境无刺眼亮点 |
+
+**综合评分** = 0.5 × 规则引擎分 + 0.5 × 视觉模型分
+
+当前为 stub 实现，可在规则引擎跑出基线后按需激活。
+
+### 6.9 Bad Case 诊断矩阵
+
+报告中每个失败 case 可直接定位到修复位置：
+
+| 症状 | 检测方式 | 修复位置 |
+|------|---------|---------|
+| 选错模板 | intent_mismatch | `generator.py` 关键词表扩充 |
+| 颜色不对 | R3 color_match 失败 | `generator.py _extract_color()` 或 `color-engine.js` |
+| 文字溢出 | R1 text_overflow 失败 | 对应模板 `style.css` 加 overflow/truncation |
+| 对比度差 | R2 contrast 失败 | `tokens.css` 提高 opacity 或 `color-engine.js` lighten |
+| 布局错位 | R4 layout_bounds 失败 | 对应模板 `style.css` 定位/尺寸修复 |
+| 参数丢失 | R6 content_filled 失败 | `preview.js` 路径或 `main.js` init 逻辑 |
+| 风格不生效 | R7 style_correct 失败 | `visual-styles.css` 选择器或 `main.js` 属性设置 |
+| 粒子不工作 | R8 particle_health 失败 | 对应模板 `main.js` canvas 逻辑 |
+
+**修复优先级**：
+- **P0**: 文字溢出（用户看到破版）、选错模板（完全答非所问）
+- **P1**: 对比度不合格（车上看不清）、颜色不对（用户会发现）
+- **P2**: 布局小问题、粒子不工作、风格部分生效
+
+### 6.10 已修复的结构性 Bug
+
+#### 第零轮：预先修复（搭建评分系统前）
+
+| Bug | 文件 | 修复 |
+|-----|------|------|
+| weather 建议文本溢出 | `weather/style.css` | 加 `-webkit-line-clamp: 2` + `overflow: hidden` |
+| 三级文字对比度仅 2.8:1 | `shared/tokens.css` | `--dark-text-tertiary` opacity 0.30 → 0.45 |
+| pixel 风格 hero 数字溢出 | `shared/visual-styles.css` | `font-size: 48px` → `clamp(36px, 5vw, 48px)` |
+| 纪念日副标题无截断 | `anniversary/*/style.css` ×4 | 加 `overflow:hidden; text-overflow:ellipsis; white-space:nowrap` |
+
+#### 第一轮：跑批后修复（50 case 从 88% → 100%）
+
+| Bug | 文件 | 修复 |
+|-----|------|------|
+| 截图引擎参数注入太晚 | `screenshot.py`, `batch_runner.py` | `page.evaluate` → `page.add_init_script` |
+| Mock 不识别「」括号内容 | `generator.py` | 新增 `_extract_bracketed()` 正则提取器 |
+| 缺英文颜色/风格关键词 | `generator.py` | COLOR_KEYWORDS + STYLE_KEYWORDS 补充英文 |
+| "圣诞节"不在倒计时关键词中 | `generator.py` | holiday_keywords 补充"圣诞" + 日期推算 |
+| 模糊 query 直接报错 | `generator.py` | 兜底随机返回展示型模板 |
+| glow 元素误报越界 | `rule_checks.py` | 排除 `glow-primary/secondary/tertiary` |
+| hero-number 误报溢出 | `rule_checks.py` | 排除 `line-height<1` 的紧凑数字排版 |
+
+### 6.11 使用方式
+
+```bash
+# 安装依赖
+pip3 install playwright Pillow requests
+python3 -m playwright install chromium
+
+# 启动服务（需要后端 + 前端同时运行）
+cd src/server && python3 main.py          # 终端 1
+cd src/mobile-web && npm run dev          # 终端 2
+
+# 跑全部 50 条测试
+python3 -m src.quality.batch_runner
+
+# 只跑指定 case
+python3 -m src.quality.batch_runner --ids color_01,style_01,text_03
+
+# 开启视觉模型评分
+ANTHROPIC_API_KEY=sk-xxx python3 -m src.quality.batch_runner --vision
+
+# 与上次结果对比
+python3 -m src.quality.batch_runner --compare quality_reports/20260321_143000
+
+# 查看报告
+open quality_reports/latest/index.html
+```
+
+**迭代循环**：
+
+```
+跑批量测试 → 查看报告 → 修复 score < 60 的 case → 重跑回归 → 确认无回归
+```
+
+---
+
+## 七、文件清单
 
 ### 组件模板 (`src/widget-templates/`)
 
@@ -483,9 +735,24 @@ public/
 └── car-simulator.html         # 车端模拟器
 ```
 
+### 质量保障 (`src/quality/`)
+
+```
+__init__.py                    # 包初始化
+__main__.py                    # python -m 入口
+config.py                     # 权重/阈值/模板URL/颜色色相表
+screenshot.py                  # Playwright 截图引擎 (896×1464)
+rule_checks.py                 # 8 项规则检查 (DOM+Pillow)
+vision_scorer.py               # 视觉模型评分 (Claude Vision, 可选)
+test_queries.py                # 50 条测试语料 (6 个类别)
+batch_runner.py                # 批量测试编排 (生成→截图→评分→报告)
+report.py                      # HTML 报告生成 (截图+分数+对比)
+requirements.txt               # playwright, Pillow, httpx
+```
+
 ---
 
-## 七、部署
+## 八、部署
 
 | 服务 | 平台 | 地址 |
 |------|------|------|
@@ -497,7 +764,7 @@ public/
 
 ---
 
-## 八、启动与验证
+## 九、启动与验证
 
 ### 本地启动
 
@@ -523,7 +790,7 @@ npm run dev              # → http://localhost:3000
 
 ---
 
-## 九、与远程仓库的关系
+## 十、与远程仓库的关系
 
 远程仓库 (GitHub) 有同事 yalohan 的一次大重构 (2fc98ba, 2026-03-17)，采用了完全不同的架构（AI 全代码生成，删除所有模板）。
 

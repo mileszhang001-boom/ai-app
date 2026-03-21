@@ -301,26 +301,26 @@ class AIGenerator:
 
     # ── 颜色关键词映射 ──
     COLOR_KEYWORDS = {
-        "红": "#CC2244", "红色": "#CC2244",
-        "蓝": "#2255CC", "蓝色": "#2255CC",
-        "粉": "#CC6688", "粉色": "#CC6688", "粉红": "#CC6688",
-        "绿": "#22AA66", "绿色": "#22AA66",
-        "金": "#CCAA33", "金色": "#CCAA33",
-        "紫": "#8844CC", "紫色": "#8844CC",
-        "橙": "#CC6622", "橙色": "#CC6622",
-        "青": "#22AAAA", "青色": "#22AAAA",
-        "白": "#AABBCC", "白色": "#AABBCC",
-        "黑": "#334455", "黑色": "#334455",
+        "红": "#CC2244", "红色": "#CC2244", "red": "#CC2244",
+        "蓝": "#2255CC", "蓝色": "#2255CC", "blue": "#2255CC",
+        "粉": "#CC6688", "粉色": "#CC6688", "粉红": "#CC6688", "pink": "#CC6688",
+        "绿": "#22AA66", "绿色": "#22AA66", "green": "#22AA66",
+        "金": "#CCAA33", "金色": "#CCAA33", "gold": "#CCAA33", "yellow": "#CCAA33",
+        "紫": "#8844CC", "紫色": "#8844CC", "purple": "#8844CC",
+        "橙": "#CC6622", "橙色": "#CC6622", "orange": "#CC6622",
+        "青": "#22AAAA", "青色": "#22AAAA", "cyan": "#22AAAA",
+        "白": "#AABBCC", "白色": "#AABBCC", "white": "#AABBCC",
+        "黑": "#334455", "黑色": "#334455", "black": "#334455",
         "玫瑰": "#CC4466", "霓虹紫": "#8844CC", "霓虹": "#8844CC",
         "香槟": "#CCAA66", "香槟色": "#CCAA66",
     }
 
     # ── 语义→视觉风格映射 ──
     STYLE_KEYWORDS = {
-        "minimal": ["简约", "简洁", "极简", "商务", "专业", "正式", "科技", "未来", "极客"],
-        "material": ["活力", "青春", "运动", "大胆", "个性", "潮流"],
-        "pixel": ["复古", "怀旧", "童年", "像素", "8bit", "像素风"],
-        "glass": ["浪漫", "温柔", "甜蜜", "优雅", "高级", "奢华", "自然", "清新", "治愈"],
+        "minimal": ["简约", "简洁", "极简", "商务", "专业", "正式", "科技", "未来", "极客", "minimal", "minimalist", "simple", "clean"],
+        "material": ["活力", "青春", "运动", "大胆", "个性", "潮流", "material", "bold", "vibrant"],
+        "pixel": ["复古", "怀旧", "童年", "像素", "8bit", "像素风", "pixel", "retro", "8-bit"],
+        "glass": ["浪漫", "温柔", "甜蜜", "优雅", "高级", "奢华", "自然", "清新", "治愈", "glass", "blur", "frosted", "毛玻璃"],
     }
 
     def _extract_color(self, text: str) -> Optional[str]:
@@ -420,6 +420,22 @@ class AIGenerator:
             base["visual_style"] = visual
         return json.dumps(base, ensure_ascii=False)
 
+    @staticmethod
+    def _extract_bracketed(text: str) -> dict:
+        """提取「content」括号内容及其前缀字段提示"""
+        import re
+        results = {}
+        for match in re.finditer(
+            r'(标题|副标题|歌名|歌手|歌词|城市名?|标签|日程标题|建议穿搭?|suggestion)(?:是|为)?[「\s]*「([^」]+)」',
+            text
+        ):
+            results[match.group(1)] = match.group(2)
+        # 简化匹配：直接 field「value」
+        for match in re.finditer(r'(标题|副标题|歌名|歌手|歌词|城市名?|标签|日程标题|建议穿搭?)(?:是|为)?「([^」]+)」', text):
+            if match.group(1) not in results:
+                results[match.group(1)] = match.group(2)
+        return results
+
     def _mock_nl_response(self, user_text: str) -> str:
         """自然语言模式的模拟响应（用于无 API Key 测试）"""
         import re
@@ -428,6 +444,9 @@ class AIGenerator:
         print(f"[DEBUG] Mock NL response for: {user_text}")
 
         today = date.today()
+
+        # 提取「」括号内容
+        bracketed = self._extract_bracketed(user_text)
 
         # 时间提取
         time_match = re.search(r'(\d{1,2})[点:：时](\d{0,2})', user_text)
@@ -443,14 +462,16 @@ class AIGenerator:
 
         # ---- 意图识别 ----
         # 闹钟
-        alarm_keywords = ["闹钟", "起床", "叫我", "提醒我", "早上", "上班"]
+        alarm_keywords = ["闹钟", "起床", "叫我", "提醒我", "早上", "上班", "alarm", "timer", "wake"]
         if any(k in text for k in alarm_keywords):
             t = extracted_time or "07:30"
-            label = "起床闹钟"
-            if "上班" in text or "工作" in text:
-                label = "上班提醒"
-            elif "健身" in text or "运动" in text or "跑步" in text:
-                label = "运动时间"
+            label = bracketed.get("标签", "")
+            if not label:
+                label = "起床闹钟"
+                if "上班" in text or "工作" in text:
+                    label = "上班提醒"
+                elif "健身" in text or "运动" in text or "跑步" in text:
+                    label = "运动时间"
             repeat = "weekdays"
             if "每天" in text:
                 repeat = "daily"
@@ -466,7 +487,7 @@ class AIGenerator:
             }, user_text)
 
         # 新闻
-        news_keywords = ["新闻", "资讯", "热点", "头条", "每日"]
+        news_keywords = ["新闻", "资讯", "热点", "头条", "每日", "news", "headlines"]
         if any(k in text for k in news_keywords) and "纪念" not in text:
             return self._build_result({
                 "component_type": "news",
@@ -477,7 +498,7 @@ class AIGenerator:
             }, user_text)
 
         # 宝宝
-        baby_keywords = ["宝宝", "孩子", "出生", "满月", "周岁", "儿子", "女儿", "baby", "小朋友"]
+        baby_keywords = ["宝宝", "孩子", "出生", "满月", "周岁", "儿子", "女儿", "baby", "小朋友", "born", "child"]
         # 额外检测：'我家XXX...天' 模式也视为宝宝
         baby_pattern = bool(re.search(r'我家.{1,4}(?:今天|已经|刚好|满).{0,4}\d+天', user_text))
         if any(k in text for k in baby_keywords) or baby_pattern:
@@ -505,6 +526,10 @@ class AIGenerator:
                 elif days_milestone == 1000:
                     title = title.replace("成长记", "千日纪念") if "成长记" in title else "宝宝千日纪念"
 
+            if bracketed.get("标题"):
+                title = bracketed["标题"]
+            if bracketed.get("副标题"):
+                subtitle = bracketed["副标题"]
             return self._build_result({
                 "component_type": "anniversary", "mode": "countup", "theme": "baby",
                 "template_id": "anniversary_baby", "style_preset": "soft-purple",
@@ -512,7 +537,7 @@ class AIGenerator:
             }, user_text)
 
         # 放假/倒计时
-        holiday_keywords = ["放假", "倒计时", "假期", "国庆", "春节", "五一", "元旦", "过年", "中秋", "端午"]
+        holiday_keywords = ["放假", "倒计时", "假期", "国庆", "春节", "五一", "元旦", "过年", "中秋", "端午", "暑假", "圣诞", "christmas", "holiday", "vacation", "countdown"]
         if any(k in text for k in holiday_keywords):
             extracted_date = self._extract_date_enhanced(user_text, today, prefer_past=False)
             # 推断目标日期
@@ -538,6 +563,10 @@ class AIGenerator:
                 target = f"{today.year}-06-10"
                 if date.fromisoformat(target) < today:
                     target = f"{today.year + 1}-06-10"
+            elif "圣诞" in text or "christmas" in text:
+                target = f"{today.year}-12-25"
+                if date.fromisoformat(target) < today:
+                    target = f"{today.year + 1}-12-25"
             else:
                 target = f"{today.year}-10-01"
 
@@ -557,8 +586,14 @@ class AIGenerator:
                 title = "中秋节倒计时"
             elif "元旦" in text:
                 title = "元旦倒计时"
+            elif "圣诞" in text or "christmas" in text:
+                title = "圣诞节倒计时"
 
             subtitle = self._generate_nl_subtitle("holiday", days_left, user_text)
+            if bracketed.get("标题"):
+                title = bracketed["标题"]
+            if bracketed.get("副标题"):
+                subtitle = bracketed["副标题"]
             return self._build_result({
                 "component_type": "anniversary", "mode": "countdown", "theme": "holiday",
                 "template_id": "anniversary_holiday", "style_preset": "vibrant-orange",
@@ -566,12 +601,14 @@ class AIGenerator:
             }, user_text)
 
         # 天气
-        weather_keywords = ["天气", "温度", "穿什么", "下雨", "出行", "气温", "多少度", "冷", "热"]
+        weather_keywords = ["天气", "温度", "穿什么", "下雨", "出行", "气温", "多少度", "冷", "热", "weather", "temperature", "forecast"]
         if any(k in text for k in weather_keywords):
-            city = "北京"
-            city_match = re.search(r'(北京|上海|广州|深圳|杭州|成都|武汉|南京|重庆|西安|苏州|长沙|天津|郑州|合肥|厦门|青岛|大连)', user_text)
-            if city_match:
-                city = city_match.group(1)
+            city = bracketed.get("城市名", bracketed.get("城市", ""))
+            if not city:
+                city = "北京"
+                city_match = re.search(r'(北京|上海|广州|深圳|杭州|成都|武汉|南京|重庆|西安|苏州|长沙|天津|郑州|合肥|厦门|青岛|大连)', user_text)
+                if city_match:
+                    city = city_match.group(1)
             weather_type = "sunny"
             if "雨" in text: weather_type = "rainy"
             elif "雪" in text: weather_type = "snowy"
@@ -583,7 +620,7 @@ class AIGenerator:
             }, user_text)
 
         # 音乐
-        music_keywords = ["音乐", "歌", "播放", "听歌", "播放器", "歌曲"]
+        music_keywords = ["音乐", "歌", "播放", "听歌", "播放器", "歌曲", "music", "song", "player", "play"]
         if any(k in text for k in music_keywords):
             song = "晴天"
             artist = "周杰伦"
@@ -603,6 +640,12 @@ class AIGenerator:
             elif "简约" in text or "极简" in text:
                 preset = "minimal-light"
 
+            if bracketed.get("歌名"):
+                song = bracketed["歌名"]
+            if bracketed.get("歌手"):
+                artist = bracketed["歌手"]
+            if bracketed.get("歌词"):
+                lyrics = bracketed["歌词"]
             return self._build_result({
                 "component_type": "music", "theme": "player",
                 "template_id": "music_player", "style_preset": preset,
@@ -610,16 +653,19 @@ class AIGenerator:
             }, user_text)
 
         # 日历/日程
-        calendar_keywords = ["日历", "日程", "安排", "会议", "行程", "今天有什么"]
+        calendar_keywords = ["日历", "日程", "安排", "会议", "行程", "今天有什么", "calendar", "schedule", "meeting"]
         if any(k in text for k in calendar_keywords):
+            cal_params = {"show_lunar": True}
+            if bracketed.get("日程标题"):
+                cal_params["events"] = [{"time": "09:00", "title": bracketed["日程标题"][:30]}]
             return self._build_result({
                 "component_type": "calendar", "theme": "schedule",
                 "template_id": "calendar_schedule", "style_preset": "business-gray",
-                "params": {"show_lunar": True}
+                "params": cal_params
             }, user_text)
 
         # 恋爱 / 纪念日
-        love_keywords = ["恋爱", "在一起", "结婚", "纪念", "另一半", "女朋友", "男朋友", "老婆", "老公", "对象", "爱", "周年"]
+        love_keywords = ["恋爱", "在一起", "结婚", "纪念", "另一半", "女朋友", "男朋友", "老婆", "老公", "对象", "爱", "周年", "love", "anniversary", "girlfriend", "boyfriend"]
         extracted_date = self._extract_date_enhanced(user_text, today, prefer_past=True)
         if any(k in text for k in love_keywords) or extracted_date:
             d = extracted_date or "2024-06-01"
@@ -646,13 +692,42 @@ class AIGenerator:
             elif "在一起" in text and days_milestone:
                 title = f"在一起第{days_milestone}天"
 
+            if bracketed.get("标题"):
+                title = bracketed["标题"]
+            if bracketed.get("副标题"):
+                subtitle = bracketed["副标题"]
             return self._build_result({
                 "component_type": "anniversary", "mode": "countup", "theme": "love",
                 "template_id": "anniversary_love", "style_preset": "sweet-pink",
                 "params": {"title": title[:20], "start_date": d, "subtitle": subtitle}
             }, user_text)
 
-        # 兜底：无法识别意图，返回特殊标记
+        # 暖橙纪念（已有 "纪念" 关键词匹配到 love 分支，但如果没匹配到且有 "暖橙"）
+        # 兜底：模糊但合法的创建请求 → 随机返回展示型模板
+        generic_keywords = ["做", "生成", "创建", "来个", "卡片", "组件", "好看", "widget", "make", "create"]
+        if any(k in text for k in generic_keywords):
+            import random
+            fallback = random.choice(["weather", "music", "calendar"])
+            if fallback == "weather":
+                return self._build_result({
+                    "component_type": "weather", "theme": "realtime",
+                    "template_id": "weather_realtime", "style_preset": "clear-blue",
+                    "params": {"city": "北京", "weather_type": "sunny"}
+                }, user_text)
+            elif fallback == "music":
+                return self._build_result({
+                    "component_type": "music", "theme": "player",
+                    "template_id": "music_player", "style_preset": "dark-vinyl",
+                    "params": {"song_name": "晴天", "artist": "周杰伦", "lyrics_snippet": "故事的小黄花 从出生那年就飘着"}
+                }, user_text)
+            else:
+                return self._build_result({
+                    "component_type": "calendar", "theme": "schedule",
+                    "template_id": "calendar_schedule", "style_preset": "business-gray",
+                    "params": {"show_lunar": True}
+                }, user_text)
+
+        # 兜底：完全无法识别意图
         return json.dumps({
             "_unrecognized": True,
             "_user_text": user_text
