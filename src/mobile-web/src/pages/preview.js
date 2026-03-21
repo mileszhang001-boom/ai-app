@@ -45,23 +45,21 @@ export class PreviewPage {
         <div class="top-nav-title">预览</div>
         <div></div>
       </div>
-      <div class="container">
-        <div class="preview-container">
-          <div class="preview-bezel">
-            <div class="preview-bezel-label">SU7 行车桌面</div>
-            <div class="preview-frame" id="previewFrame">
-              <div class="loading">
-                <div class="spinner"></div>
-              </div>
+      <div class="preview-container">
+        <div class="preview-bezel">
+          <div class="preview-bezel-label">SU7 行车桌面</div>
+          <div class="preview-frame" id="previewFrame">
+            <div class="loading">
+              <div class="spinner"></div>
             </div>
           </div>
-          <div class="preview-label">896 × 1464 · 1/3 屏卡片预览</div>
         </div>
+        <div class="preview-label">896 × 1464 · 1/3 屏卡片预览</div>
+      </div>
 
-        <div class="actions" style="padding: 0 16px 24px;">
-          <button id="syncBtn" class="btn">同步到车机</button>
-          <button id="editBtn" class="btn btn-secondary" style="margin-top: 12px;">编辑参数</button>
-        </div>
+      <div class="preview-actions">
+        <button id="syncBtn" class="btn">同步到车机</button>
+        <button id="editBtn" class="btn btn-secondary">编辑参数</button>
       </div>
     `;
 
