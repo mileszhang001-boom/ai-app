@@ -192,13 +192,13 @@
 
     function createParticle() {
       var rgb = getParticleColor();
-      var size = 2 + Math.random() * 3;
+      var size = 6 + Math.random() * 9;
       return {
         x: Math.random() * canvas.width,
-        y: canvas.height + 20,
+        y: canvas.height + 60,
         size: size,
-        speedY: -(0.3 + Math.random() * 0.5),
-        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: -(0.9 + Math.random() * 1.5),
+        speedX: (Math.random() - 0.5) * 0.9,
         opacity: 0,
         targetOpacity: 0.15 + Math.random() * 0.25,
         fadeIn: true,
@@ -240,7 +240,7 @@
 
         // 横向轻微摆动
         p.wobble += p.wobbleSpeed;
-        p.x += p.speedX + Math.sin(p.wobble) * 0.3;
+        p.x += p.speedX + Math.sin(p.wobble) * 0.9;
         p.y += p.speedY;
         p.rotation += p.rotSpeed;
 

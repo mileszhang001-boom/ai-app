@@ -23,12 +23,12 @@ html, body {
 .widget-news {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 60px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 32px 24px 28px;
+  padding: 96px 72px 84px;
   box-sizing: border-box;
 
   background: var(--news-bg-dark, linear-gradient(180deg, #111316 0%, #0e1013 100%));
@@ -40,11 +40,11 @@ html, body {
   position: absolute;
   top: -5%;
   right: -10%;
-  width: 240px;
-  height: 240px;
+  width: 720px;
+  height: 720px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(100, 150, 220, 0.10) 0%, transparent 70%);
-  filter: blur(50px);
+  filter: blur(150px);
   pointer-events: none;
   animation: breathing-glow 5s ease-in-out infinite;
 }
@@ -178,22 +178,22 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 60px;
+  padding-bottom: 48px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .widget-news .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
 }
 
 .widget-news .header-indicator {
-  width: 3px;
-  height: 14px;
+  width: 9px;
+  height: 42px;
   background: rgba(100, 150, 220, 1);
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .widget-news .category-label {
@@ -216,22 +216,22 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 36px;
   overflow: hidden;
   min-height: 0;
 }
 
 /* 新闻项 — 独立毛玻璃卡片 */
 .widget-news .news-item {
-  padding: 14px 16px;
+  padding: 42px 48px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 18px;
   background: rgba(100, 150, 220, 0.04);
-  backdrop-filter: blur(12px) saturate(1.5);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  backdrop-filter: blur(36px) saturate(1.5);
+  -webkit-backdrop-filter: blur(36px) saturate(1.5);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  border-radius: 36px;
   animation: stagger-fadeIn 0.5s ease-out both;
   transition: background 0.3s ease;
 }
@@ -251,26 +251,26 @@ html, body {
 .widget-news .news-item-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
 }
 
 .widget-news .news-item-category {
   font-family: var(--font-family-display, 'SF Pro Display');
-  font-size: 10px;
+  font-size: 30px;
   font-weight: var(--font-weight-medium, 500);
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   background: rgba(100, 150, 220, 0.10);
   color: rgba(100, 150, 220, 0.70);
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 6px 24px;
+  border-radius: 12px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .widget-news .news-item-title {
   font-family: var(--font-cn-family, 'SF Pro Text');
-  font-size: 14px;
+  font-size: 42px;
   font-weight: var(--font-weight-regular, 400);
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.4;
@@ -282,7 +282,7 @@ html, body {
 /* 第二行：时间 */
 .widget-news .news-item-time {
   font-family: var(--font-cn-family, 'SF Pro Text');
-  font-size: 11px;
+  font-size: 33px;
   color: rgba(255, 255, 255, 0.25);
 }
 
@@ -290,21 +290,21 @@ html, body {
 .widget-news .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding-top: 12px;
+  gap: 18px;
+  padding-top: 36px;
 }
 
 .widget-news .carousel-dot {
-  width: 4px;
-  height: 4px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.15);
   transition: all 0.3s ease;
 }
 
 .widget-news .carousel-dot.active {
-  width: 16px;
-  border-radius: 2px;
+  width: 48px;
+  border-radius: 6px;
   background: rgba(100, 150, 220, 0.70);
 }
 
@@ -322,8 +322,8 @@ html, body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   color: transparent;
-  width: 50px;
-  height: 14px;
+  width: 150px;
+  height: 42px;
 }
 
 .widget-news .news-item.skeleton .news-item-title {
@@ -335,8 +335,8 @@ html, body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   width: 70%;
-  height: 18px;
-  border-radius: 4px;
+  height: 54px;
+  border-radius: 12px;
 }
 
 .widget-news .news-item.skeleton .news-item-time {
@@ -347,9 +347,9 @@ html, body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  width: 40px;
-  height: 12px;
-  border-radius: 3px;
+  width: 120px;
+  height: 36px;
+  border-radius: 9px;
 }
 
 /* ── 底部区域 ── */
@@ -357,12 +357,12 @@ html, body {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  padding-top: 12px;
-  gap: 12px;
+  padding-top: 36px;
+  gap: 36px;
 }
 
 .widget-news .divider {
-  width: 24px;
+  width: 72px;
   height: 1px;
   background: rgba(255,255,255, 0.15);
 }
@@ -380,7 +380,7 @@ html, body {
   bottom: 0;
   left: 0;
   width: 40%;
-  height: 2px;
+  height: 6px;
   background: linear-gradient(90deg, rgba(100, 150, 220, 0.35) 0%, transparent 100%);
   border-radius: 1px;
   pointer-events: none;
@@ -405,7 +405,7 @@ html, body {
 /* ── 摘要行 ── */
 .widget-news .news-item-summary {
   font-family: var(--font-cn-family, 'SF Pro Text');
-  font-size: 12px;
+  font-size: 36px;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1.4;
   overflow: hidden;
@@ -425,8 +425,8 @@ html, body {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.60);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(60px);
+  -webkit-backdrop-filter: blur(60px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -439,14 +439,14 @@ html, body {
 
 .widget-news .detail-card {
   width: 85%;
-  max-width: 340px;
+  max-width: 1020px;
   background: rgba(30, 35, 50, 0.90);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(72px) saturate(1.5);
+  -webkit-backdrop-filter: blur(72px) saturate(1.5);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border-radius: 48px;
+  padding: 72px;
+  box-shadow: 0 24px 96px rgba(0, 0, 0, 0.4);
   transform: scale(0.95);
   transition: transform 0.3s ease;
 }
@@ -456,46 +456,46 @@ html, body {
 }
 
 .widget-news .detail-category {
-  font-size: 11px;
+  font-size: 33px;
   font-weight: 500;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   background: rgba(100, 150, 220, 0.12);
   color: rgba(100, 150, 220, 0.80);
-  padding: 3px 10px;
-  border-radius: 4px;
+  padding: 9px 30px;
+  border-radius: 12px;
   display: inline-block;
-  margin-bottom: 12px;
+  margin-bottom: 36px;
 }
 
 .widget-news .detail-title {
   font-family: var(--font-cn-family, 'SF Pro Text');
-  font-size: 16px;
+  font-size: 48px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.90);
   line-height: 1.5;
-  margin-bottom: 12px;
+  margin-bottom: 36px;
 }
 
 .widget-news .detail-summary {
   font-family: var(--font-cn-family, 'SF Pro Text');
-  font-size: 13px;
+  font-size: 39px;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.6;
-  margin-bottom: 16px;
+  margin-bottom: 48px;
 }
 
 .widget-news .detail-meta {
-  font-size: 11px;
+  font-size: 33px;
   color: rgba(255, 255, 255, 0.25);
-  margin-bottom: 16px;
+  margin-bottom: 48px;
 }
 
 .widget-news .detail-close {
   text-align: center;
-  font-size: 12px;
+  font-size: 36px;
   color: rgba(255, 255, 255, 0.30);
-  padding-top: 12px;
+  padding-top: 36px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 

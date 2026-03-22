@@ -170,18 +170,18 @@
       if (type === 'rainy') {
         return {
           x: Math.random() * canvas.width,
-          y: -10,
-          length: 10 + Math.random() * 15,
-          speed: 4 + Math.random() * 4,
+          y: -30,
+          length: 30 + Math.random() * 45,
+          speed: 12 + Math.random() * 12,
           opacity: 0.08 + Math.random() * 0.12
         };
       } else if (type === 'snowy') {
         return {
           x: Math.random() * canvas.width,
-          y: -10,
-          size: 1.5 + Math.random() * 3,
-          speed: 0.5 + Math.random() * 1,
-          drift: (Math.random() - 0.5) * 0.5,
+          y: -30,
+          size: 4.5 + Math.random() * 9,
+          speed: 1.5 + Math.random() * 3,
+          drift: (Math.random() - 0.5) * 1.5,
           opacity: 0.15 + Math.random() * 0.2,
           wobble: Math.random() * Math.PI * 2
         };
@@ -189,22 +189,22 @@
         return {
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height * 0.4,
-          size: 1 + Math.random() * 2,
+          size: 3 + Math.random() * 6,
           opacity: 0,
           targetOpacity: 0.06 + Math.random() * 0.10,
           fadeIn: true,
           life: 0,
           maxLife: 200 + Math.random() * 300,
-          speed: 0.1
+          speed: 0.3
         };
       }
       // cloudy: soft drifting wisps
       return {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height * 0.5,
-        size: 30 + Math.random() * 50,
+        size: 90 + Math.random() * 150,
         opacity: 0.02 + Math.random() * 0.03,
-        drift: 0.1 + Math.random() * 0.2
+        drift: 0.3 + Math.random() * 0.6
       };
     }
 
@@ -222,13 +222,13 @@
 
         if (type === 'rainy') {
           ctx.strokeStyle = 'rgba(150, 200, 255, ' + p.opacity + ')';
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p.x - 2, p.y + p.length);
+          ctx.lineTo(p.x - 6, p.y + p.length);
           ctx.stroke();
           p.y += p.speed;
-          p.x -= 0.5;
+          p.x -= 1.5;
           if (p.y > canvas.height) { particles.splice(i, 1); }
         }
         else if (type === 'snowy') {
@@ -238,7 +238,7 @@
           ctx.fillStyle = 'rgba(220, 230, 255, ' + p.opacity + ')';
           ctx.fill();
           p.y += p.speed;
-          p.x += p.drift + Math.sin(p.wobble) * 0.3;
+          p.x += p.drift + Math.sin(p.wobble) * 0.9;
           if (p.y > canvas.height) { particles.splice(i, 1); }
         }
         else if (type === 'sunny') {

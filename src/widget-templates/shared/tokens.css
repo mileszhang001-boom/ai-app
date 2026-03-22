@@ -313,45 +313,45 @@
   --util-ambient: rgba(255, 106, 0, 0.25);
 }
 
-/* ── 字号层级（896×1464 卡片） ── */
+/* ── 字号层级（896×1464 卡片，Design-at-896） ── */
 :root {
   /* 核心数字：卡片的绝对主角 */
-  --size-hero-lg: 104px;     /* 居中布局的大数字（放假倒计时） */
-  --size-hero-md: 88px;      /* 底部对齐布局的数字（恋爱/宝宝） */
-  --size-hero-sm: 80px;      /* 时间显示（闹钟 07:30） */
+  --size-hero-lg: 300px;     /* 居中布局的大数字（放假倒计时） */
+  --size-hero-md: 260px;     /* 底部对齐布局的数字（恋爱/宝宝） */
+  --size-hero-sm: 240px;     /* 时间显示（闹钟 07:30） */
 
   /* 顶部英文类别标注 */
-  --size-category: 11px;
+  --size-category: 32px;
 
   /* 数字下方英文单位 */
-  --size-unit: 11px;
+  --size-unit: 32px;
 
   /* 中文副标题 */
-  --size-subtitle: 15px;
+  --size-subtitle: 44px;
 
   /* 中文辅助信息 */
-  --size-caption: 12px;
+  --size-caption: 36px;
 
   /* 新闻标题 */
-  --size-news-title: 14px;
+  --size-news-title: 42px;
 
   /* 新闻时间/标签 */
-  --size-news-meta: 11px;
+  --size-news-meta: 34px;
 
   /* 列表头标题 */
-  --size-header: 14px;
+  --size-header: 42px;
 
   /* 显示字号 */
-  --font-size-display: 56px;
+  --font-size-display: 160px;
 
   /* 标题字号 */
-  --font-size-title: 20px;
+  --font-size-title: 56px;
 
   /* 正文字号 */
-  --font-size-body: 16px;
+  --font-size-body: 48px;
 
   /* 辅助字号 */
-  --font-size-caption: 12px;
+  --font-size-caption: 36px;
 
   /* 字重 */
   --font-weight-light: 300;
@@ -372,7 +372,7 @@
   /* 核心数字：DIN Alternate 或回退字体 */
   --font-hero-family: 'DIN Alternate', 'SF Pro Display', 'Helvetica Neue', system-ui;
   --font-hero-weight: 300;
-  --font-hero-letter-spacing: -3px;
+  --font-hero-letter-spacing: -9px;
   --font-hero-line-height: 0.9;
 
   /* 英文标注和显示文字 */
@@ -388,37 +388,37 @@
   --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* ── 间距节奏 ── */
+/* ── 间距节奏（Design-at-896） ── */
 :root {
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
+  --spacing-xs: 12px;
+  --spacing-sm: 24px;
+  --spacing-md: 48px;
+  --spacing-lg: 72px;
+  --spacing-xl: 96px;
 
   /* 卡片内边距 */
-  --card-padding-v: 32px;
-  --card-padding-h: 28px;
-  --card-radius: 20px;
+  --card-padding-v: 96px;
+  --card-padding-h: 84px;
+  --card-radius: 60px;
 
   /* 元素间距 */
-  --gap-hero-to-unit: 6px;       /* 数字 → 英文单位：紧密 */
-  --gap-unit-to-divider: 28px;   /* 英文单位 → 分割线：拉开 */
-  --gap-divider-to-subtitle: 14px;
-  --gap-subtitle-caption: 5px;
-  --gap-subtitle-unit: 20px;   /* 副标题 → 分割线（居中布局） */
-  --gap-category-to-hero: 20px;  /* 顶部标注 → 数字 */
-  --gap-unit-hero: 4px;       /* 英文单位 → 数字（居中布局） */
-  --gap-hero-divider: 32px;   /* 数字 → 分割线（居中布局） */
+  --gap-hero-to-unit: 18px;       /* 数字 → 英文单位：紧密 */
+  --gap-unit-to-divider: 84px;   /* 英文单位 → 分割线：拉开 */
+  --gap-divider-to-subtitle: 42px;
+  --gap-subtitle-caption: 15px;
+  --gap-subtitle-unit: 60px;   /* 副标题 → 分割线（居中布局） */
+  --gap-category-to-hero: 60px;  /* 顶部标注 → 数字 */
+  --gap-unit-hero: 12px;       /* 英文单位 → 数字（居中布局） */
+  --gap-hero-divider: 96px;   /* 数字 → 分割线（居中布局） */
 }
 
-/* ── 圆角 ── */
+/* ── 圆角（Design-at-896） ── */
 :root {
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 16px;
-  --border-radius-2xl: 20px;
+  --border-radius-sm: 12px;
+  --border-radius-md: 24px;
+  --border-radius-lg: 36px;
+  --border-radius-xl: 48px;
+  --border-radius-2xl: 60px;
 }
 
 /* ── 卡片尺寸（车端固定） ── */
@@ -428,11 +428,11 @@
   --card-aspect-ratio: 896 / 1464;
 }
 
-/* ── 分割线 ── */
+/* ── 分割线（Design-at-896） ── */
 :root {
-  --divider-width: 24px;
-  --divider-width-small: 20px;
-  --divider-height: 1px;
+  --divider-width: 72px;
+  --divider-width-small: 60px;
+  --divider-height: 3px;
 }
 
 /* ── 氛围光线 ── */
@@ -443,12 +443,12 @@
   --ambient-line-width-full: 55%;    /* 恋爱更长 */
 }
 
-/* ── 背景光晕 ── */
+/* ── 背景光晕（Design-at-896） ── */
 :root {
-  --glow-primary-size: 180px;
-  --glow-primary-filter: blur(30px);
-  --glow-secondary-size: 140px;
-  --glow-secondary-filter: blur(25px);
+  --glow-primary-size: 540px;
+  --glow-primary-filter: blur(90px);
+  --glow-secondary-size: 420px;
+  --glow-secondary-filter: blur(75px);
 }
 
 /* ── 过渡 ── */
@@ -463,24 +463,24 @@
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* ── 字母间距 ── */
+/* ── 字母间距（Design-at-896） ── */
 :root {
-  --letter-spacing-hero: -3px;
-  --letter-spacing-hero-large: -4px;
-  --letter-spacing-hero-small: -2px;
-  --letter-spacing-unit: 3px;
-  --letter-spacing-unit-wide: 4px;
-  --letter-spacing-category: 2px;
-  --letter-spacing-body: 0.3px;
+  --letter-spacing-hero: -9px;
+  --letter-spacing-hero-large: -12px;
+  --letter-spacing-hero-small: -6px;
+  --letter-spacing-unit: 9px;
+  --letter-spacing-unit-wide: 12px;
+  --letter-spacing-category: 6px;
+  --letter-spacing-body: 0.9px;
 }
 
-/* ── 兼容变量（不重复声明已有变量） ── */
+/* ── 兼容变量（Design-at-896） ── */
 :root {
-  --font-size-tiny: 14px;
-  --spacing-xxs: 4px;
-  --spacing-xxl: 72px;
-  --card-padding: 32px;
-  --card-padding-sm: 24px;
+  --font-size-tiny: 40px;
+  --spacing-xxs: 12px;
+  --spacing-xxl: 216px;
+  --card-padding: 96px;
+  --card-padding-sm: 72px;
 }
 
 /* ── 旧风格预设（兼容） ── */
@@ -505,10 +505,10 @@
 
 /* ── Glassmorphism / Liquid Glass 系统 ── */
 :root {
-  /* 毛玻璃效果 */
-  --glass-blur: blur(20px);
-  --glass-blur-heavy: blur(40px);
-  --glass-blur-light: blur(12px);
+  /* 毛玻璃效果（Design-at-896） */
+  --glass-blur: blur(60px);
+  --glass-blur-heavy: blur(120px);
+  --glass-blur-light: blur(36px);
   --glass-saturate: saturate(1.8);
   --glass-saturate-heavy: saturate(2.2);
 

@@ -23,14 +23,14 @@ html, body {
 .widget-holiday {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 60px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40px 28px 32px;
+  padding: 120px 84px 96px;
   box-sizing: border-box;
 
   /* 默认翠绿渐变背景 */
@@ -387,11 +387,11 @@ html, body {
   position: absolute;
   top: 8%;
   right: -8%;
-  width: 280px;
-  height: 280px;
+  width: 840px;
+  height: 840px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(80, 200, 120, 0.22) 0%, transparent 70%);
-  filter: blur(60px);
+  filter: blur(180px);
   pointer-events: none;
   animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
 }
@@ -401,11 +401,11 @@ html, body {
   position: absolute;
   bottom: 20%;
   left: -12%;
-  width: 200px;
-  height: 200px;
+  width: 600px;
+  height: 600px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(100, 220, 160, 0.12) 0%, transparent 70%);
-  filter: blur(45px);
+  filter: blur(135px);
   pointer-events: none;
   animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
   animation-delay: -2s;
@@ -416,11 +416,11 @@ html, body {
   position: absolute;
   top: 40%;
   left: 30%;
-  width: 300px;
-  height: 300px;
+  width: 900px;
+  height: 900px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(80, 200, 120, 0.06) 0%, transparent 60%);
-  filter: blur(80px);
+  filter: blur(240px);
   pointer-events: none;
 }
 
@@ -430,7 +430,7 @@ html, body {
   bottom: 0;
   left: 0;
   width: 50%;
-  height: 2px;
+  height: 6px;
   background: linear-gradient(90deg, rgba(80, 200, 120, 0.50) 0%, transparent 100%);
   border-radius: 1px;
   opacity: 1;
@@ -446,8 +446,8 @@ html, body {
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 32px 24px 28px;
+  border-radius: 48px;
+  padding: 96px 72px 84px;
   box-shadow:
     var(--glass-inner-glow),
     var(--shadow-subtle);
@@ -460,7 +460,7 @@ html, body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 60px;
+  width: 180px;
   height: 100%;
   background: linear-gradient(
     90deg,
@@ -528,7 +528,7 @@ html, body {
 
 /* ── 分割线（居中） ── */
 .widget-holiday .divider {
-  width: 24px;
+  width: 72px;
   height: 1px;
   background: var(--holiday-line);
   margin: 0 auto var(--gap-divider-to-subtitle);

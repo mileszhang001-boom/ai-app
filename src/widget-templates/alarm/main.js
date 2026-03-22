@@ -26,7 +26,7 @@
     daily: 'EVERY DAY'
   };
 
-  // 环的周长 (2 * PI * r, r=88)
+  // 环的周长 (2 * PI * r, r=88 in SVG viewBox units)
   const CIRCUMFERENCE = 2 * Math.PI * 88; // ~553
 
   function parseAlarmTime(timeStr) {

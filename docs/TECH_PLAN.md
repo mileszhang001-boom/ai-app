@@ -84,15 +84,37 @@
 
 | 特性 | 实现 |
 |------|------|
-| 毛玻璃效果 | `backdrop-filter: blur(20px) saturate(1.8)` + 半透明背景 |
+| **Design-at-896 缩放** | 模板 CSS 全部按 896px 设计，手机端通过 CSS `zoom` 等比缩小 |
+| 毛玻璃效果 | `backdrop-filter: blur(60px) saturate(1.8)` + 半透明背景 |
 | 折射边框 | `rgba(255,255,255, 0.08)` 边框 + 内发光 |
 | 深度阴影 | 三层 box-shadow 系统 (subtle/elevated/floating) |
 | 呼吸光晕 | `breathing-glow` 动画，4s 周期 |
 | 数字翻牌 | `digit-flip-in/out` 3D 翻转动画 |
 | 交错淡入 | `stagger-fadeIn` + 0.08s 延迟 |
-| 粒子系统 | Canvas 2D，每模板 15-25 粒子，主题色适配 |
+| 粒子系统 | Canvas 2D，每模板 15-25 粒子，主题色适配，尺寸/速度按 896px 设计 |
 | 高光扫过 | `light-sweep` 动画 |
 | WebView 兼容 | `@supports` 降级方案 (backdrop-filter / background-clip) |
+
+#### Design-at-896 + CSS zoom 缩放机制
+
+```
+Pencil 设计 (896×1464) = 设计源头 = 车端真实尺寸
+    ↓ 1:1 映射
+模板 CSS px 值（全部按 896px 设计）
+    ├── 车端 WebView (896×1464) → 原样渲染 ✓
+    └── 手机端 iframe (260×425) → CSS zoom: 0.29 缩小 ✓
+```
+
+**核心原理**：`render-widget.js` 在创建 iframe 时测量容器宽度，计算 `zoom = containerWidth / 896`，注入 `<style>html{zoom:N}</style>`。CSS `zoom` 使布局视口从 260px 扩展为 `260/0.29 ≈ 896px`，模板 `width:100%` 自动解析为 896px。
+
+**关键文件**：
+- `render-widget.js`：注入 zoom 样式（手机端）
+- `car-simulator.html`：896×1464 直接渲染，无需 zoom
+- `tokens.css`：所有尺寸 token 按 896px 设计
+- 各模板 `style.css`：所有硬编码 px 值按 896px 设计
+- 各模板 `main.js`：Canvas 粒子尺寸/速度按 896px 设计
+
+**注意**：SVG viewBox 坐标（如闹钟进度环 `viewBox="0 0 200 200"`）不受 CSS zoom 影响，无需缩放。
 
 ---
 
@@ -490,6 +512,19 @@ AIWidgetBridge.mediaControl(action)     // 'play'|'pause'|'next'|'prev'
 | **页面删除** | `config.js` / `my-widgets.js` / `sync.js` 三个废弃页面 | ✅ |
 | **AI推荐标签** | 基于客户端时间：早晨→天气、工作→日程、晚间→新闻 | ✅ |
 | **全模板验证** | Playwright 截图 6 种模板全部渲染正确（天气/恋爱/音乐/日程/新闻/闹钟） | ✅ |
+
+### ✅ Design-at-896 + CSS zoom 缩放 (2026-03-22)
+
+Pencil 设计稿 (896×1464) 与代码渲染一致性方案，解决 Pencil 设计值与模板 CSS px 值不一致的问题。
+
+| 变更 | 内容 | 状态 |
+|------|------|------|
+| **render-widget.js** | 注入 CSS `zoom = containerWidth / 896`，手机端 iframe 等比缩小 | ✅ |
+| **tokens.css** | 所有尺寸 token 从 260px 设计值更新为 896px 设计值（字号/间距/圆角/光晕/blur/字间距） | ✅ |
+| **9 个模板 style.css** | 所有硬编码 px 值 ×3（容器 padding/光晕尺寸/blur/毛玻璃/字号/间距） | ✅ |
+| **7 个模板 main.js** | Canvas 粒子系统参数 ×3（尺寸/速度/生成位置），闹钟 SVG 保持 viewBox 坐标不变 | ✅ |
+| **visual-styles.css** | 4 种风格宏（minimal/material/pixel）的 px 值 ×3 | ✅ |
+| **car-simulator.html** | 确认无需改动（已是 896×1464 直接渲染） | ✅ |
 
 ### 🔲 下一步计划
 

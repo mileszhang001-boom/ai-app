@@ -266,9 +266,9 @@
       if (index < events.length - 1) {
         var connector = document.createElement('div');
         connector.className = 'event-connector';
-        connector.style.height = '16px';
-        connector.style.width = '1.5px';
-        connector.style.marginLeft = '67px';
+        connector.style.height = '48px';
+        connector.style.width = '4.5px';
+        connector.style.marginLeft = '201px';
         timelineEl.appendChild(connector);
       }
     });

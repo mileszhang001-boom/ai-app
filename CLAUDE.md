@@ -17,8 +17,9 @@
 2. **车端渲染：H5 + WebView 沙箱** — 组件以 H5 运行在 Android WebView 中，通过 JSBridge 访问车机能力。
 3. **手机端：H5 Web App**（Vite + Vanilla JS）— 追求最快交付速度。
 4. **车端卡片尺寸：896×1464 逻辑像素**（行车桌面 1/3 屏）。
-5. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画。支持 4 种视觉风格（glass/minimal/material/pixel）+ 动态配色引擎。
-6. **组件类型（9个模板）**：
+5. **Design-at-896 + CSS zoom**：模板 CSS 全部按 896px 设计（=Pencil/车端尺寸），手机端通过 `html{zoom:containerWidth/896}` 等比缩小。
+6. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画。支持 4 种视觉风格（glass/minimal/material/pixel）+ 动态配色引擎。
+7. **组件类型（9个模板）**：
    - 纪念日 4 主题（恋爱/宝宝/放假/暖橙）
    - 每日新闻
    - 闹钟
@@ -52,7 +53,7 @@ ai-widget-workshop/
 │   │   ├── src/pages/preview.js      #   预览（AI摘要 + 卡片 + AI洞察）
 │   │   ├── src/pages/finetune.js     #   微调（缩小预览 + 配置面板）
 │   │   ├── src/components/config-panel.js #  共享配置面板组件
-│   │   ├── src/utils/render-widget.js    #  iframe渲染 + 生成动效
+│   │   ├── src/utils/render-widget.js    #  iframe渲染 + CSS zoom注入 + 生成动效
 │   │   └── public/car-simulator.html #   车端模拟器
 │   ├── widget-templates/              # H5 组件模板（核心产物）
 │   │   ├── anniversary/              #   纪念日

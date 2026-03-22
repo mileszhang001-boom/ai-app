@@ -158,10 +158,10 @@
 
       return {
         x: Math.random() * canvas.width,
-        y: -20 - Math.random() * 40,
-        size: shape === 'sparkle' ? (1.5 + Math.random() * 2.5) : (3 + Math.random() * 5),
-        speedY: 0.4 + Math.random() * 0.8,
-        speedX: (Math.random() - 0.5) * 0.6,
+        y: -60 - Math.random() * 120,
+        size: shape === 'sparkle' ? (4.5 + Math.random() * 7.5) : (9 + Math.random() * 15),
+        speedY: 1.2 + Math.random() * 2.4,
+        speedX: (Math.random() - 0.5) * 1.8,
         opacity: 0,
         targetOpacity: 0.12 + Math.random() * 0.22,
         fadeIn: true,
@@ -240,11 +240,11 @@
 
         // 横向轻微摆动 + 旋转
         p.wobble += p.wobbleSpeed;
-        p.x += p.speedX + Math.sin(p.wobble) * 0.4;
+        p.x += p.speedX + Math.sin(p.wobble) * 1.2;
         p.y += p.speedY;
         p.rotation += p.rotationSpeed;
 
-        if (p.opacity <= 0 || p.life > p.maxLife || p.y > canvas.height + 30) {
+        if (p.opacity <= 0 || p.life > p.maxLife || p.y > canvas.height + 90) {
           particles.splice(i, 1);
           continue;
         }
