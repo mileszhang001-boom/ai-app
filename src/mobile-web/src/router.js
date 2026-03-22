@@ -23,9 +23,10 @@ export class PageRouter {
     }
 
     // 清理残留浮层
-    document.querySelectorAll('.generate-overlay, .tweak-sheet-overlay, .sync-success-overlay').forEach(el => el.remove());
+    document.querySelectorAll('.generate-overlay, .config-overlay, .sync-success-overlay').forEach(el => el.remove());
+    document.body.classList.remove('scroll-locked');
 
-    if (this.currentPageName) {
+    if (this.currentPageName && !params._replace) {
       this.pageStack.push({
         name: this.currentPageName,
         params: this.currentParams
@@ -34,10 +35,6 @@ export class PageRouter {
 
     document.querySelectorAll('.page').forEach(el => {
       el.classList.remove('active');
-    });
-
-    document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.page === pageName);
     });
 
     const pageElement = document.getElementById(`page-${pageName}`);
@@ -57,7 +54,8 @@ export class PageRouter {
 
   back() {
     // 清理残留浮层
-    document.querySelectorAll('.generate-overlay, .tweak-sheet-overlay, .sync-success-overlay').forEach(el => el.remove());
+    document.querySelectorAll('.generate-overlay, .config-overlay, .sync-success-overlay').forEach(el => el.remove());
+    document.body.classList.remove('scroll-locked');
 
     if (this.pageStack.length > 0) {
       const prev = this.pageStack.pop();
@@ -66,9 +64,6 @@ export class PageRouter {
 
       document.querySelectorAll('.page').forEach(el => {
         el.classList.remove('active');
-      });
-      document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.toggle('active', el.dataset.page === prev.name);
       });
       const pageElement = document.getElementById(`page-${prev.name}`);
       if (pageElement) {
