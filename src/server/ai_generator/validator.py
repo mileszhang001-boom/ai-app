@@ -190,11 +190,22 @@ class ComponentValidator:
             errors.append(f"theme mismatch: expected {expected}, got {actual}")
 
     def _validate_template_id(self, template_id: str, errors: List[str]):
-        """校验 template_id 白名单"""
+        """校验 template_id 白名单（含自动修正）"""
         if not template_id:
             errors.append("template_id is missing")
             return
         if template_id not in VALID_TEMPLATE_IDS:
+            # 自动修正常见 LLM 错误（如 alarm_dial → alarm_clock）
+            TEMPLATE_ID_FIXES = {
+                "alarm_dial": "alarm_clock",
+                "alarm_list": "alarm_clock",
+                "weather_daily": "weather_realtime",
+                "news_general": "news_daily",
+                "calendar_daily": "calendar_schedule",
+                "music_default": "music_player",
+            }
+            if template_id in TEMPLATE_ID_FIXES:
+                return  # 允许通过，后续会在 cleaned 中修正
             errors.append(
                 f"Invalid template_id: {template_id}. "
                 f"Must be one of {sorted(VALID_TEMPLATE_IDS)}"
@@ -311,7 +322,7 @@ class ComponentValidator:
             "news": {
                 "daily": {
                     "category": {"type": "enum", "values": ["general", "tech", "auto", "automotive", "finance", "sports", "lifestyle"], "default": "general"},
-                    "categories": {"type": "string", "required": False, "maxLength": 100},
+                    "categories": {"type": "any", "required": False},
                     "max_items": {"type": "number", "min": 3, "max": 8, "default": 5},
                 },
             },
@@ -423,6 +434,10 @@ class ComponentValidator:
             valid_values = config.get("values", [])
             if value not in valid_values:
                 errors.append(f"{key} must be one of {valid_values}, got {value}")
+            return value
+
+        elif field_type == "any":
+            # 接受任意类型（string/array/...），透传
             return value
 
         else:

@@ -77,6 +77,9 @@ class AIGenerator:
             # 解析响应
             data = self._parse_response(response_text)
 
+            # 自动修正 LLM 常见错误
+            data = self._fix_llm_output(data, component_type, theme)
+
             # 校验结果
             is_valid, errors, cleaned = validate_component(
                 component_type, theme, data
@@ -290,6 +293,11 @@ class AIGenerator:
             component_type = data.get("component_type", "")
             theme = data.get("theme", "")
 
+            # 自动修正 LLM 常见错误
+            data = self._fix_llm_output(data, component_type, theme)
+            component_type = data.get("component_type", "")
+            theme = data.get("theme", "")
+
             is_valid, errors, cleaned = validate_component(
                 component_type, theme, data
             )
@@ -333,11 +341,15 @@ class AIGenerator:
             system_prompt = get_code_gen_system_prompt()
             user_message = user_text.strip()
 
-            # 代码生成用更大的 max_tokens 和更长的超时
+            # 代码生成用更大的 max_tokens、更长的超时、更快的模型
             saved_max_tokens = self.config.max_tokens
             saved_timeout = self.config.timeout
+            saved_model = self.config.model
             self.config.max_tokens = 4000
-            self.config.timeout = 60
+            self.config.timeout = 120
+            # 代码生成用 qwen-turbo-latest（~24s，稳定不超时）
+            if self.config.model.startswith("qwen"):
+                self.config.model = "qwen-turbo-latest"
 
             try:
                 if self.config.model.startswith("qwen"):
@@ -351,6 +363,7 @@ class AIGenerator:
             finally:
                 self.config.max_tokens = saved_max_tokens
                 self.config.timeout = saved_timeout
+                self.config.model = saved_model
 
             print(f"[DEBUG] Code Gen LLM Response length: {len(response_text)}")
 
@@ -1244,6 +1257,31 @@ class AIGenerator:
             }
 
         return json.dumps(result, ensure_ascii=False)
+
+    def _fix_llm_output(self, data: Dict[str, Any], component_type: str, theme: str) -> Dict[str, Any]:
+        """自动修正 LLM 输出中的常见错误"""
+        # 修正 template_id
+        TEMPLATE_ID_MAP = {
+            "alarm": "alarm_clock",
+            "news": "news_daily",
+            "weather": "weather_realtime",
+            "music": "music_player",
+            "calendar": "calendar_schedule",
+        }
+        tid = data.get("template_id", "")
+        if tid and tid not in {"alarm_clock", "news_daily", "weather_realtime", "music_player", "calendar_schedule",
+                               "anniversary_love", "anniversary_baby", "anniversary_holiday", "anniversary_warm"}:
+            expected = TEMPLATE_ID_MAP.get(component_type)
+            if expected:
+                data["template_id"] = expected
+
+        # 修正 component_type / theme
+        if not data.get("component_type") or data["component_type"] == "unknown":
+            data["component_type"] = component_type
+        if not data.get("theme") or data["theme"] == "default":
+            data["theme"] = theme
+
+        return data
 
     def _parse_response(self, response_text: str) -> Dict[str, Any]:
         """解析 LLM 响应"""
