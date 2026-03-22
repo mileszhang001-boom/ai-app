@@ -17,54 +17,6 @@ const SCENE_MAP = {
   news:      { component_type: 'news',        theme: 'daily',    title: '每日新闻',     subtitle: '今日要闻速览' },
 };
 
-const STYLE_OPTIONS = {
-  weather:   [
-    { id: 'glass',    name: '毛玻璃', desc: '经典通透' },
-    { id: 'minimal',  name: '极简',   desc: '清爽简洁' },
-    { id: 'material', name: '质感',   desc: '层次丰富' },
-  ],
-  love: [
-    { id: 'glass',    name: '浪漫',   desc: '柔美光晕' },
-    { id: 'minimal',  name: '简约',   desc: '优雅克制' },
-    { id: 'pixel',    name: '像素',   desc: '复古可爱' },
-  ],
-  countdown: [
-    { id: 'glass',    name: '活力',   desc: '缤纷彩纸' },
-    { id: 'minimal',  name: '极简',   desc: '清爽简洁' },
-    { id: 'material', name: '质感',   desc: '层次丰富' },
-  ],
-  baby: [
-    { id: 'glass',    name: '梦幻',   desc: '星星闪烁' },
-    { id: 'minimal',  name: '简约',   desc: '温馨清新' },
-    { id: 'pixel',    name: '像素',   desc: '趣味可爱' },
-  ],
-  music: [
-    { id: 'glass',    name: '沉浸',   desc: '氛围光晕' },
-    { id: 'minimal',  name: '极简',   desc: '纯粹播放' },
-    { id: 'material', name: '霓虹',   desc: '炫彩夺目' },
-  ],
-  alarm: [
-    { id: 'glass',    name: '数码',   desc: '科技质感' },
-    { id: 'minimal',  name: '极简',   desc: '清爽简洁' },
-    { id: 'material', name: '经典',   desc: '沉稳大气' },
-  ],
-  calendar: [
-    { id: 'glass',    name: '商务',   desc: '专业高效' },
-    { id: 'minimal',  name: '清新',   desc: '轻松自然' },
-    { id: 'material', name: '质感',   desc: '层次丰富' },
-  ],
-  news: [
-    { id: 'glass',    name: '简报',   desc: '快速浏览' },
-    { id: 'minimal',  name: '极简',   desc: '专注阅读' },
-    { id: 'material', name: '杂志',   desc: '图文并茂' },
-  ],
-  _default: [
-    { id: 'glass',    name: '毛玻璃', desc: '经典通透' },
-    { id: 'minimal',  name: '极简',   desc: '清爽简洁' },
-    { id: 'material', name: '质感',   desc: '层次丰富' },
-  ],
-};
-
 const COLOR_PRESETS = ['#4A6CF7', '#E84393', '#27AE60', '#F59E0B', '#7B5CFA', '#0891B2'];
 
 const SCENE_DEFAULT_COLORS = {
@@ -79,7 +31,6 @@ const SCENE_DEFAULT_COLORS = {
 };
 
 const CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都'];
-const DENSITY_OPTIONS = ['简洁', '标准', '详细'];
 
 export { SCENE_MAP };
 
@@ -105,17 +56,14 @@ export class ConfigPanel {
     this.onDismiss = onDismiss;
 
     // State
-    this.selectedStyle = currentData?.style_preset || currentData?.visual_style || 'glass';
     this.selectedColor = currentData?.primary_color || SCENE_DEFAULT_COLORS[sceneId] || COLOR_PRESETS[0];
     this.selectedCity = currentData?.params?.city || '北京';
-    this.selectedDensity = '标准';
     this.photoDataUrl = currentData?.params?.bg_photo || null;
 
     this.render();
   }
 
   render() {
-    const styles = STYLE_OPTIONS[this.sceneId] || STYLE_OPTIONS._default;
     const isFinetune = this.mode === 'finetune';
 
     this.container.innerHTML = `
@@ -130,19 +78,6 @@ export class ConfigPanel {
         ${isFinetune ? this._renderAiSuggestion() : ''}
 
         <div class="config-body">
-          <!-- Style selector -->
-          <div class="config-section">
-            <div class="config-section-label">选择风格</div>
-            <div class="style-selector">
-              ${styles.map(s => `
-                <button class="style-card${s.id === this.selectedStyle ? ' selected' : ''}" data-style="${s.id}">
-                  <div class="style-card-name">${s.name}</div>
-                  <div class="style-card-desc">${s.desc}</div>
-                </button>
-              `).join('')}
-            </div>
-          </div>
-
           ${this._renderSceneFields()}
 
           <!-- Color picker -->
@@ -208,14 +143,6 @@ export class ConfigPanel {
             `).join('')}
           </div>
         </div>
-        <div class="config-section">
-          <div class="config-section-label">信息量</div>
-          <div class="segment-control">
-            ${DENSITY_OPTIONS.map(d => `
-              <button class="segment-item${d === this.selectedDensity ? ' selected' : ''}" data-density="${d}">${d}</button>
-            `).join('')}
-          </div>
-        </div>
       `;
     }
 
@@ -260,15 +187,6 @@ export class ConfigPanel {
   _bindEvents() {
     const panel = this.container;
 
-    // Style cards
-    panel.querySelectorAll('.style-card').forEach(card => {
-      card.addEventListener('click', () => {
-        panel.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        this.selectedStyle = card.dataset.style;
-      });
-    });
-
     // Color circles
     panel.querySelectorAll('.color-circle').forEach(circle => {
       circle.addEventListener('click', () => {
@@ -293,15 +211,6 @@ export class ConfigPanel {
         panel.querySelectorAll('.city-pill').forEach(p => p.classList.remove('selected'));
         pill.classList.add('selected');
         this.selectedCity = pill.dataset.city;
-      });
-    });
-
-    // Density segments
-    panel.querySelectorAll('.segment-item').forEach(item => {
-      item.addEventListener('click', () => {
-        panel.querySelectorAll('.segment-item').forEach(s => s.classList.remove('selected'));
-        item.classList.add('selected');
-        this.selectedDensity = item.dataset.density;
       });
     });
 
@@ -356,8 +265,8 @@ export class ConfigPanel {
     const data = {
       component_type: this.scene.component_type,
       theme: this.scene.theme,
-      style_preset: this.selectedStyle,
-      visual_style: this.selectedStyle,
+      style_preset: 'glass',
+      visual_style: 'glass',
       primary_color: this.selectedColor,
       params: {},
       description: this.scene.title,
@@ -410,8 +319,8 @@ export class ConfigPanel {
         const response = await this.api.chatGenerate(prompt, baseData);
         if (response.success) {
           const merged = { ...response.data };
-          merged.style_preset = this.selectedStyle;
-          merged.visual_style = this.selectedStyle;
+          merged.style_preset = 'glass';
+          merged.visual_style = 'glass';
           merged.primary_color = this.selectedColor;
           if (this.onGenerate) this.onGenerate(merged);
         } else {

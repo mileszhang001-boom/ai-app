@@ -51,16 +51,7 @@ export class TemplateMarket {
     this._renderPage(container);
   }
 
-  _getRecommendedScene() {
-    const h = new Date().getHours();
-    if (h >= 6 && h < 10) return 'weather';
-    if (h >= 10 && h < 18) return 'calendar';
-    if (h >= 18 && h < 22) return 'news';
-    return 'music';
-  }
-
   _renderPage(container) {
-    const recommended = this._getRecommendedScene();
 
     container.innerHTML = `
       <div class="home-page">
@@ -86,7 +77,7 @@ export class TemplateMarket {
                 <button class="scene-card-new" data-scene="${s.id}">
                   <div class="scene-card-thumb" style="background:${s.bgColor}">
                     ${getIcon(s.icon, s.iconColor)}
-                    ${s.id === recommended ? '<span class="scene-card-badge">AI推荐</span>' : ''}
+
                   </div>
                   <div class="scene-card-name">${s.name}</div>
                 </button>
