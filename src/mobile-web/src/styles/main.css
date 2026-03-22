@@ -71,27 +71,6 @@ body.scroll-locked { overflow: hidden; }
   to   { opacity: 1; }
 }
 
-/* ========== Decorative Status Bar ========== */
-.status-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px 0;
-  height: 44px;
-  color: var(--color-text-primary);
-  flex-shrink: 0;
-}
-.status-time {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-.status-icons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
 /* ========== Top Navigation ========== */
 .top-nav {
   display: flex;
@@ -522,7 +501,7 @@ body.scroll-locked { overflow: hidden; }
 }
 .preview-card-wrapper {
   width: 260px;
-  height: 434px;
+  height: 425px;
   flex-shrink: 0;
 }
 .preview-card {
@@ -569,12 +548,12 @@ body.scroll-locked { overflow: hidden; }
   align-items: center;
   justify-content: center;
   padding: 8px 16px;
-  height: 170px;
+  height: 249px;
   flex-shrink: 0;
 }
 .finetune-mini-card {
   width: 140px;
-  height: 150px;
+  height: 229px;
   border-radius: 14px;
   overflow: hidden;
   background: var(--color-bg-primary);

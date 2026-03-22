@@ -65,29 +65,6 @@ export class TemplateMarket {
     container.innerHTML = `
       <div class="home-page">
         <div class="home-top-content">
-          <!-- Status bar -->
-          <div class="status-bar">
-            <span class="status-time">9:41</span>
-            <div class="status-icons">
-              <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
-                <rect x="0" y="8" width="3" height="3" rx="0.5"/>
-                <rect x="4.5" y="5.5" width="3" height="5.5" rx="0.5"/>
-                <rect x="9" y="2.5" width="3" height="8.5" rx="0.5"/>
-                <rect x="13.5" y="0" width="3" height="11" rx="0.5"/>
-              </svg>
-              <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                <path d="M1 4a10 10 0 0 1 14 0"/>
-                <path d="M3.5 7a6.5 6.5 0 0 1 9 0"/>
-                <circle cx="8" cy="11" r="1" fill="currentColor" stroke="none"/>
-              </svg>
-              <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor">
-                <rect x="0.5" y="0.5" width="21" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/>
-                <rect x="2" y="2" width="17" height="8" rx="1"/>
-                <path d="M23 4v4a2 2 0 0 0 0-4" opacity="0.4"/>
-              </svg>
-            </div>
-          </div>
-
           <!-- Header -->
           <div class="home-header">
             <div class="home-header-icon">

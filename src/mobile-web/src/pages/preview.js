@@ -5,7 +5,7 @@
  */
 
 import { showToast } from '../main.js';
-import { renderWidgetInFrame, renderStatusBar, showGenerateOverlay } from '../utils/render-widget.js';
+import { renderWidgetInFrame, showGenerateOverlay } from '../utils/render-widget.js';
 
 export class PreviewPage {
   constructor(api, router) {
@@ -26,8 +26,6 @@ export class PreviewPage {
     container.innerHTML = `
       <div class="preview-page">
         <div class="preview-top-content">
-          ${renderStatusBar()}
-
           <div class="top-nav">
             <button class="top-nav-back" id="previewBackBtn">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

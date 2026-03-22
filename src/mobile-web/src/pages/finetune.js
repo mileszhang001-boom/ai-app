@@ -8,7 +8,7 @@
  */
 
 import { showToast } from '../main.js';
-import { renderWidgetInFrame, renderStatusBar, getSceneId, showGenerateOverlay } from '../utils/render-widget.js';
+import { renderWidgetInFrame, getSceneId, showGenerateOverlay } from '../utils/render-widget.js';
 import { ConfigPanel } from '../components/config-panel.js';
 
 export class FineTunePage {
@@ -32,8 +32,6 @@ export class FineTunePage {
 
     container.innerHTML = `
       <div class="finetune-page">
-        ${renderStatusBar()}
-
         <div class="top-nav">
           <button class="top-nav-back" id="finetuneBackBtn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

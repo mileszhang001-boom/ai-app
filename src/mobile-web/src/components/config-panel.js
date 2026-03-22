@@ -38,6 +38,26 @@ const STYLE_OPTIONS = {
     { id: 'minimal',  name: '简约',   desc: '温馨清新' },
     { id: 'pixel',    name: '像素',   desc: '趣味可爱' },
   ],
+  music: [
+    { id: 'glass',    name: '沉浸',   desc: '氛围光晕' },
+    { id: 'minimal',  name: '极简',   desc: '纯粹播放' },
+    { id: 'material', name: '霓虹',   desc: '炫彩夺目' },
+  ],
+  alarm: [
+    { id: 'glass',    name: '数码',   desc: '科技质感' },
+    { id: 'minimal',  name: '极简',   desc: '清爽简洁' },
+    { id: 'material', name: '经典',   desc: '沉稳大气' },
+  ],
+  calendar: [
+    { id: 'glass',    name: '商务',   desc: '专业高效' },
+    { id: 'minimal',  name: '清新',   desc: '轻松自然' },
+    { id: 'material', name: '质感',   desc: '层次丰富' },
+  ],
+  news: [
+    { id: 'glass',    name: '简报',   desc: '快速浏览' },
+    { id: 'minimal',  name: '极简',   desc: '专注阅读' },
+    { id: 'material', name: '杂志',   desc: '图文并茂' },
+  ],
   _default: [
     { id: 'glass',    name: '毛玻璃', desc: '经典通透' },
     { id: 'minimal',  name: '极简',   desc: '清爽简洁' },
@@ -46,6 +66,17 @@ const STYLE_OPTIONS = {
 };
 
 const COLOR_PRESETS = ['#4A6CF7', '#E84393', '#27AE60', '#F59E0B', '#7B5CFA', '#0891B2'];
+
+const SCENE_DEFAULT_COLORS = {
+  weather:   '#4A6CF7',
+  love:      '#E84393',
+  calendar:  '#27AE60',
+  music:     '#7B5CFA',
+  countdown: '#F59E0B',
+  baby:      '#0891B2',
+  alarm:     '#7B5CFA',
+  news:      '#E84393',
+};
 
 const CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都'];
 const DENSITY_OPTIONS = ['简洁', '标准', '详细'];
@@ -75,7 +106,7 @@ export class ConfigPanel {
 
     // State
     this.selectedStyle = currentData?.style_preset || currentData?.visual_style || 'glass';
-    this.selectedColor = currentData?.primary_color || COLOR_PRESETS[0];
+    this.selectedColor = currentData?.primary_color || SCENE_DEFAULT_COLORS[sceneId] || COLOR_PRESETS[0];
     this.selectedCity = currentData?.params?.city || '北京';
     this.selectedDensity = '标准';
 
