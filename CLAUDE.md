@@ -48,9 +48,11 @@ ai-widget-workshop/
 │   │   ├── news_service/             # 新闻聚合（RSS + AI 摘要）
 │   │   └── storage/                  # 元数据存储
 │   ├── mobile-web/                    # 手机端 H5 Web App（Vite, port 3000）
-│   │   ├── src/pages/market.js       #   首页 AI 创建入口（9个场景卡片）
-│   │   ├── src/pages/preview.js      #   896×1464 预览
-│   │   ├── src/pages/config.js       #   参数配置
+│   │   ├── src/pages/market.js       #   首页（8场景宫格 + 底部输入）
+│   │   ├── src/pages/preview.js      #   预览（AI摘要 + 卡片 + AI洞察）
+│   │   ├── src/pages/finetune.js     #   微调（缩小预览 + 配置面板）
+│   │   ├── src/components/config-panel.js #  共享配置面板组件
+│   │   ├── src/utils/render-widget.js    #  iframe渲染 + 生成动效
 │   │   └── public/car-simulator.html #   车端模拟器
 │   ├── widget-templates/              # H5 组件模板（核心产物）
 │   │   ├── anniversary/              #   纪念日

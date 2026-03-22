@@ -1,6 +1,6 @@
 # AI小组件 · 技术规划与开发进度
 
-> 最后更新：2026-03-21
+> 最后更新：2026-03-22
 
 ---
 
@@ -10,8 +10,9 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                     手机端 (创建)                            │
 │  ┌───────────────────────────────────────────────────┐      │
-│  │  AI 输入 → 意图识别 → 参数生成 → 896×1464 预览    │      │
-│  │  Vite + Vanilla JS | 9 个场景入口               │      │
+│  │  首页(8场景宫格) → 配置面板(BottomSheet)            │      │
+│  │  → 预览(AI摘要+卡片) → 微调(缩小预览+配置)         │      │
+│  │  Vite + Vanilla JS | ConfigPanel 共享组件         │      │
 │  └───────────────────────────────────────────────────┘      │
 │                          │ HTTPS                            │
 └──────────────────────────┬──────────────────────────────────┘
@@ -400,7 +401,7 @@ QWEN_API_KEY=sk-xxx    # 阿里云通义千问（主力）
 | **音乐播放器** | 频谱动画 + 播放控制 + 歌词 | ✅ |
 | **日历日程** | 农历/节气 + 时间线 + 事件倒计时 | ✅ |
 | AI Pipeline | prompt.py + generator.py + validator.py (9模板注册) | ✅ |
-| 手机端 Web App | 首页(9场景) + 配置 + 预览 + 我的组件 + 同步 | ✅ |
+| 手机端 Web App | 首页(8场景宫格) + 配置面板 + 预览 + 微调 | ✅ |
 | 自然语言创建 | `/api/chat-generate` + 意图识别 + Mock 模式 | ✅ |
 | 车端模拟器 | `car-simulator.html` 896×1464 + 卡片切换 | ✅ |
 | JSBridge | Mock 实现，支持浏览器开发 | ✅ |
@@ -474,14 +475,28 @@ AIWidgetBridge.mediaControl(action)     // 'play'|'pause'|'next'|'prev'
 
 车端实现：Android 宿主 App 通过 `MediaController` 读取系统 MediaSession，暴露给 WebView。开发环境提供 mock 数据。
 
+### ✅ 手机端 4 屏改版 (v0.3, 2026-03-22)
+
+| 变更 | 内容 | 状态 |
+|------|------|------|
+| **首页重构** | 移除底部导航 + Hero区，新增状态栏 + 品牌Header + 3×3 Lucide 图标宫格 + 底部单行输入 | ✅ |
+| **配置面板** | 新建 `ConfigPanel` 共享组件（create/finetune 双模式），风格选择器 + 场景字段 + 6色圆 + 自由输入 | ✅ |
+| **预览页重构** | 移除深色bezel，改为浅色 260×434 卡片 + AI摘要条 + AI洞察条 + 双按钮（渐变微调 + 描边同步） | ✅ |
+| **微调页** | 新建独立页面，缩小卡片预览 + 嵌入式 ConfigPanel(finetune模式) + AI建议条 | ✅ |
+| **4步生成动效** | 理解需求 → 匹配风格 → 生成布局 → 填充数据，与 API 并行 | ✅ |
+| **设计系统更新** | 新色板 (#4A6CF7 品牌蓝) + 渐变按钮 + 描边按钮 + 100dvh 键盘适配 | ✅ |
+| **render-widget.js** | 抽取 iframe 渲染 / 状态栏 / 生成动效 / sceneId映射 为共享工具 | ✅ |
+| **路由增强** | `_replace` 参数避免微调回退栈循环，浮层自动清理 | ✅ |
+| **页面删除** | `config.js` / `my-widgets.js` / `sync.js` 三个废弃页面 | ✅ |
+| **AI推荐标签** | 基于客户端时间：早晨→天气、工作→日程、晚间→新闻 | ✅ |
+| **全模板验证** | Playwright 截图 6 种模板全部渲染正确（天气/恋爱/音乐/日程/新闻/闹钟） | ✅ |
+
 ### 🔲 下一步计划
 
 | 优先级 | 内容 | 预计工期 |
 |--------|------|---------|
 | P0 | 视觉质量持续优化 — 提高 color_08(cyan) 等低分 case 至 80+ | 1 天 |
 | P1 | 多方案预览 — 一次生成 3 个风格变体供选择 | 2-3 天 |
-| P1 | 交互式微调 — "换个颜色"/"换个风格" 快捷调整 | 2-3 天 |
-| P2 | 手机端体验 — 生成中骨架屏、"哇"时刻弹出动画 | 2 天 |
 | P2 | Demo 演示包 — 预生成精品组件、3分钟演示脚本 | 1 天 |
 | P3 | 车端 Android WebView 真机集成 | 待定 |
 
@@ -762,18 +777,20 @@ storage/                       # 元数据存储 (内存)
 
 ```
 package.json + vite.config.js  # 构建配置
-index.html                     # 入口 HTML
+index.html                     # 入口 HTML (3 个 page div: market/preview/finetune)
 src/
-├── main.js                    # 路由 + Toast
+├── main.js                    # 路由注册 + Toast (3 页面: market/preview/finetune)
 ├── api.js                     # API 客户端
-├── router.js                  # 页面路由
-├── styles/main.css            # 全局样式
+├── router.js                  # 页面路由 (支持 _replace 参数)
+├── styles/main.css            # 全局样式 (v0.3 设计系统, #4A6CF7 品牌色)
+├── components/
+│   └── config-panel.js        # ConfigPanel 共享配置面板 (create/finetune 双模式)
+├── utils/
+│   └── render-widget.js       # iframe 渲染 + 状态栏 + 4步生成动效 + sceneId 映射
 └── pages/
-    ├── market.js              # 首页 AI 创建 (9 场景卡片)
-    ├── config.js              # 参数配置
-    ├── preview.js             # 896×1464 预览 (iframe srcdoc)
-    ├── my-widgets.js          # 我的组件
-    └── sync.js                # 同步确认
+    ├── market.js              # 首页 (状态栏 + Header + 8场景宫格 + 底部输入)
+    ├── preview.js             # 预览 (AI摘要 + 260×434卡片 + AI洞察 + 微调/同步按钮)
+    └── finetune.js            # 微调 (缩小预览 + 嵌入式 ConfigPanel)
 public/
 └── car-simulator.html         # 车端模拟器
 ```
@@ -826,10 +843,11 @@ npm run dev              # → http://localhost:3000
 ### 验证流程
 
 1. 打开 http://localhost:3000
-2. 在首页输入 "和女朋友6月1日在一起的"
-3. 确认 AI 生成 → 预览页显示 896×1464 恋爱纪念卡片
-4. 切换测试："北京今天天气" / "给我来个音乐播放器" / "今天有什么会议"
-5. 打开 http://localhost:3000/car-simulator.html 验证车端模拟效果
+2. **场景卡片流程**：点击"实时天气" → 配置面板弹出 → 选风格/配色 → "生成卡片" → 4步动效 → 预览页渲染天气卡片
+3. **自由输入流程**：底部输入"和女朋友6月1日在一起的" → 回车 → 4步动效 → 预览页渲染恋爱纪念卡片
+4. **微调流程**：预览页 → "微调效果" → 微调页 → 切换风格/配色 → "应用修改" → 回到预览
+5. **回退验证**：预览页 → 返回 → 应回到首页（非微调页循环）
+6. 打开 http://localhost:3000/car-simulator.html 验证车端模拟效果
 
 ---
 
