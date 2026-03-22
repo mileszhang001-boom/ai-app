@@ -29,7 +29,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 120px 84px 120px;
+  padding: 160px 84px 120px;
   box-sizing: border-box;
 
   /* 默认靛蓝渐变背景 */

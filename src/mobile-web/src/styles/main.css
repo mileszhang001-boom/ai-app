@@ -547,14 +547,14 @@ body.scroll-locked { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
-  height: 249px;
+  padding: 4px 16px;
+  height: 180px;
   flex-shrink: 0;
 }
 .finetune-mini-card {
-  width: 140px;
-  height: 229px;
-  border-radius: 14px;
+  width: 100px;
+  height: 163px;
+  border-radius: 10px;
   overflow: hidden;
   background: var(--color-bg-primary);
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
@@ -843,8 +843,8 @@ body.scroll-locked { overflow: hidden; }
     height: 360px;
   }
   .finetune-mini-card {
-    width: 120px;
-    height: 130px;
+    width: 90px;
+    height: 147px;
   }
 }
 

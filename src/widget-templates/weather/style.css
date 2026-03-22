@@ -17,7 +17,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 96px 84px 84px;
+  padding: 140px 84px 84px;
   box-sizing: border-box;
   background: linear-gradient(160deg, #0d1520 0%, #0a1525 40%, #081018 100%);
   border: 1px solid rgba(255, 255, 255, 0.04);

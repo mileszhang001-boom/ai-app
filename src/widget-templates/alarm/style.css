@@ -30,7 +30,7 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 144px 84px 96px;
+  padding: 180px 84px 96px;
   box-sizing: border-box;
 
   background: var(--alarm-bg-dark, linear-gradient(145deg, #1a120e 0%, #140e0c 100%));

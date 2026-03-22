@@ -92,13 +92,10 @@ export async function renderWidgetInFrame(frameEl, data) {
   html = html.replace('</head>', paramsScript + '</head>');
 
   // Inject CSS zoom for responsive scaling
-  // Templates are designed at 896px (car-end); zoom down for smaller containers
-  const DESIGN_WIDTH = 896;
-  const containerWidth = frameEl.offsetWidth;
-  if (containerWidth > 0 && containerWidth < DESIGN_WIDTH * 0.95) {
-    const zoom = containerWidth / DESIGN_WIDTH;
-    html = html.replace('</head>', `<style>html{zoom:${zoom}}</style></head>`);
-  }
+  // Templates are designed at 896px (car-end); auto-detect & zoom down for smaller containers
+  // Use a runtime script inside iframe to self-measure — avoids timing/visibility issues
+  const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw})()<\/script>`;
+  html = html.replace('</head>', zoomScript + '</head>');
 
   frameEl.innerHTML = '';
   const iframe = document.createElement('iframe');
