@@ -118,8 +118,9 @@
     var photoBg = document.getElementById('photoBg');
     if (!photoBg) return;
 
-    // Build URL - images are in ./backgrounds/ directory
-    var url = './backgrounds/' + bgImage + '.webp';
+    // Build URL - use __TEMPLATE_BASE_PATH__ for srcdoc iframe compatibility
+    var basePath = window.__TEMPLATE_BASE_PATH__ || './';
+    var url = basePath + 'backgrounds/' + bgImage + '.webp';
 
     var img = new Image();
     img.onload = function() {
@@ -130,7 +131,8 @@
     };
     img.onerror = function() {
       // Fallback: try jpg
-      photoBg.style.backgroundImage = 'url(./backgrounds/' + bgImage + '.jpg)';
+      var jpgUrl = basePath + 'backgrounds/' + bgImage + '.jpg';
+      photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
       photoBg.style.backgroundSize = 'cover';
       photoBg.style.backgroundPosition = 'center';
       photoBg.style.opacity = '0.4';

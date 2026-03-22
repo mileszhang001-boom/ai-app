@@ -477,6 +477,17 @@
           if (!detailRes.ok) continue;
           const detail = await detailRes.json();
 
+          // AI编程模式：直接用 html_content 渲染
+          if (detail.generation_mode === 'code' && detail.html_content) {
+            syncedItems.push({
+              type: 'code',
+              key: w.widget_id,
+              html_content: detail.html_content,
+              label: 'AI编程'
+            });
+            continue;
+          }
+
           const templateUrl = getTemplateUrl(detail.component_type, detail.theme);
           if (!templateUrl) continue;
 
@@ -534,7 +545,19 @@
       container.classList.add(direction > 0 ? 'slide-right' : 'slide-left');
     }
 
-    if (item.type === 'synced') {
+    if (item.type === 'code') {
+      // AI编程模式：直接用 html_content 渲染到 sandbox iframe
+      try {
+        frame.removeAttribute('src');
+        frame.srcdoc = item.html_content;
+        frame.onload = () => {
+          setTimeout(() => loadingOverlay.classList.remove('active'), 100);
+        };
+      } catch (e) {
+        console.error('[Render] Code widget error:', e);
+        loadingOverlay.classList.remove('active');
+      }
+    } else if (item.type === 'synced') {
       // 同步组件：用 srcdoc 注入 __WIDGET_PARAMS__（与 preview.js 一致）
       try {
         const resp = await fetch(`${item.path}?v=${Date.now()}`, { cache: 'no-cache' });
@@ -543,24 +566,24 @@
 
         const templateBasePath = item.path.replace('index.html', '');
 
-        // 修复相对路径（与 preview.js 保持一致）
-        html = html.replace(/\.\.\/\.\.\/shared\//g, '/widget-templates/shared/');
-        html = html.replace(/\.\.\/shared\//g, '/widget-templates/shared/');
-        html = html.replace(/href="style\.css"/g, `href="${templateBasePath}style.css?v=${Date.now()}"`);
-        html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${Date.now()}"`);
-        html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${Date.now()}"`);
-        html = html.replace(/src="\.\.\/\.\.\/shared\/bridge\.js"/g, `src="/widget-templates/shared/bridge.js?v=${Date.now()}"`);
-        html = html.replace(/src="\.\.\/\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
-        html = html.replace(/src="\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
+        // 修复相对路径（与 render-widget.js 保持一致）
+        const ts = Date.now();
+        html = html.replace(/(src|href)="\.\.\/\.\.\/shared\//g, '$1="/widget-templates/shared/');
+        html = html.replace(/(src|href)="\.\.\/shared\//g, '$1="/widget-templates/shared/');
+        html = html.replace(/href="style\.css"/g, `href="${templateBasePath}style.css?v=${ts}"`);
+        html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${ts}"`);
+        html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${ts}"`);
+        html = html.replace(/(src|href)="(\/widget-templates\/[^"?]+)"/g, `$1="$2?v=${ts}"`);
 
         // 注入 style_preset
         if (item.style_preset) {
           html = html.replace(/<html/, `<html data-style="${item.style_preset}"`);
         }
 
-        // 注入 __WIDGET_PARAMS__
+        // 注入 templateBasePath + __WIDGET_PARAMS__
+        const basePathScript = `<script>window.__TEMPLATE_BASE_PATH__ = "${templateBasePath}";<\/script>`;
         const paramsScript = `<script>window.__WIDGET_PARAMS__ = ${JSON.stringify(item.params)};<\/script>`;
-        html = html.replace('</head>', paramsScript + '</head>');
+        html = html.replace('</head>', basePathScript + paramsScript + '</head>');
 
         frame.removeAttribute('src');
         frame.srcdoc = html;
@@ -679,6 +702,18 @@
           const detailRes = await fetch(`${API_BASE}/api/widgets/${w.widget_id}`);
           if (!detailRes.ok) continue;
           const detail = await detailRes.json();
+
+          // AI编程模式：直接用 html_content 渲染
+          if (detail.generation_mode === 'code' && detail.html_content) {
+            newItems.push({
+              type: 'code',
+              key: w.widget_id,
+              html_content: detail.html_content,
+              label: 'AI编程'
+            });
+            continue;
+          }
+
           const templateUrl = getTemplateUrl(detail.component_type, detail.theme);
           if (!templateUrl) continue;
 

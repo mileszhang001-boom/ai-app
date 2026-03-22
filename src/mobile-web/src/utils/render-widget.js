@@ -76,20 +76,27 @@ export async function renderWidgetInFrame(frameEl, data) {
   const paramsScript = `<script>window.__WIDGET_PARAMS__ = ${JSON.stringify(widgetParams)};<\/script>`;
 
   // Fix relative paths for srcdoc mode
-  html = html.replace(/\.\.\/\.\.\/shared\//g, '/widget-templates/shared/');
-  html = html.replace(/\.\.\/shared\//g, '/widget-templates/shared/');
-  html = html.replace(/href="style\.css"/g, `href="${templateBasePath}style.css?v=${Date.now()}"`);
-  html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${Date.now()}"`);
-  html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${Date.now()}"`);
-  html = html.replace(/src="\.\.\/\.\.\/shared\/bridge\.js"/g, `src="/widget-templates/shared/bridge.js?v=${Date.now()}"`);
-  html = html.replace(/src="\.\.\/\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
-  html = html.replace(/src="\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
+  const ts = Date.now();
+
+  // 1. shared 目录：统一替换为绝对路径（匹配 src= 和 href=）
+  html = html.replace(/(src|href)="\.\.\/\.\.\/shared\//g, '$1="/widget-templates/shared/');
+  html = html.replace(/(src|href)="\.\.\/shared\//g, '$1="/widget-templates/shared/');
+
+  // 2. 本地文件：style.css, main.js → 绝对路径 + cache busting
+  html = html.replace(/href="style\.css"/g, `href="${templateBasePath}style.css?v=${ts}"`);
+  html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${ts}"`);
+  html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${ts}"`);
+
+  // 3. 所有 /widget-templates/ 引用添加 cache busting
+  html = html.replace(/(src|href)="(\/widget-templates\/[^"?]+)"/g, `$1="$2?v=${ts}"`);
 
   if (widgetParams.style_preset) {
     html = html.replace(/<html/, `<html data-style="${widgetParams.style_preset}"`);
   }
 
-  html = html.replace('</head>', paramsScript + '</head>');
+  // 注入 templateBasePath 供模板 JS 使用（解决 srcdoc 中相对路径问题）
+  const basePathScript = `<script>window.__TEMPLATE_BASE_PATH__ = "${templateBasePath}";<\/script>`;
+  html = html.replace('</head>', basePathScript + paramsScript + '</head>');
 
   // Inject CSS zoom for responsive scaling
   // Templates are designed at 896px (car-end); auto-detect & zoom down for smaller containers
