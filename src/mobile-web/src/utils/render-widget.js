@@ -104,37 +104,63 @@ export async function renderWidgetInFrame(frameEl, data) {
   frameEl.appendChild(iframe);
 }
 
-/** 4-step generate animation overlay — returns { overlay, waitForMinDuration } */
-export function showGenerateOverlay() {
+/** Generate animation overlay — returns { overlay, waitForMinDuration } */
+export function showGenerateOverlay(isCodeMode = false) {
+  const steps = isCodeMode
+    ? ['分析需求', '设计布局', '编写样式', '生成动效', '组装代码']
+    : ['理解需求', '匹配风格', '生成布局', '填充数据'];
+  const stepInterval = isCodeMode ? 1500 : 300;
+  const minDuration = isCodeMode ? 8000 : 1500;
+  const title = isCodeMode ? '🧪 AI正在编写代码...' : '✨ AI正在创作...';
+
   const overlay = document.createElement('div');
   overlay.className = 'generate-overlay';
   overlay.innerHTML = `
     <div class="generate-flow">
-      <div class="generate-flow-title">✨ AI正在创作...</div>
+      <div class="generate-flow-title">${title}</div>
       <div class="generate-steps">
-        <div class="generate-step"><span class="step-text">理解需求</span><span class="step-check">✓</span></div>
-        <div class="generate-step"><span class="step-text">匹配风格</span><span class="step-check">✓</span></div>
-        <div class="generate-step"><span class="step-text">生成布局</span><span class="step-check">✓</span></div>
-        <div class="generate-step"><span class="step-text">填充数据</span><span class="step-check">✓</span></div>
+        ${steps.map(s => `<div class="generate-step"><span class="step-text">${s}</span><span class="step-check">✓</span></div>`).join('')}
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  const steps = overlay.querySelectorAll('.generate-step');
+  const stepEls = overlay.querySelectorAll('.generate-step');
   const startTime = Date.now();
-  steps.forEach((step, i) => {
-    setTimeout(() => step.classList.add('done'), 300 * (i + 1));
+  stepEls.forEach((step, i) => {
+    setTimeout(() => step.classList.add('done'), stepInterval * (i + 1));
   });
 
   return {
     overlay,
     async waitForMinDuration() {
       const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 1500 - elapsed);
+      const remaining = Math.max(0, minDuration - elapsed);
       if (remaining > 0) await new Promise(r => setTimeout(r, remaining));
     }
   };
+}
+
+/** Render AI-generated HTML code in a sandboxed iframe */
+export function renderCodeWidgetInFrame(frameEl, htmlContent) {
+  let html = htmlContent;
+
+  // Inject CSS zoom script (same self-measuring logic as template mode)
+  const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw})()<\/script>`;
+  if (html.includes('</head>')) {
+    html = html.replace('</head>', zoomScript + '</head>');
+  } else if (html.includes('</body>')) {
+    html = html.replace('</body>', zoomScript + '</body>');
+  } else {
+    html += zoomScript;
+  }
+
+  frameEl.innerHTML = '';
+  const iframe = document.createElement('iframe');
+  iframe.sandbox = 'allow-scripts';
+  iframe.srcdoc = html;
+  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:inherit;';
+  frameEl.appendChild(iframe);
 }
 
 /** Map component_type+theme back to sceneId */

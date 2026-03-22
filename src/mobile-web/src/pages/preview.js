@@ -5,7 +5,7 @@
  */
 
 import { showToast } from '../main.js';
-import { renderWidgetInFrame, showGenerateOverlay } from '../utils/render-widget.js';
+import { renderWidgetInFrame, renderCodeWidgetInFrame, showGenerateOverlay } from '../utils/render-widget.js';
 
 export class PreviewPage {
   constructor(api, router) {
@@ -19,8 +19,11 @@ export class PreviewPage {
     const container = document.getElementById('page-preview');
     this.currentData = params.data;
     this.isNewGeneration = params.isNew !== false;
+    this.isCodeMode = params.isCodeMode || (this.currentData && this.currentData.generation_mode === 'code');
 
-    const description = this.currentData?.description || '专属卡片';
+    const description = this.isCodeMode
+      ? '🧪 AI从零编写了一个自定义组件'
+      : (this.currentData?.description || '专属卡片');
     const insight = this._getAiInsight(this.currentData);
 
     container.innerHTML = `
@@ -54,7 +57,7 @@ export class PreviewPage {
         </div>
 
         <div class="preview-bottom-actions">
-          <button class="btn-gradient" id="finetuneBtn">✏️ 微调效果</button>
+          <button class="btn-gradient" id="finetuneBtn" ${this.isCodeMode ? 'style="display:none"' : ''}>✏️ 微调效果</button>
           <button class="btn-outlined" id="syncBtn">同步到车机 →</button>
         </div>
       </div>
@@ -71,6 +74,7 @@ export class PreviewPage {
 
   _getAiInsight(data) {
     if (!data) return '';
+    if (this.isCodeMode) return '💡 此组件由AI直接编写代码生成，展示端到端AI能力';
     const insights = {
       weather:     '🌤 实时天气数据，每30分钟自动更新',
       anniversary: '💕 自动计算天数，每日零点刷新',
@@ -103,6 +107,17 @@ export class PreviewPage {
   async _renderComponent() {
     const frame = document.getElementById('previewFrame');
     if (!frame || !this.currentData) return;
+
+    // Code mode: render raw HTML
+    if (this.isCodeMode && this.currentData.html_content) {
+      try {
+        renderCodeWidgetInFrame(frame, this.currentData.html_content);
+      } catch (error) {
+        console.error('代码渲染失败:', error);
+        frame.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9CA3AF;font-size:13px;">代码渲染失败</div>`;
+      }
+      return;
+    }
 
     if (!this.currentData.component_type) {
       frame.innerHTML = `

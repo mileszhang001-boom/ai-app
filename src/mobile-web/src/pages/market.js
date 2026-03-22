@@ -91,7 +91,7 @@ export class TemplateMarket {
           <div class="bottom-input-label">没找到想要的？试试自由创作</div>
           <div class="bottom-input-row">
             <input type="text" class="bottom-text-input" id="homeInput"
-                   placeholder="描述你想要的卡片..." maxlength="200">
+                   placeholder="描述你想要的卡片，AI从零编写代码..." maxlength="200">
             <button class="bottom-send-btn" id="homeSendBtn" disabled>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"/>
@@ -148,15 +148,16 @@ export class TemplateMarket {
     if (input) input.disabled = true;
     if (sendBtn) sendBtn.disabled = true;
 
-    const { overlay, waitForMinDuration } = showGenerateOverlay();
+    const isCodeMode = true;
+    const { overlay, waitForMinDuration } = showGenerateOverlay(isCodeMode);
 
     try {
-      const response = await this.api.chatGenerate(text);
+      const response = await this.api.chatGenerate(text, null, 'code');
       await waitForMinDuration();
       overlay.remove();
 
       if (response.success) {
-        this.router.navigate('preview', { data: response.data });
+        this.router.navigate('preview', { data: response.data, isCodeMode });
       } else {
         const errorMsg = response.error || '生成失败，请重试';
         if (errorMsg.includes('暂时还不支持')) {

@@ -233,6 +233,7 @@ body.scroll-locked { overflow: hidden; }
   transform: scale(0.93);
 }
 
+
 /* ========== Config Panel (Bottom Sheet) ========== */
 .config-overlay {
   position: fixed; inset: 0;

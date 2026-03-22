@@ -20,7 +20,7 @@ except ImportError:
     HTTPX_AVAILABLE = False
 
 # Import prompt and validation functions
-from .prompt import get_system_prompt, get_nl_system_prompt, build_user_message
+from .prompt import get_system_prompt, get_nl_system_prompt, get_code_gen_system_prompt, build_user_message
 from .validator import validate_component
 
 
@@ -316,6 +316,100 @@ class AIGenerator:
 
         except Exception as e:
             return False, None, str(e)
+
+    def generate_code_from_nl(self, user_text: str) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
+        """
+        AI编程模式：LLM 直接生成完整 HTML/CSS/JS 代码
+
+        不支持 Mock 模式，必须有 API Key。
+
+        Returns:
+            (success, data, error_message)
+        """
+        if not self.api_key:
+            return False, None, "AI编程模式需要配置 API Key"
+
+        try:
+            system_prompt = get_code_gen_system_prompt()
+            user_message = user_text.strip()
+
+            # 代码生成用更大的 max_tokens 和更长的超时
+            saved_max_tokens = self.config.max_tokens
+            saved_timeout = self.config.timeout
+            self.config.max_tokens = 4000
+            self.config.timeout = 60
+
+            try:
+                if self.config.model.startswith("qwen"):
+                    response_text = self._call_qwen(system_prompt, user_message)
+                elif self.config.model.startswith("gpt"):
+                    response_text = self._call_openai(system_prompt, user_message)
+                elif self.config.model.startswith("claude"):
+                    response_text = self._call_anthropic(system_prompt, user_message)
+                else:
+                    response_text = self._call_qwen(system_prompt, user_message)
+            finally:
+                self.config.max_tokens = saved_max_tokens
+                self.config.timeout = saved_timeout
+
+            print(f"[DEBUG] Code Gen LLM Response length: {len(response_text)}")
+
+            # 提取 HTML（去除 markdown 代码围栏）
+            html = response_text.strip()
+            if html.startswith("```html"):
+                html = html[7:]
+            elif html.startswith("```"):
+                html = html[3:]
+            if html.endswith("```"):
+                html = html[:-3]
+            html = html.strip()
+
+            # 安全校验
+            is_valid, error = self._validate_generated_code(html)
+            if not is_valid:
+                return False, None, f"代码安全校验失败: {error}"
+
+            return True, {
+                "generation_mode": "code",
+                "html_content": html,
+                "description": f"AI编程生成: {user_text[:30]}",
+            }, None
+
+        except Exception as e:
+            return False, None, str(e)
+
+    def _validate_generated_code(self, html: str) -> Tuple[bool, Optional[str]]:
+        """校验 AI 生成的 HTML 代码安全性"""
+        import re
+
+        if not html:
+            return False, "生成内容为空"
+
+        # 基本结构检查
+        if "<!DOCTYPE" not in html.upper() and "<html" not in html.lower():
+            return False, "缺少基本 HTML 结构"
+
+        # 大小限制
+        if len(html.encode('utf-8')) > 100 * 1024:
+            return False, "代码超过 100KB 限制"
+
+        # 禁止模式扫描
+        forbidden = [
+            (r'fetch\s*\(', 'fetch() 调用'),
+            (r'XMLHttpRequest', 'XMLHttpRequest'),
+            (r'localStorage', 'localStorage'),
+            (r'sessionStorage', 'sessionStorage'),
+            (r'eval\s*\(', 'eval() 调用'),
+            (r'document\.cookie', 'document.cookie'),
+            (r'<script\s+src\s*=', '外部脚本引用'),
+            (r'<link[^>]+href\s*=\s*["\']https?://', '外部样式表引用'),
+        ]
+
+        for pattern, desc in forbidden:
+            if re.search(pattern, html, re.IGNORECASE):
+                return False, f"包含禁止内容: {desc}"
+
+        return True, None
 
     def _call_llm_nl(self, system_prompt: str, user_message: str, base_data: dict = None) -> str:
         """调用 LLM API（自然语言模式）"""
@@ -1214,3 +1308,11 @@ async def generate_widget_from_nl(
     """异步生成组件参数（自然语言模式）"""
     generator = get_generator()
     return generator.generate_from_nl(user_text, base_data=base_data)
+
+
+async def generate_code_from_nl(
+    user_text: str,
+) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
+    """异步代码生成（AI编程模式）"""
+    generator = get_generator()
+    return generator.generate_code_from_nl(user_text)

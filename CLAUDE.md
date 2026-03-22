@@ -13,7 +13,7 @@
 
 ## 核心技术决策
 
-1. **AI 生成方案：混合路线** — 精品模板为底座 + AI 智能匹配与内容增强。AI 输出 JSON 参数，不生成代码。
+1. **AI 生成方案：双模式并行** — 场景卡片走精品模板（AI 输出 JSON 参数），自由输入走 AI编程（LLM 直接生成完整 HTML/CSS/JS 代码）。
 2. **车端渲染：H5 + WebView 沙箱** — 组件以 H5 运行在 Android WebView 中，通过 JSBridge 访问车机能力。
 3. **手机端：H5 Web App**（Vite + Vanilla JS）— 追求最快交付速度。
 4. **车端卡片尺寸：896×1464 逻辑像素**（行车桌面 1/3 屏）。
@@ -39,8 +39,8 @@ ai-widget-workshop/
 │   ├── server/                        # 云端服务（FastAPI, port 8000）
 │   │   ├── main.py                    # API 入口（含 /api/weather, /api/calendar/today）
 │   │   ├── ai_generator/             # AI 生成 Pipeline
-│   │   │   ├── prompt.py             #   模板注册 + System Prompt
-│   │   │   ├── generator.py          #   LLM 调用 + Mock 模式
+│   │   │   ├── prompt.py             #   模板注册 + System Prompt（含 CODE_GEN_SYSTEM_PROMPT）
+│   │   │   ├── generator.py          #   LLM 调用 + Mock 模式 + AI编程代码生成
 │   │   │   └── validator.py          #   Quality Gate（白名单+截断）
 │   │   ├── weather_service/          # 天气服务（和风天气 API）
 │   │   │   ├── client.py             #   QWeather API 客户端
@@ -53,7 +53,7 @@ ai-widget-workshop/
 │   │   ├── src/pages/preview.js      #   预览（AI摘要 + 卡片 + AI洞察）
 │   │   ├── src/pages/finetune.js     #   微调（缩小预览 + 配置面板）
 │   │   ├── src/components/config-panel.js #  共享配置面板组件
-│   │   ├── src/utils/render-widget.js    #  iframe渲染 + CSS zoom注入 + 生成动效
+│   │   ├── src/utils/render-widget.js    #  iframe渲染 + CSS zoom注入 + 生成动效 + AI代码渲染
 │   │   └── public/car-simulator.html #   车端模拟器
 │   ├── widget-templates/              # H5 组件模板（核心产物）
 │   │   ├── anniversary/              #   纪念日
