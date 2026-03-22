@@ -115,6 +115,33 @@
     requestAnimationFrame(update);
   }
 
+  // ── 背景图加载 ──
+  function loadBackgroundImage() {
+    var bgImage = params.background_image;
+    if (!bgImage) return;
+    var photoBg = document.getElementById('photoBg');
+    if (!photoBg) return;
+
+    // Build URL - images are in ./backgrounds/ directory
+    var url = './backgrounds/' + bgImage + '.webp';
+
+    var img = new Image();
+    img.onload = function() {
+      photoBg.style.backgroundImage = 'url(' + url + ')';
+      photoBg.style.backgroundSize = 'cover';
+      photoBg.style.backgroundPosition = 'center';
+      photoBg.style.opacity = '0.4';
+    };
+    img.onerror = function() {
+      // Fallback: try jpg
+      photoBg.style.backgroundImage = 'url(./backgrounds/' + bgImage + '.jpg)';
+      photoBg.style.backgroundSize = 'cover';
+      photoBg.style.backgroundPosition = 'center';
+      photoBg.style.opacity = '0.4';
+    };
+    img.src = url;
+  }
+
   // ── 心形粒子系统 ──
   function initParticles() {
     const canvas = document.getElementById('particleCanvas');
@@ -243,10 +270,26 @@
         }
       }
 
+      // Easter egg particle rendering
+      if (window.drawEasterEggFrame) window.drawEasterEggFrame(ctx);
+
       animId = requestAnimationFrame(animate);
     }
 
     animate();
+
+    // ── Easter egg click handler ──
+    var widgetRoot = document.querySelector('.widget-love');
+    if (widgetRoot) {
+      widgetRoot.addEventListener('click', function(e) {
+        if (window.triggerEasterEgg) {
+          var rect = canvas.getBoundingClientRect();
+          var x = (e.clientX - rect.left) * (canvas.width / rect.width);
+          var y = (e.clientY - rect.top) * (canvas.height / rect.height);
+          window.triggerEasterEgg(canvas, x, y, 'love');
+        }
+      });
+    }
 
     // 响应窗口大小变化
     window.addEventListener('resize', resize);
@@ -292,6 +335,9 @@
         photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
       }
     }
+
+    // ── 预设背景图 ──
+    loadBackgroundImage();
 
     const days = calculateDays(params.start_date);
     updateSubtitle(days);

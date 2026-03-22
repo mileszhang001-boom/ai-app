@@ -20,12 +20,12 @@
 5. **Design-at-896 + CSS zoom**：模板 CSS 全部按 896px 设计（=Pencil/车端尺寸），手机端通过 `html{zoom:containerWidth/896}` 等比缩小。
 6. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画 + 动态配色引擎。
 7. **组件类型（9个模板）**：
-   - 纪念日 4 主题（恋爱/宝宝/放假/暖橙）
-   - 每日新闻
-   - 闹钟
-   - **天气**（新增）
-   - **音乐播放器**（新增）
-   - **日历日程**（新增）
+   - 纪念日 4 主题（恋爱/宝宝/放假/暖橙）— love/baby/holiday 支持预设背景图+点击彩蛋
+   - 每日新闻 — 多领域选择+全文阅读 overlay
+   - 闹钟 — 多闹钟列表/表盘双风格+新建 overlay+localStorage
+   - 天气 — 城市切换 overlay+localStorage 记忆
+   - 音乐播放器 — 封面取色自动配色
+   - 日历日程 — 新增/删除事件 overlay+FAB+localStorage
 
 ## 项目结构
 
@@ -57,20 +57,24 @@ ai-widget-workshop/
 │   │   └── public/car-simulator.html #   车端模拟器
 │   ├── widget-templates/              # H5 组件模板（核心产物）
 │   │   ├── anniversary/              #   纪念日
-│   │   │   ├── love/                 #     恋爱（心形粒子）
-│   │   │   ├── baby/                 #     宝宝（星星粒子）
-│   │   │   ├── holiday/              #     放假倒计时（彩纸粒子）
+│   │   │   ├── love/                 #     恋爱（心形粒子+预设背景图+彩蛋）
+│   │   │   ├── baby/                 #     宝宝（星星粒子+预设背景图+彩蛋）
+│   │   │   ├── holiday/              #     放假倒计时（彩纸粒子+预设背景图+彩蛋）
 │   │   │   └── warm/                 #     暖橙（萤火虫粒子）
-│   │   ├── news/                     #   每日新闻（毛玻璃卡片+轮播）
-│   │   ├── alarm/                    #   闹钟（进度环+日夜感知）
-│   │   ├── weather/                  #   天气（动态粒子+3日预报）
-│   │   ├── music/                    #   音乐播放器（频谱+进度条）
-│   │   ├── calendar/                 #   日历日程（时间线+农历）
+│   │   ├── news/                     #   每日新闻（毛玻璃卡片+轮播+多领域+全文overlay）
+│   │   ├── alarm/                    #   闹钟（多闹钟列表/表盘+新建overlay+localStorage）
+│   │   ├── weather/                  #   天气（动态粒子+3日预报+城市切换overlay）
+│   │   ├── music/                    #   音乐播放器（频谱+进度条+封面取色）
+│   │   ├── calendar/                 #   日历日程（时间线+农历+新增事件overlay+FAB）
 │   │   └── shared/
 │   │       ├── tokens.css            #     Design Tokens (Liquid Glass)
 │   │       ├── color-engine.js       #     动态配色引擎（hex→完整调色板）
 │   │       ├── visual-styles.css     #     4种视觉风格宏（glass/minimal/material/pixel）
-│   │       └── bridge.js            #     JSBridge 封装（含 MediaSession 接口）
+│   │       ├── bridge.js            #     JSBridge 封装（含 MediaSession 接口）
+│   │       ├── overlay.js           #     ★ 通用弹窗 overlay 组件
+│   │       ├── overlay.css          #     ★ 弹窗样式（毛玻璃 + 动画）
+│   │       ├── storage.js           #     ★ localStorage 封装（namespace 隔离）
+│   │       └── easter-egg.js        #     ★ 彩蛋粒子效果引擎（爱心/玩具/礼花）
 │   └── car-host/                     # 车端宿主（Android, 模拟器）
 └── tests/
 ```

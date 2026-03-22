@@ -290,6 +290,7 @@ class ComponentValidator:
             "title": {"type": "string", "required": True, "maxLength": 20},
             "start_date": {"type": "date", "required": True},
             "subtitle": {"type": "string", "required": False, "maxLength": 30},
+            "background_image": {"type": "string", "required": False, "maxLength": 50},
         }
 
         schemas = {
@@ -304,11 +305,13 @@ class ComponentValidator:
                     "emoji": {"type": "string", "required": False},
                     "show_hours": {"type": "boolean", "required": False},
                     "show_minutes": {"type": "boolean", "required": False},
+                    "background_image": {"type": "string", "required": False, "maxLength": 50},
                 },
             },
             "news": {
                 "daily": {
-                    "category": {"type": "enum", "values": ["general", "tech", "auto"], "default": "general"},
+                    "category": {"type": "enum", "values": ["general", "tech", "auto", "automotive", "finance", "sports", "lifestyle"], "default": "general"},
+                    "categories": {"type": "string", "required": False, "maxLength": 100},
                     "max_items": {"type": "number", "min": 3, "max": 8, "default": 5},
                 },
             },
@@ -317,6 +320,7 @@ class ComponentValidator:
                     "alarm_time": {"type": "string", "required": False},
                     "label": {"type": "string", "required": False, "maxLength": 15},
                     "repeat": {"type": "string", "required": False},
+                    "display_style": {"type": "enum", "values": ["list", "dial"], "default": "list"},
                 },
             },
             "weather": {

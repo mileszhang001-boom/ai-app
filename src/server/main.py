@@ -128,6 +128,8 @@ class CreateWidgetRequest(BaseModel):
     theme: Optional[str] = Field(None, description="主题")
     params: Dict[str, Any] = Field(default_factory=dict, description="组件参数")
     style_preset: Optional[str] = Field(None, description="风格预设")
+    generation_mode: Optional[str] = Field(None, description="生成模式: template | code")
+    html_content: Optional[str] = Field(None, description="AI编程模式生成的完整HTML代码")
 
 
 class WidgetResponse(BaseModel):
@@ -524,24 +526,34 @@ async def create_widget(request: CreateWidgetRequest):
     保存组件元数据和 H5 产物
     """
     try:
+        # 构建存储数据
+        widget_data = {
+            "component_type": request.component_type,
+            "theme": request.theme,
+            "style_preset": request.style_preset,
+            "params": request.params
+        }
+        if request.generation_mode:
+            widget_data["generation_mode"] = request.generation_mode
+        if request.html_content:
+            widget_data["html_content"] = request.html_content
+
         # 创建元数据
         widget_metadata = create_widget_metadata(
             user_id=request.user_id,
-            widget_data={
-                "component_type": request.component_type,
-                "theme": request.theme,
-                "style_preset": request.style_preset,
-                "params": request.params
-            }
+            widget_data=widget_data
         )
 
-        # 生成 H5 内容
-        html_content = TemplateRenderer.render_html(
-            component_type=request.component_type,
-            theme=request.theme,
-            params=request.params,
-            style_preset=request.style_preset or "minimal-dark"
-        )
+        # 生成 H5 内容（代码模式直接使用传入的 html_content）
+        if request.generation_mode == "code" and request.html_content:
+            html_content = request.html_content
+        else:
+            html_content = TemplateRenderer.render_html(
+                component_type=request.component_type,
+                theme=request.theme,
+                params=request.params,
+                style_preset=request.style_preset or "minimal-dark"
+            )
 
         # 保存 H5 产物
         assets = save_widget_assets(
@@ -595,15 +607,31 @@ async def delete_widget(widget_id: str):
 
 
 @app.get("/api/news")
-async def get_news(category: str = "general", limit: int = 5):
+async def get_news(category: str = "general", categories: str = None, limit: int = 5):
     """
     获取新闻
 
     从 RSS 源抓取 + AI 摘要，30分钟内存缓存 + 24小时文件缓存
-    支持分类：general（综合）、tech（科技）、auto（汽车）
+    支持分类：general（综合）、tech（科技）、auto/automotive（汽车）、finance（财经）、sports（体育）、lifestyle（生活）
+    支持多领域：categories 参数接受逗号分隔的多个分类，如 categories=tech,automotive
     """
     try:
         service = get_news_service()
+        if categories:
+            # 多领域模式：合并多个分类的结果
+            cat_list = [c.strip() for c in categories.split(',') if c.strip()]
+            all_news = []
+            seen_ids = set()
+            for cat in cat_list:
+                result = await service.get_news(category=cat, limit=limit)
+                for item in result.get('news', []):
+                    item_id = item.get('id') or item.get('title', '')
+                    if item_id not in seen_ids:
+                        seen_ids.add(item_id)
+                        all_news.append(item)
+            # 按时间排序，取 limit 条
+            all_news = all_news[:limit]
+            return {"news": all_news, "categories": cat_list}
         return await service.get_news(category=category, limit=limit)
     except Exception as e:
         print(f"[API] News service error: {e}")

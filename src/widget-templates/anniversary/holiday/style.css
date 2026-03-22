@@ -49,6 +49,30 @@ html, body {
   z-index: 0;
 }
 
+/* ── 照片氛围背景 ── */
+.widget-holiday .photo-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 背景图遮罩（提升文字可读性） ── */
+.widget-holiday .bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
 /* ── 风格预设：基于 data-style 属性 ── */
 
 /* 活力橙 */

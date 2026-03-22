@@ -8,8 +8,12 @@
 
   var params = window.__WIDGET_PARAMS__ || {
     category: 'general',
+    categories: null,
     max_items: 3
   };
+
+  // 兼容新旧参数：categories 数组优先
+  var activeCategories = params.categories || (params.category ? [params.category] : ['general']);
 
   var newsListEl = document.getElementById('newsList');
   var currentDateEl = document.getElementById('currentDate');
@@ -39,12 +43,14 @@
     try {
       var newsData = null;
 
+      var catParam = activeCategories.join(',');
+      var apiUrl = '/api/news?categories=' + encodeURIComponent(catParam) + '&limit=' + params.max_items;
+
       if (window.AIWidgetBridge && window.AIWidgetBridge.isCarEnvironment && window.AIWidgetBridge.isCarEnvironment()) {
-        var response = await window.AIWidgetBridge.fetchData('/api/news?category=' + encodeURIComponent(params.category) + '&limit=' + params.max_items);
+        var response = await window.AIWidgetBridge.fetchData(apiUrl);
         newsData = JSON.parse(response.data);
       } else {
         try {
-          var apiUrl = '/api/news?category=' + encodeURIComponent(params.category) + '&limit=' + params.max_items;
           var resp = await fetch(apiUrl);
           if (resp.ok) {
             newsData = await resp.json();
@@ -124,26 +130,96 @@
   }
 
   function showDetail(item) {
-    if (!detailOverlay) return;
+    if (!window.createFullscreenOverlay) {
+      // Fallback: 简单弹窗
+      if (!detailOverlay) return;
+      detailOverlay.innerHTML =
+        '<div class="detail-card">' +
+          '<div class="detail-category">' + escapeHtml(item.category) + '</div>' +
+          '<div class="detail-title">' + escapeHtml(item.title) + '</div>' +
+          '<div class="detail-summary">' + escapeHtml(item.summary || '暂无摘要') + '</div>' +
+          '<div class="detail-meta">' + escapeHtml(item.time) + (item.source ? ' · ' + escapeHtml(item.source) : '') + '</div>' +
+          '<div class="detail-close">点击关闭</div>' +
+        '</div>';
+      detailOverlay.classList.add('visible');
+      detailOverlay.addEventListener('click', function handler() {
+        detailOverlay.classList.remove('visible');
+        detailOverlay.removeEventListener('click', handler);
+      });
+      return;
+    }
 
-    var sourceText = item.source ? ' · ' + escapeHtml(item.source) : '';
+    var overlay = window.createFullscreenOverlay({
+      background: '#0A0E14',
+      content: function(container) {
+        // 顶部导航栏
+        var nav = document.createElement('div');
+        nav.style.cssText = 'display:flex;align-items:center;height:80px;padding:0 48px;gap:16px;';
+        var backBtn = document.createElement('span');
+        backBtn.textContent = '‹';
+        backBtn.style.cssText = 'font-size:48px;color:#F5F5F0;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+        backBtn.addEventListener('click', function() { overlay.hide(); });
+        nav.appendChild(backBtn);
+        container.appendChild(nav);
 
-    detailOverlay.innerHTML =
-      '<div class="detail-card">' +
-        '<div class="detail-category">' + escapeHtml(item.category) + '</div>' +
-        '<div class="detail-title">' + escapeHtml(item.title) + '</div>' +
-        '<div class="detail-summary">' + escapeHtml(item.summary || '暂无摘要') + '</div>' +
-        '<div class="detail-meta">' + escapeHtml(item.time) + sourceText + '</div>' +
-        '<div class="detail-close">点击关闭</div>' +
-      '</div>';
+        // 文章正文区
+        var body = document.createElement('div');
+        body.style.cssText = 'padding:0 48px 80px;display:flex;flex-direction:column;gap:20px;';
 
-    detailOverlay.classList.add('visible');
+        // 分类标签
+        var tags = document.createElement('div');
+        tags.style.cssText = 'display:flex;gap:12px;';
+        var tag = document.createElement('span');
+        tag.style.cssText = 'padding:6px 16px;border-radius:18px;background:#4A9EFF20;color:#4A9EFF;font-size:22px;font-weight:500;font-family:MiSans_VF,sans-serif;';
+        tag.textContent = item.category;
+        tags.appendChild(tag);
+        body.appendChild(tags);
 
-    // 点击关闭
-    detailOverlay.addEventListener('click', function handler() {
-      detailOverlay.classList.remove('visible');
-      detailOverlay.removeEventListener('click', handler);
+        // 标题
+        var title = document.createElement('div');
+        title.style.cssText = 'font-size:36px;font-weight:700;color:#F5F5F0;line-height:1.35;font-family:MiSans_VF,sans-serif;';
+        title.textContent = item.title;
+        body.appendChild(title);
+
+        // 来源 + 时间
+        var meta = document.createElement('div');
+        meta.style.cssText = 'display:flex;gap:12px;align-items:center;font-size:22px;font-family:MiSans_VF,sans-serif;';
+        if (item.source) {
+          var src = document.createElement('span');
+          src.style.color = '#4A9EFF';
+          src.textContent = item.source;
+          meta.appendChild(src);
+          var dot = document.createElement('span');
+          dot.style.color = 'rgba(255,255,255,0.25)';
+          dot.textContent = '·';
+          meta.appendChild(dot);
+        }
+        var time = document.createElement('span');
+        time.style.color = 'rgba(255,255,255,0.4)';
+        time.textContent = item.time;
+        meta.appendChild(time);
+        body.appendChild(meta);
+
+        // 分割线
+        var divider = document.createElement('div');
+        divider.style.cssText = 'height:1px;background:rgba(255,255,255,0.06);';
+        body.appendChild(divider);
+
+        // 正文段落
+        var summaryText = item.summary || '暂无详细内容。';
+        var paragraphs = summaryText.split(/[。！？\n]+/).filter(function(s) { return s.trim(); });
+        paragraphs.forEach(function(p) {
+          var para = document.createElement('div');
+          para.style.cssText = 'font-size:28px;color:rgba(245,245,240,0.8);line-height:1.7;font-family:MiSans_VF,sans-serif;';
+          para.textContent = p.trim() + '。';
+          body.appendChild(para);
+        });
+
+        container.appendChild(body);
+      }
     });
+
+    overlay.show();
   }
 
   function renderDots(count) {

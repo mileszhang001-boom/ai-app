@@ -321,6 +321,91 @@ body.scroll-locked { overflow: hidden; }
   font-weight: 600;
 }
 
+/* Category multi-select Pills (News) */
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.category-pill {
+  padding: 6px 14px;
+  background: var(--color-bg-primary);
+  border: 1.5px solid var(--color-divider);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.category-pill.selected {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Alarm Style Picker */
+.alarm-style-picker {
+  display: flex;
+  gap: 12px;
+}
+.alarm-style-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-divider);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.alarm-style-btn.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+.alarm-style-icon { font-size: 22px; }
+.alarm-style-label { font-size: 12px; color: var(--color-text-secondary); }
+.alarm-style-btn.selected .alarm-style-label {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Background Image Grid */
+.bg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.bg-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.bg-grid-item.selected { border-color: var(--color-accent); }
+.bg-grid-thumb {
+  width: 100%;
+  aspect-ratio: 0.6;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+}
+.bg-grid-label {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
 /* Color Circles */
 .color-circles {
   display: flex;

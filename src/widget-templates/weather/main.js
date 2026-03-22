@@ -151,6 +151,127 @@
     if (locEl) locEl.textContent = params.city || '北京';
   }
 
+  // ── 城市切换 overlay ──
+  var CITIES = [
+    { name: '北京', desc: '晴', temp: '26°' },
+    { name: '上海', desc: '多云', temp: '24°' },
+    { name: '广州', desc: '阵雨', temp: '27°' },
+    { name: '深圳', desc: '晴', temp: '28°' },
+    { name: '杭州', desc: '多云转晴', temp: '23°' },
+    { name: '成都', desc: '阴', temp: '22°' }
+  ];
+
+  var cityStore = window.WidgetStorage ? window.WidgetStorage('weather') : null;
+
+  function openCitySwitcher() {
+    if (!window.createOverlay) return;
+
+    var overlay = window.createOverlay({
+      title: '切换地点',
+      theme: 'dark',
+      showSave: false,
+      cancelText: '✕',
+      content: function(body) {
+        // 搜索框
+        var searchWrap = document.createElement('div');
+        searchWrap.style.cssText = 'padding:16px 36px;';
+        var searchInput = document.createElement('input');
+        searchInput.className = 'overlay-input';
+        searchInput.placeholder = '搜索城市';
+        searchInput.style.cssText = 'height:56px; border-radius:16px; font-size:28px;';
+        searchWrap.appendChild(searchInput);
+        body.appendChild(searchWrap);
+
+        // 分割线
+        var d1 = document.createElement('div');
+        d1.className = 'overlay-divider full';
+        body.appendChild(d1);
+
+        // 当前位置
+        var curRow = document.createElement('div');
+        curRow.className = 'overlay-row';
+        curRow.innerHTML = '<span style="color:#60A5FA;font-size:28px;font-family:MiSans_VF,sans-serif;">📍 当前位置</span>' +
+          '<span class="overlay-row-value">' + (params.city || '北京') + '</span>';
+        body.appendChild(curRow);
+
+        var d2 = document.createElement('div');
+        d2.className = 'overlay-divider full';
+        body.appendChild(d2);
+
+        // 已保存城市标签
+        var savedLabel = document.createElement('div');
+        savedLabel.style.cssText = 'padding:14px 36px; font-size:24px; color:rgba(100,116,139,1); font-family:MiSans_VF,sans-serif;';
+        savedLabel.textContent = '已保存的城市';
+        body.appendChild(savedLabel);
+
+        // 城市列表
+        var cityList = document.createElement('div');
+        cityList.className = 'city-list';
+
+        function renderCities(filter) {
+          cityList.innerHTML = '';
+          var filtered = CITIES.filter(function(c) {
+            if (!filter) return true;
+            return c.name.indexOf(filter) >= 0;
+          });
+          filtered.forEach(function(city, idx) {
+            var row = document.createElement('div');
+            row.className = 'overlay-row';
+            row.style.cssText = 'cursor:pointer; min-height:120px; flex-direction:column; align-items:flex-start; justify-content:center; padding:16px 36px;';
+            row.innerHTML =
+              '<div style="display:flex;width:100%;align-items:center;">' +
+                '<span style="font-size:32px;font-weight:500;color:#F5F5F0;font-family:MiSans_VF,sans-serif;">' + city.name + '</span>' +
+                '<span style="margin-left:auto;font-size:36px;font-weight:300;color:#F5F5F0;font-family:MiSans_VF,sans-serif;">' + city.temp + '</span>' +
+              '</div>' +
+              '<span style="font-size:26px;color:#94A3B8;font-family:MiSans_VF,sans-serif;margin-top:8px;">' + city.desc + '</span>';
+
+            row.addEventListener('click', function() {
+              params.city = city.name;
+              cachedData = null;
+              updateDate();
+              fetchWeather().then(function(data) {
+                renderWeather(data);
+              });
+              if (cityStore) cityStore.set('selected_city', city.name);
+              overlay.hide();
+            });
+            cityList.appendChild(row);
+
+            // 分割线（非最后一个）
+            if (idx < filtered.length - 1) {
+              var divider = document.createElement('div');
+              divider.className = 'overlay-divider full';
+              divider.style.background = 'rgba(51,65,85,1)';
+              cityList.appendChild(divider);
+            }
+          });
+        }
+
+        renderCities('');
+        searchInput.addEventListener('input', function() {
+          renderCities(searchInput.value.trim());
+        });
+
+        body.appendChild(cityList);
+      }
+    });
+
+    overlay.show();
+  }
+
+  function initCitySwitcher() {
+    // 恢复上次选中的城市
+    if (cityStore) {
+      var saved = cityStore.get('selected_city');
+      if (saved) params.city = saved;
+    }
+
+    var locEl = document.getElementById('locationName');
+    if (locEl) {
+      locEl.addEventListener('click', openCitySwitcher);
+    }
+  }
+
   // ── 天气粒子系统 ──
   function initWeatherParticles() {
     var canvas = document.getElementById('weatherCanvas');
@@ -303,6 +424,7 @@
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
 
+    initCitySwitcher();
     updateDate();
     var data = await fetchWeather();
     renderWeather(data);

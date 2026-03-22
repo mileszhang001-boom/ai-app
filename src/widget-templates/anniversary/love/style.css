@@ -63,6 +63,15 @@ html, body {
   z-index: 0;
 }
 
+/* ── 背景图遮罩（提升文字可读性） ── */
+.widget-love .bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
 /* ── 风格预设：基于 data-style 属性 ── */
 
 /* 活力橙 */

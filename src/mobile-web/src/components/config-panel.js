@@ -32,6 +32,46 @@ const SCENE_DEFAULT_COLORS = {
 
 const CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都'];
 
+const NEWS_CATEGORIES = [
+  { id: 'tech', label: '科技' },
+  { id: 'automotive', label: '汽车' },
+  { id: 'finance', label: '财经' },
+  { id: 'sports', label: '体育' },
+  { id: 'lifestyle', label: '生活' },
+];
+
+const ALARM_STYLES = [
+  { id: 'list', label: '列表', icon: '☰' },
+  { id: 'dial', label: '表盘', icon: '🕐' },
+];
+
+const BG_PRESETS = {
+  love: [
+    { id: 'love_bg_01', label: '海边日落' },
+    { id: 'love_bg_02', label: '咖啡馆' },
+    { id: 'love_bg_03', label: '樱花树' },
+    { id: 'love_bg_04', label: '城市夜景' },
+    { id: 'love_bg_05', label: '星空草地' },
+    { id: 'love_bg_06', label: '默认渐变' },
+  ],
+  baby: [
+    { id: 'baby_bg_01', label: '温暖婴儿房' },
+    { id: 'baby_bg_02', label: '阳光草地' },
+    { id: 'baby_bg_03', label: '粉蓝气球' },
+    { id: 'baby_bg_04', label: '积木玩具' },
+    { id: 'baby_bg_05', label: '水彩童话' },
+    { id: 'baby_bg_06', label: '默认渐变' },
+  ],
+  countdown: [
+    { id: 'holiday_bg_01', label: '烟花庆典' },
+    { id: 'holiday_bg_02', label: '海滩椰树' },
+    { id: 'holiday_bg_03', label: '雪山日出' },
+    { id: 'holiday_bg_04', label: '城市彩灯' },
+    { id: 'holiday_bg_05', label: '热气球' },
+    { id: 'holiday_bg_06', label: '默认渐变' },
+  ],
+};
+
 export { SCENE_MAP };
 
 export class ConfigPanel {
@@ -59,6 +99,9 @@ export class ConfigPanel {
     this.selectedColor = currentData?.primary_color || SCENE_DEFAULT_COLORS[sceneId] || COLOR_PRESETS[0];
     this.selectedCity = currentData?.params?.city || '北京';
     this.photoDataUrl = currentData?.params?.bg_photo || null;
+    this.selectedCategories = currentData?.params?.categories || ['tech', 'automotive'];
+    this.selectedAlarmStyle = currentData?.params?.display_style || 'list';
+    this.selectedBgImage = currentData?.params?.background_image || '';
 
     this.render();
   }
@@ -167,6 +210,21 @@ export class ConfigPanel {
         </div>
       ` : '';
 
+      const bgPresets = BG_PRESETS[this.sceneId];
+      const bgSection = bgPresets ? `
+        <div class="config-section">
+          <div class="config-section-label">预设背景</div>
+          <div class="bg-grid">
+            ${bgPresets.map(bg => `
+              <button class="bg-grid-item${bg.id === this.selectedBgImage ? ' selected' : ''}" data-bg="${bg.id}">
+                <div class="bg-grid-thumb" style="background:linear-gradient(135deg, #2a1520, #1a2535);"></div>
+                <div class="bg-grid-label">${bg.label}</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      ` : '';
+
       return `
         <div class="config-section">
           <div class="config-section-label">${l.date}</div>
@@ -177,10 +235,41 @@ export class ConfigPanel {
           <input type="text" class="config-text-input" id="configName" placeholder="${l.ph}" value="${nameVal}">
         </div>
         ${photoSection}
+        ${bgSection}
       `;
     }
 
-    // music, alarm, calendar, news — no extra fields
+    if (this.sceneId === 'news') {
+      return `
+        <div class="config-section">
+          <div class="config-section-label">关注领域</div>
+          <div class="category-pills">
+            ${NEWS_CATEGORIES.map(c => `
+              <button class="category-pill${this.selectedCategories.includes(c.id) ? ' selected' : ''}" data-cat="${c.id}">${c.label}</button>
+            `).join('')}
+          </div>
+          <div class="config-hint" style="font-size:11px;color:#999;margin-top:4px;">至少选1个，最多5个</div>
+        </div>
+      `;
+    }
+
+    if (this.sceneId === 'alarm') {
+      return `
+        <div class="config-section">
+          <div class="config-section-label">显示风格</div>
+          <div class="alarm-style-picker">
+            ${ALARM_STYLES.map(s => `
+              <button class="alarm-style-btn${s.id === this.selectedAlarmStyle ? ' selected' : ''}" data-style="${s.id}">
+                <span class="alarm-style-icon">${s.icon}</span>
+                <span class="alarm-style-label">${s.label}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // music, calendar — no extra fields
     return '';
   }
 
@@ -254,6 +343,47 @@ export class ConfigPanel {
       });
     }
 
+    // News category multi-select pills
+    panel.querySelectorAll('.category-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const cat = pill.dataset.cat;
+        if (pill.classList.contains('selected')) {
+          // Deselect — but must keep at least 1
+          if (this.selectedCategories.length > 1) {
+            this.selectedCategories = this.selectedCategories.filter(c => c !== cat);
+            pill.classList.remove('selected');
+          }
+        } else {
+          this.selectedCategories.push(cat);
+          pill.classList.add('selected');
+        }
+      });
+    });
+
+    // Alarm style picker
+    panel.querySelectorAll('.alarm-style-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        panel.querySelectorAll('.alarm-style-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this.selectedAlarmStyle = btn.dataset.style;
+      });
+    });
+
+    // Background image grid
+    panel.querySelectorAll('.bg-grid-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        panel.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this.selectedBgImage = btn.dataset.bg;
+        // Deselect photo when preset bg is chosen
+        this.photoDataUrl = null;
+        const photoPreview = panel.querySelector('#photoPreview');
+        const photoPlaceholder = panel.querySelector('#photoPlaceholder');
+        if (photoPreview) photoPreview.style.display = 'none';
+        if (photoPlaceholder) photoPlaceholder.style.display = '';
+      });
+    });
+
     // Generate button
     const genBtn = panel.querySelector('#configGenerateBtn');
     if (genBtn) {
@@ -276,8 +406,20 @@ export class ConfigPanel {
       data.params.bg_photo = this.photoDataUrl;
     }
 
+    if (this.selectedBgImage && ['love', 'baby', 'countdown'].includes(this.sceneId)) {
+      data.params.background_image = this.selectedBgImage;
+    }
+
     if (this.sceneId === 'weather') {
       data.params.city = this.selectedCity;
+    }
+
+    if (this.sceneId === 'news') {
+      data.params.categories = this.selectedCategories;
+    }
+
+    if (this.sceneId === 'alarm') {
+      data.params.display_style = this.selectedAlarmStyle;
     }
 
     if (['love', 'baby', 'countdown'].includes(this.sceneId)) {

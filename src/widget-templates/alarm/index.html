@@ -3,77 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0e1013">
+  <meta name="theme-color" content="#1A1A1C">
   <title>闹钟卡片</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/tokens.css">
   <link rel="stylesheet" href="../shared/visual-styles.css">
+  <link rel="stylesheet" href="../shared/overlay.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="widget-alarm">
-    <!-- 光晕 -->
     <div class="glow-primary"></div>
-
-    <!-- 氛围光线 -->
     <div class="ambient-line"></div>
 
-    <div class="content">
-      <!-- 左侧类别标注 -->
-      <div class="category-label">NEXT ALARM</div>
-
-      <!-- 右侧当前时间 -->
-      <div class="current-time" id="currentTime">--:--</div>
-
-      <!-- 进度环 + 时间 -->
-      <div class="ring-container">
-        <svg class="progress-ring" viewBox="0 0 200 200">
-          <circle class="ring-bg" cx="100" cy="100" r="88" />
-          <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="88" />
-        </svg>
-        <div class="ring-content">
-          <!-- 时间数字 -->
-          <div class="alarm-time" id="nextAlarmTime">07:30</div>
-          <!-- 距闹钟时间 -->
-          <div class="time-remaining" id="timeRemaining"></div>
-        </div>
+    <div class="alarm-content">
+      <!-- Header -->
+      <div class="alarm-header">
+        <span class="alarm-title">闹钟</span>
+        <span class="alarm-menu">···</span>
       </div>
 
-      <!-- 毛玻璃信息区 -->
-      <div class="glass-info">
-        <!-- 英文单位 -->
-        <div class="unit-label" id="alarmSchedule">WEEKDAYS</div>
+      <!-- Countdown to next alarm -->
+      <div class="countdown-text" id="countdownText">--</div>
 
-        <!-- 分割线 -->
-        <div class="divider"></div>
-
-        <!-- 中文说明 -->
-        <div class="subtitle-cn" id="alarmLabel">工作日闹钟</div>
+      <!-- List View -->
+      <div class="alarm-list-view" id="alarmListView">
+        <div id="alarmListContainer"></div>
       </div>
-    </div>
 
-    <!-- 闹钟设置浮层 -->
-    <div class="alarm-setting-overlay" id="alarmSettingOverlay">
-      <div class="alarm-setting-card">
-        <div class="alarm-setting-title">设置闹钟</div>
-        <div class="alarm-time-picker">
-          <input type="time" id="alarmTimeInput" value="07:30">
-        </div>
-        <div class="alarm-repeat-row">
-          <button class="repeat-btn selected" data-repeat="weekdays">工作日</button>
-          <button class="repeat-btn" data-repeat="daily">每天</button>
-          <button class="repeat-btn" data-repeat="weekends">周末</button>
-          <button class="repeat-btn" data-repeat="none">仅一次</button>
-        </div>
-        <button class="alarm-setting-confirm" id="alarmConfirmBtn">确认</button>
+      <!-- Dial View -->
+      <div class="alarm-dial-view" id="alarmDialView" style="display:none;">
+        <svg id="clockFace" class="clock-face" viewBox="0 0 400 400"></svg>
+        <div class="dial-time" id="dialTime">--:-- --</div>
+        <div class="dial-countdown" id="dialCountdown">--</div>
+        <div id="dialAlarmList" class="dial-alarm-list"></div>
       </div>
+
+      <!-- FAB -->
+      <button class="fab-add-alarm" id="fabAddAlarm">+</button>
     </div>
   </div>
 
   <script src="../shared/bridge.js"></script>
   <script src="../shared/color-engine.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="../shared/overlay.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
