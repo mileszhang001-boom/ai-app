@@ -18,7 +18,7 @@
 3. **手机端：H5 Web App**（Vite + Vanilla JS）— 追求最快交付速度。
 4. **车端卡片尺寸：896×1464 逻辑像素**（行车桌面 1/3 屏）。
 5. **Design-at-896 + CSS zoom**：模板 CSS 全部按 896px 设计（=Pencil/车端尺寸），手机端通过 `html{zoom:containerWidth/896}` 等比缩小。
-6. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画。支持 4 种视觉风格（glass/minimal/material/pixel）+ 动态配色引擎。
+6. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画 + 动态配色引擎。
 7. **组件类型（9个模板）**：
    - 纪念日 4 主题（恋爱/宝宝/放假/暖橙）
    - 每日新闻
@@ -72,14 +72,6 @@ ai-widget-workshop/
 │   │       ├── visual-styles.css     #     4种视觉风格宏（glass/minimal/material/pixel）
 │   │       └── bridge.js            #     JSBridge 封装（含 MediaSession 接口）
 │   └── car-host/                     # 车端宿主（Android, 模拟器）
-├── quality/                           # 视觉质量保障系统
-│   ├── config.py                     #   权重/阈值/颜色色相表
-│   ├── screenshot.py                 #   Playwright 截图引擎 (896×1464)
-│   ├── rule_checks.py                #   8 项规则检查 (DOM+Pillow)
-│   ├── vision_scorer.py              #   视觉模型评分 (可选)
-│   ├── test_queries.py               #   50 条测试语料
-│   ├── batch_runner.py               #   批量测试编排
-│   └── report.py                     #   HTML 报告生成
 └── tests/
 ```
 

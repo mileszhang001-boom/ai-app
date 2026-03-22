@@ -39,7 +39,7 @@ from storage.metadata import (
     mark_synced,
     delete_widget as delete_widget_metadata
 )
-from storage.assets import get_asset_storage, save_widget as save_widget_assets
+from storage.assets import save_widget as save_widget_assets
 
 # 同步服务
 from sync_service.state import (
@@ -50,8 +50,6 @@ from sync_service.state import (
     get_sync_state,
     get_device_syncs
 )
-from sync_service.push import get_push_service
-
 # 新闻聚合服务
 from news_service import get_news_service
 

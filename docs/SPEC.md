@@ -13,13 +13,11 @@
 | 变更 | 旧版 (v0.2) | 新版 (v0.3) |
 |------|------------|------------|
 | 首页 | Hero大标题 + textarea + emoji场景标签 + 底部导航 | 状态栏 + 品牌Header + 3×3彩色图标宫格 + 底部单行输入 |
-| 配置 | 独立页面 `config.js`（手动填表） | Bottom Sheet 组件 `ConfigPanel`（风格选择器 + 场景配置 + 色圆） |
+| 配置 | 独立页面 `config.js`（手动填表） | Bottom Sheet 组件 `ConfigPanel`（场景配置 + 色圆） |
 | 预览 | 深色 bezel 外壳 + 内联微调弹窗 | 浅色卡片 + AI摘要/洞察条 + 双按钮（微调 + 同步） |
 | 微调 | 预览页底部 textarea 弹窗 | 独立微调页（缩小预览 + 嵌入式配置面板 + AI建议） |
 | 导航 | 底部 Tab 导航（模板/我的/同步） | 无 Tab，线性流程：首页 → 配置 → 预览 → 微调 |
 | 生成流程 | 输入 → 分析气泡 → 确认 → 生成 | 输入 → 4步动效 → 直达预览（去掉确认步骤） |
-
-**删除页面**：`config.js`、`my-widgets.js`、`sync.js`（功能合并到配置面板和预览页）
 
 **新增文件**：`components/config-panel.js`、`pages/finetune.js`、`utils/render-widget.js`
 
