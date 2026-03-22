@@ -28,7 +28,7 @@ html, body {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 140px 72px 84px;
+  padding: 96px 72px 84px;
   box-sizing: border-box;
 
   background: var(--news-bg-dark, linear-gradient(180deg, #111316 0%, #0e1013 100%));

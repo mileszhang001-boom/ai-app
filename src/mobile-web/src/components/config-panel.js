@@ -109,6 +109,7 @@ export class ConfigPanel {
     this.selectedColor = currentData?.primary_color || SCENE_DEFAULT_COLORS[sceneId] || COLOR_PRESETS[0];
     this.selectedCity = currentData?.params?.city || '北京';
     this.selectedDensity = '标准';
+    this.photoDataUrl = currentData?.params?.bg_photo || null;
 
     this.render();
   }
@@ -228,6 +229,17 @@ export class ConfigPanel {
       const dateVal = this.currentData?.params?.start_date || this.currentData?.params?.target_date || this.currentData?.params?.date || '';
       const nameVal = this.currentData?.params?.nickname || this.currentData?.params?.event_name || this.currentData?.params?.title || '';
 
+      const photoSection = ['love', 'baby'].includes(this.sceneId) ? `
+        <div class="config-section">
+          <div class="config-section-label">背景照片</div>
+          <div class="photo-upload-area" id="photoUploadArea">
+            <input type="file" accept="image/*" id="configPhotoInput" hidden>
+            <div class="photo-upload-placeholder" id="photoPlaceholder">点击上传照片</div>
+            <img id="photoPreview" class="photo-upload-preview" style="display:none">
+          </div>
+        </div>
+      ` : '';
+
       return `
         <div class="config-section">
           <div class="config-section-label">${l.date}</div>
@@ -237,6 +249,7 @@ export class ConfigPanel {
           <div class="config-section-label">${l.name}</div>
           <input type="text" class="config-text-input" id="configName" placeholder="${l.ph}" value="${nameVal}">
         </div>
+        ${photoSection}
       `;
     }
 
@@ -292,6 +305,46 @@ export class ConfigPanel {
       });
     });
 
+    // Photo upload
+    const photoArea = panel.querySelector('#photoUploadArea');
+    const photoInput = panel.querySelector('#configPhotoInput');
+    const photoPreview = panel.querySelector('#photoPreview');
+    const photoPlaceholder = panel.querySelector('#photoPlaceholder');
+    if (photoArea && photoInput) {
+      // Restore existing photo
+      if (this.photoDataUrl && photoPreview && photoPlaceholder) {
+        photoPreview.src = this.photoDataUrl;
+        photoPreview.style.display = 'block';
+        photoPlaceholder.style.display = 'none';
+      }
+      photoArea.addEventListener('click', () => photoInput.click());
+      photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxW = 800;
+            const scale = Math.min(1, maxW / img.width);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            this.photoDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            if (photoPreview) {
+              photoPreview.src = this.photoDataUrl;
+              photoPreview.style.display = 'block';
+            }
+            if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     // Generate button
     const genBtn = panel.querySelector('#configGenerateBtn');
     if (genBtn) {
@@ -309,6 +362,10 @@ export class ConfigPanel {
       params: {},
       description: this.scene.title,
     };
+
+    if (this.photoDataUrl && ['love', 'baby'].includes(this.sceneId)) {
+      data.params.bg_photo = this.photoDataUrl;
+    }
 
     if (this.sceneId === 'weather') {
       data.params.city = this.selectedCity;

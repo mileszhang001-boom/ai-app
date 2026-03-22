@@ -116,6 +116,12 @@ export class WidgetManager {
       return '/widget-templates/news/index.html';
     } else if (type === 'alarm') {
       return '/widget-templates/alarm/index.html';
+    } else if (type === 'weather') {
+      return '/widget-templates/weather/index.html';
+    } else if (type === 'music') {
+      return '/widget-templates/music/index.html';
+    } else if (type === 'calendar') {
+      return '/widget-templates/calendar/index.html';
     }
     return null;
   }

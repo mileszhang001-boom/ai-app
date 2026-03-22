@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI 车载组件</string>
+    <string name="empty_state_title">暂无组件</string>
+    <string name="empty_state_subtitle">在手机端创建组件并同步到车机</string>
+    <string name="new_widget_toast">收到新组件</string>
+</resources>

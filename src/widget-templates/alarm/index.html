@@ -53,6 +53,23 @@
         <div class="subtitle-cn" id="alarmLabel">工作日闹钟</div>
       </div>
     </div>
+
+    <!-- 闹钟设置浮层 -->
+    <div class="alarm-setting-overlay" id="alarmSettingOverlay">
+      <div class="alarm-setting-card">
+        <div class="alarm-setting-title">设置闹钟</div>
+        <div class="alarm-time-picker">
+          <input type="time" id="alarmTimeInput" value="07:30">
+        </div>
+        <div class="alarm-repeat-row">
+          <button class="repeat-btn selected" data-repeat="weekdays">工作日</button>
+          <button class="repeat-btn" data-repeat="daily">每天</button>
+          <button class="repeat-btn" data-repeat="weekends">周末</button>
+          <button class="repeat-btn" data-repeat="none">仅一次</button>
+        </div>
+        <button class="alarm-setting-confirm" id="alarmConfirmBtn">确认</button>
+      </div>
+    </div>
   </div>
 
   <script src="../shared/bridge.js"></script>

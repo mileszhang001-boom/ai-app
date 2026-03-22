@@ -29,7 +29,7 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 160px 84px 120px;
+  padding: 120px 84px 120px;
   box-sizing: border-box;
 
   /* 默认玫瑰渐变背景 */
@@ -44,6 +44,21 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── 照片氛围背景 ── */
+.widget-love .photo-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  filter: blur(90px);
   pointer-events: none;
   z-index: 0;
 }

@@ -30,7 +30,7 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 180px 84px 96px;
+  padding: 144px 84px 96px;
   box-sizing: border-box;
 
   background: var(--alarm-bg-dark, linear-gradient(145deg, #1a120e 0%, #140e0c 100%));
@@ -291,6 +291,113 @@ html, body {
   background: linear-gradient(90deg, rgba(255, 106, 0, 0.35) 0%, transparent 100%);
   border-radius: 1px;
   pointer-events: none;
+}
+
+/* ── 闹钟设置浮层 ── */
+.alarm-setting-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 60px;
+}
+
+.alarm-setting-overlay.visible {
+  display: flex;
+}
+
+.alarm-setting-card {
+  background: rgba(30, 25, 20, 0.85);
+  backdrop-filter: blur(48px) saturate(1.6);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 48px;
+  padding: 72px 60px;
+  width: 680px;
+  text-align: center;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.alarm-setting-title {
+  font-family: var(--font-cn-family);
+  font-size: 48px;
+  font-weight: var(--font-weight-medium, 500);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 60px;
+}
+
+.alarm-time-picker {
+  margin-bottom: 60px;
+}
+
+.alarm-time-picker input[type="time"] {
+  font-family: 'Bebas Neue', var(--font-hero-family);
+  font-size: 120px;
+  letter-spacing: -3px;
+  color: rgba(255, 255, 255, 0.90);
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  width: 100%;
+  -webkit-appearance: none;
+}
+
+.alarm-time-picker input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.alarm-repeat-row {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 60px;
+}
+
+.repeat-btn {
+  font-family: var(--font-cn-family);
+  font-size: 33px;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  padding: 18px 42px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.repeat-btn.selected {
+  color: rgba(255, 255, 255, 0.90);
+  background: rgba(255, 106, 0, 0.15);
+  border-color: rgba(255, 106, 0, 0.30);
+}
+
+.alarm-setting-confirm {
+  font-family: var(--font-cn-family);
+  font-size: 39px;
+  font-weight: var(--font-weight-medium, 500);
+  color: rgba(255, 255, 255, 0.90);
+  background: rgba(255, 106, 0, 0.20);
+  border: 1px solid rgba(255, 106, 0, 0.25);
+  border-radius: 30px;
+  padding: 30px 120px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.alarm-setting-confirm:active {
+  transform: scale(0.96);
+  background: rgba(255, 106, 0, 0.30);
 }
 
 /* ── 动态配色（color-engine） ── */

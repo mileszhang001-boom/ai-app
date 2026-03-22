@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0e1013">
+  <title>闹钟卡片</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/tokens.css">
+  <link rel="stylesheet" href="../shared/visual-styles.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="widget-alarm">
+    <!-- 光晕 -->
+    <div class="glow-primary"></div>
+
+    <!-- 氛围光线 -->
+    <div class="ambient-line"></div>
+
+    <div class="content">
+      <!-- 左侧类别标注 -->
+      <div class="category-label">NEXT ALARM</div>
+
+      <!-- 右侧当前时间 -->
+      <div class="current-time" id="currentTime">--:--</div>
+
+      <!-- 进度环 + 时间 -->
+      <div class="ring-container">
+        <svg class="progress-ring" viewBox="0 0 200 200">
+          <circle class="ring-bg" cx="100" cy="100" r="88" />
+          <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="88" />
+        </svg>
+        <div class="ring-content">
+          <!-- 时间数字 -->
+          <div class="alarm-time" id="nextAlarmTime">07:30</div>
+          <!-- 距闹钟时间 -->
+          <div class="time-remaining" id="timeRemaining"></div>
+        </div>
+      </div>
+
+      <!-- 毛玻璃信息区 -->
+      <div class="glass-info">
+        <!-- 英文单位 -->
+        <div class="unit-label" id="alarmSchedule">WEEKDAYS</div>
+
+        <!-- 分割线 -->
+        <div class="divider"></div>
+
+        <!-- 中文说明 -->
+        <div class="subtitle-cn" id="alarmLabel">工作日闹钟</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/bridge.js"></script>
+  <script src="../shared/color-engine.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

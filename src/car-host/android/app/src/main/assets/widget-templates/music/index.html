@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0e1013">
+  <title>音乐播放器卡片</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/tokens.css">
+  <link rel="stylesheet" href="../shared/visual-styles.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="widget-music">
+    <!-- 专辑封面模糊背景 -->
+    <div class="album-bg" id="albumBg"></div>
+
+    <!-- 氛围光晕 -->
+    <div class="glow-primary"></div>
+    <div class="glow-secondary"></div>
+
+    <!-- 氛围光线 -->
+    <div class="ambient-line"></div>
+
+    <div class="content">
+      <!-- 专辑封面 -->
+      <div class="album-art" id="albumArt">
+        <div class="album-art-placeholder"></div>
+      </div>
+
+      <!-- 歌曲信息 -->
+      <div class="track-info">
+        <div class="song-name" id="songName">--</div>
+        <div class="artist" id="artistName">--</div>
+      </div>
+
+      <!-- 当前歌词 -->
+      <div class="lyrics-line" id="lyricsLine">--</div>
+
+      <!-- 频谱可视化 -->
+      <div class="spectrum">
+        <div class="spectrum-bar"></div>
+        <div class="spectrum-bar"></div>
+        <div class="spectrum-bar"></div>
+        <div class="spectrum-bar"></div>
+        <div class="spectrum-bar"></div>
+      </div>
+
+      <!-- 进度条 -->
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill">
+          <div class="progress-dot"></div>
+        </div>
+      </div>
+
+      <!-- 时间 -->
+      <div class="time-row">
+        <span class="time-elapsed" id="timeElapsed">0:00</span>
+        <span class="time-total" id="timeTotal">0:00</span>
+      </div>
+
+      <!-- 毛玻璃控制栏 -->
+      <div class="glass-controls">
+        <button class="control-btn" id="btnPrev" aria-label="上一首">⏮</button>
+        <button class="control-btn control-btn-play" id="btnPlay" aria-label="播放">▶</button>
+        <button class="control-btn" id="btnNext" aria-label="下一首">⏭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/bridge.js"></script>
+  <script src="../shared/color-engine.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

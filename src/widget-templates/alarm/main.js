@@ -128,6 +128,86 @@
     }
   }
 
+  // ── 闹钟设置浮层 ──
+  var overlay = document.getElementById('alarmSettingOverlay');
+  var timeInput = document.getElementById('alarmTimeInput');
+  var confirmBtn = document.getElementById('alarmConfirmBtn');
+
+  function showAlarmSetting() {
+    if (!overlay || !timeInput) return;
+    timeInput.value = params.alarm_time || '07:30';
+    // 同步重复选项
+    var btns = overlay.querySelectorAll('.repeat-btn');
+    btns.forEach(function(b) {
+      b.classList.toggle('selected', b.getAttribute('data-repeat') === params.repeat);
+    });
+    overlay.classList.add('visible');
+  }
+
+  function hideAlarmSetting() {
+    if (overlay) overlay.classList.remove('visible');
+  }
+
+  function initAlarmSetting() {
+    // 点击时间数字打开设置
+    if (alarmTimeEl) {
+      alarmTimeEl.style.cursor = 'pointer';
+      alarmTimeEl.addEventListener('click', showAlarmSetting);
+    }
+
+    // 重复按钮切换
+    if (overlay) {
+      overlay.querySelectorAll('.repeat-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          overlay.querySelectorAll('.repeat-btn').forEach(function(b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+        });
+      });
+    }
+
+    // 确认按钮
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', function() {
+        var newTime = timeInput ? timeInput.value : params.alarm_time;
+        var selectedRepeatBtn = overlay.querySelector('.repeat-btn.selected');
+        var newRepeat = selectedRepeatBtn ? selectedRepeatBtn.getAttribute('data-repeat') : params.repeat;
+
+        // 更新参数
+        params.alarm_time = newTime;
+        params.repeat = newRepeat;
+
+        // 更新重复标签
+        var repeatLabels = { weekdays: '工作日闹钟', daily: '每天闹钟', weekends: '周末闹钟', none: '单次闹钟' };
+        params.label = repeatLabels[newRepeat] || params.label;
+
+        // 刷新显示
+        updateDisplay();
+        hideAlarmSetting();
+
+        // 通知车端
+        if (window.AIWidgetBridge) {
+          if (window.AIWidgetBridge.setAlarm) {
+            window.AIWidgetBridge.setAlarm({ time: newTime, repeat: newRepeat });
+          }
+          if (window.AIWidgetBridge.storageSet) {
+            window.AIWidgetBridge.storageSet('alarm_settings', JSON.stringify({
+              alarm_time: newTime,
+              repeat: newRepeat,
+              label: params.label
+            }));
+          }
+        }
+      });
+    }
+
+    // 点击浮层背景关闭
+    if (overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) hideAlarmSetting();
+      });
+    }
+  }
+
   function init() {
     applyTheme();
     if (params.style_preset) {
@@ -148,7 +228,25 @@
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
 
-    updateDisplay();
+    // 尝试恢复持久化设定
+    if (window.AIWidgetBridge && window.AIWidgetBridge.storageGet) {
+      window.AIWidgetBridge.storageGet('alarm_settings').then(function(val) {
+        if (val) {
+          try {
+            var saved = JSON.parse(val);
+            if (saved.alarm_time) params.alarm_time = saved.alarm_time;
+            if (saved.repeat) params.repeat = saved.repeat;
+            if (saved.label) params.label = saved.label;
+          } catch (e) {}
+        }
+        updateDisplay();
+      }).catch(function() { updateDisplay(); });
+    } else {
+      updateDisplay();
+    }
+
+    // 初始化设置浮层
+    initAlarmSetting();
 
     // 每分钟更新
     setInterval(updateDisplay, 60000);

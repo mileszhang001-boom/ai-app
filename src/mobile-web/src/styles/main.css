@@ -111,7 +111,7 @@ body.scroll-locked { overflow: hidden; }
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 4px 20px 16px;
+  padding: 16px 20px 16px;
 }
 .home-header-icon {
   width: 36px; height: 36px;
@@ -396,6 +396,8 @@ body.scroll-locked { overflow: hidden; }
 .color-circles {
   display: flex;
   gap: 12px;
+  padding: 6px;
+  margin: -6px;
 }
 .color-circle {
   width: 32px; height: 32px;
@@ -501,7 +503,7 @@ body.scroll-locked { overflow: hidden; }
 }
 .preview-card-wrapper {
   width: 260px;
-  height: 425px;
+  height: 434px;
   flex-shrink: 0;
 }
 .preview-card {
@@ -548,12 +550,12 @@ body.scroll-locked { overflow: hidden; }
   align-items: center;
   justify-content: center;
   padding: 4px 16px;
-  height: 180px;
+  height: 170px;
   flex-shrink: 0;
 }
 .finetune-mini-card {
-  width: 100px;
-  height: 163px;
+  width: 140px;
+  height: 180px;
   border-radius: 10px;
   overflow: hidden;
   background: var(--color-bg-primary);
@@ -625,6 +627,34 @@ body.scroll-locked { overflow: hidden; }
 }
 .btn-outlined:active { transform: scale(0.97); opacity: 0.8; }
 .btn-outlined:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ========== Photo Upload ========== */
+.photo-upload-area {
+  width: 100%;
+  height: 96px;
+  border: 1.5px dashed var(--color-divider);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  background: var(--color-bg-primary);
+}
+.photo-upload-area:active {
+  border-color: var(--color-accent);
+}
+.photo-upload-placeholder {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+.photo-upload-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius-md);
+}
 
 /* ========== Generate Overlay + 4-Step Animation ========== */
 .generate-overlay {
@@ -840,11 +870,11 @@ body.scroll-locked { overflow: hidden; }
 @media (max-width: 360px) {
   .preview-card-wrapper {
     width: 220px;
-    height: 360px;
+    height: 367px;
   }
   .finetune-mini-card {
-    width: 90px;
-    height: 147px;
+    width: 120px;
+    height: 154px;
   }
 }
 

@@ -303,6 +303,14 @@
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
 
+    // ── 照片氛围背景 ──
+    if (params.bg_photo) {
+      var photoBg = document.getElementById('photoBg');
+      if (photoBg) {
+        photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
+      }
+    }
+
     var days = calculateDays(params.start_date);
     updateSubtitle(days);
     animateInitial(days);

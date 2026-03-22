@@ -221,6 +221,53 @@
     .single-widget .nav-arrow,
     .single-widget .dot-indicator { display: none; }
 
+    /* 同步到达通知 */
+    .sync-toast {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(0, 200, 83, 0.15);
+      border: 1px solid rgba(0, 200, 83, 0.3);
+      backdrop-filter: blur(16px);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 30;
+      opacity: 0;
+      transition: all 0.4s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .sync-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 轮询状态指示灯 */
+    .poll-indicator {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0, 200, 83, 0.6);
+      z-index: 25;
+      transition: opacity 0.3s;
+    }
+
+    .poll-indicator.polling {
+      animation: pulse-dot 1s ease infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
     /* 响应式缩放 */
     @media (max-height: 1600px) {
       .car-screen { transform: scale(0.65); }
@@ -262,6 +309,12 @@
 
     <!-- 圆点指示器 -->
     <div class="dot-indicator" id="dotIndicator"></div>
+
+    <!-- 同步到达通知 -->
+    <div class="sync-toast" id="syncToast"></div>
+
+    <!-- 轮询状态灯 -->
+    <div class="poll-indicator" id="pollIndicator" title="自动同步监听中"></div>
   </div>
 
   <!-- 缩放信息 -->
@@ -276,12 +329,38 @@
     <button class="ctrl-btn" onclick="loadPreset('news')">📰 新闻</button>
     <button class="ctrl-btn" onclick="loadPreset('alarm')">⏰ 闹钟</button>
     <button class="ctrl-btn primary" onclick="loadAllWidgets()">全部加载</button>
+    <button class="ctrl-btn" onclick="loadSyncedWidgets()" id="syncLoadBtn">🔄 同步组件</button>
   </div>
 
 <script>
   // ── 组件管理 ──
 
   const WIDGET_BASE = '/widget-templates';
+  const API_BASE = '';  // 同源，前端 dev server 代理 /api
+
+  // 模板路径映射（用于同步组件）
+  const TEMPLATE_URL_MAP = {
+    'anniversary-love':    `${WIDGET_BASE}/anniversary/love/index.html`,
+    'anniversary-baby':    `${WIDGET_BASE}/anniversary/baby/index.html`,
+    'anniversary-holiday': `${WIDGET_BASE}/anniversary/holiday/index.html`,
+    'anniversary-warm':    `${WIDGET_BASE}/anniversary/warm/index.html`,
+    'news-daily':          `${WIDGET_BASE}/news/index.html`,
+    'news':                `${WIDGET_BASE}/news/index.html`,
+    'alarm-clock':         `${WIDGET_BASE}/alarm/index.html`,
+    'alarm':               `${WIDGET_BASE}/alarm/index.html`,
+    'weather-realtime':    `${WIDGET_BASE}/weather/index.html`,
+    'weather':             `${WIDGET_BASE}/weather/index.html`,
+    'music-player':        `${WIDGET_BASE}/music/index.html`,
+    'music':               `${WIDGET_BASE}/music/index.html`,
+    'calendar-schedule':   `${WIDGET_BASE}/calendar/index.html`,
+    'calendar':            `${WIDGET_BASE}/calendar/index.html`,
+  };
+
+  function getTemplateUrl(componentType, theme) {
+    return TEMPLATE_URL_MAP[`${componentType}-${theme}`]
+        || TEMPLATE_URL_MAP[componentType]
+        || null;
+  }
 
   // 组件列表（模板路径 + 默认参数）
   const WIDGET_PRESETS = {
@@ -317,9 +396,10 @@
     }
   };
 
-  let widgets = [];        // 当前加载的组件 key 列表
-  let currentIndex = 0;    // 当前显示的索引
-  let hideTimer = null;    // 箭头自动隐藏计时器
+  // widgetItems: 统一的渲染列表 [{ type: 'preset'|'synced', key, path, params, label }]
+  let widgetItems = [];
+  let currentIndex = 0;
+  let hideTimer = null;
 
   const frame = document.getElementById('widgetFrame');
   const container = document.getElementById('webviewContainer');
@@ -338,22 +418,30 @@
   updateClock();
   setInterval(updateClock, 1000);
 
-  // ── 加载单个组件 ──
+  // ── 构建预设 widgetItem ──
+  function presetToItem(key) {
+    const preset = WIDGET_PRESETS[key];
+    if (!preset) return null;
+    return { type: 'preset', key, path: preset.path, params: preset.params, label: preset.label };
+  }
+
+  // ── 加载单个预设 ──
   function loadPreset(key) {
-    widgets = [key];
+    const item = presetToItem(key);
+    if (!item) return;
+    widgetItems = [item];
     currentIndex = 0;
     renderWidget();
     updateControls();
 
-    // 高亮按钮
     document.querySelectorAll('.ctrl-btn').forEach(btn => {
       btn.classList.toggle('active', btn.textContent.includes(WIDGET_PRESETS[key]?.label || ''));
     });
   }
 
-  // ── 加载全部组件 ──
+  // ── 加载全部预设 ──
   function loadAllWidgets() {
-    widgets = Object.keys(WIDGET_PRESETS);
+    widgetItems = Object.keys(WIDGET_PRESETS).map(presetToItem).filter(Boolean);
     currentIndex = 0;
     renderWidget();
     updateControls();
@@ -362,51 +450,144 @@
     document.querySelector('.ctrl-btn.primary')?.classList.add('active');
   }
 
-  // ── 渲染当前组件 ──
+  // ── 从后端拉取同步组件 ──
+  async function loadSyncedWidgets() {
+    const syncBtn = document.getElementById('syncLoadBtn');
+    syncBtn.textContent = '⏳ 加载中…';
+    syncBtn.disabled = true;
+
+    try {
+      // 1. 获取设备上已同步的 widget_id 列表
+      const deviceRes = await fetch(`${API_BASE}/api/device/demo_device/widgets`);
+      if (!deviceRes.ok) throw new Error(`HTTP ${deviceRes.status}`);
+      const deviceData = await deviceRes.json();
+      const syncedWidgets = (deviceData.widgets || []).filter(w => w.status === 'success');
+
+      if (syncedWidgets.length === 0) {
+        syncBtn.textContent = '❌ 无同步组件';
+        setTimeout(() => { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 2000);
+        return;
+      }
+
+      // 2. 逐个获取 widget 详情
+      const syncedItems = [];
+      for (const w of syncedWidgets) {
+        try {
+          const detailRes = await fetch(`${API_BASE}/api/widgets/${w.widget_id}`);
+          if (!detailRes.ok) continue;
+          const detail = await detailRes.json();
+
+          const templateUrl = getTemplateUrl(detail.component_type, detail.theme);
+          if (!templateUrl) continue;
+
+          syncedItems.push({
+            type: 'synced',
+            key: w.widget_id,
+            path: templateUrl,
+            params: detail.params || {},
+            style_preset: detail.style_preset,
+            label: `${detail.component_type}/${detail.theme || ''}`
+          });
+        } catch (e) {
+          console.warn('[Sync] Failed to fetch widget detail:', w.widget_id, e);
+        }
+      }
+
+      if (syncedItems.length === 0) {
+        syncBtn.textContent = '❌ 无可渲染组件';
+        setTimeout(() => { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 2000);
+        return;
+      }
+
+      // 3. 追加到已有预设列表（或单独展示同步组件）
+      widgetItems = [...Object.keys(WIDGET_PRESETS).map(presetToItem).filter(Boolean), ...syncedItems];
+      currentIndex = widgetItems.length - syncedItems.length; // 跳到第一个同步组件
+      renderWidget();
+      updateControls();
+
+      syncBtn.textContent = `✅ 已加载 ${syncedItems.length} 个`;
+      document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active'));
+    } catch (e) {
+      console.error('[Sync] Load error:', e);
+      syncBtn.textContent = '❌ 加载失败';
+    } finally {
+      setTimeout(() => { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 3000);
+    }
+  }
+
+  // ── 渲染当前组件（支持 preset 和 synced 两种模式） ──
   const loadingOverlay = document.getElementById('loadingOverlay');
 
-  function renderWidget(direction) {
-    if (widgets.length === 0) return;
+  async function renderWidget(direction) {
+    if (widgetItems.length === 0) return;
 
-    const key = widgets[currentIndex];
-    const preset = WIDGET_PRESETS[key];
-    if (!preset) return;
+    const item = widgetItems[currentIndex];
+    if (!item) return;
 
-    // 显示加载遮罩（避免白屏闪烁）
+    // 显示加载遮罩
     loadingOverlay.classList.add('active');
-
-    // 加载 iframe
-    frame.src = preset.path;
 
     // 切换动画
     if (direction !== undefined) {
       container.classList.remove('slide-left', 'slide-right');
-      void container.offsetWidth; // force reflow
+      void container.offsetWidth;
       container.classList.add(direction > 0 ? 'slide-right' : 'slide-left');
     }
 
-    // 向 iframe 注入参数（等加载完成）
-    frame.onload = () => {
+    if (item.type === 'synced') {
+      // 同步组件：用 srcdoc 注入 __WIDGET_PARAMS__（与 preview.js 一致）
       try {
-        frame.contentWindow.postMessage({
-          type: 'widget-params',
-          params: preset.params
-        }, '*');
+        const resp = await fetch(`${item.path}?v=${Date.now()}`, { cache: 'no-cache' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        let html = await resp.text();
+
+        const templateBasePath = item.path.replace('index.html', '');
+
+        // 修复相对路径（与 preview.js 保持一致）
+        html = html.replace(/\.\.\/\.\.\/shared\//g, '/widget-templates/shared/');
+        html = html.replace(/\.\.\/shared\//g, '/widget-templates/shared/');
+        html = html.replace(/href="style\.css"/g, `href="${templateBasePath}style.css?v=${Date.now()}"`);
+        html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${Date.now()}"`);
+        html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${Date.now()}"`);
+        html = html.replace(/src="\.\.\/\.\.\/shared\/bridge\.js"/g, `src="/widget-templates/shared/bridge.js?v=${Date.now()}"`);
+        html = html.replace(/src="\.\.\/\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
+        html = html.replace(/src="\.\.\/shared\/color-engine\.js"/g, `src="/widget-templates/shared/color-engine.js?v=${Date.now()}"`);
+
+        // 注入 style_preset
+        if (item.style_preset) {
+          html = html.replace(/<html/, `<html data-style="${item.style_preset}"`);
+        }
+
+        // 注入 __WIDGET_PARAMS__
+        const paramsScript = `<script>window.__WIDGET_PARAMS__ = ${JSON.stringify(item.params)};<\/script>`;
+        html = html.replace('</head>', paramsScript + '</head>');
+
+        frame.removeAttribute('src');
+        frame.srcdoc = html;
+        frame.onload = () => {
+          setTimeout(() => loadingOverlay.classList.remove('active'), 100);
+        };
       } catch (e) {
-        // 跨域限制时静默处理
+        console.error('[Render] Synced widget error:', e);
+        loadingOverlay.classList.remove('active');
       }
-      // 淡出加载遮罩
-      setTimeout(() => loadingOverlay.classList.remove('active'), 100);
-    };
+    } else {
+      // 预设组件：直接加载 iframe src
+      frame.removeAttribute('srcdoc');
+      frame.src = item.path;
+      frame.onload = () => {
+        setTimeout(() => loadingOverlay.classList.remove('active'), 100);
+      };
+    }
   }
 
   // ── 切换组件 ──
   function switchWidget(direction) {
-    if (widgets.length <= 1) return;
+    if (widgetItems.length <= 1) return;
 
     currentIndex += direction;
-    if (currentIndex < 0) currentIndex = widgets.length - 1;
-    if (currentIndex >= widgets.length) currentIndex = 0;
+    if (currentIndex < 0) currentIndex = widgetItems.length - 1;
+    if (currentIndex >= widgetItems.length) currentIndex = 0;
 
     renderWidget(direction);
     updateDots();
@@ -415,7 +596,7 @@
 
   // ── 更新导航控件 ──
   function updateControls() {
-    const single = widgets.length <= 1;
+    const single = widgetItems.length <= 1;
     carScreen.classList.toggle('single-widget', single);
 
     if (!single) {
@@ -427,7 +608,7 @@
 
   // ── 更新圆点 ──
   function updateDots() {
-    dotIndicator.innerHTML = widgets.map((_, i) =>
+    dotIndicator.innerHTML = widgetItems.map((_, i) =>
       `<div class="dot${i === currentIndex ? ' active' : ''}"></div>`
     ).join('');
   }
@@ -461,8 +642,101 @@
     if (e.key === 'ArrowRight') switchWidget(1);
   });
 
+  // ── 同步到达通知 ──
+  function showSyncToast(message) {
+    const toast = document.getElementById('syncToast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ── 自动轮询：监听手机端推送的新组件 ──
+  const POLL_INTERVAL = 5000;
+  const knownWidgetIds = new Set();  // 已知的 widget_id，避免重复
+  let pollTimer = null;
+
+  async function pollForNewWidgets() {
+    const indicator = document.getElementById('pollIndicator');
+    indicator.classList.add('polling');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/device/demo_device/widgets`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const successWidgets = (data.widgets || []).filter(w => w.status === 'success');
+
+      // 找出新到达的组件
+      const newWidgets = successWidgets.filter(w => !knownWidgetIds.has(w.widget_id));
+      if (newWidgets.length === 0) return;
+
+      // 记录所有已知 ID
+      for (const w of successWidgets) knownWidgetIds.add(w.widget_id);
+
+      // 拉取新组件详情并加入渲染列表
+      const newItems = [];
+      for (const w of newWidgets) {
+        try {
+          const detailRes = await fetch(`${API_BASE}/api/widgets/${w.widget_id}`);
+          if (!detailRes.ok) continue;
+          const detail = await detailRes.json();
+          const templateUrl = getTemplateUrl(detail.component_type, detail.theme);
+          if (!templateUrl) continue;
+
+          newItems.push({
+            type: 'synced',
+            key: w.widget_id,
+            path: templateUrl,
+            params: detail.params || {},
+            style_preset: detail.style_preset,
+            label: `${detail.component_type}/${detail.theme || ''}`
+          });
+        } catch (e) {
+          console.warn('[Poll] Fetch detail error:', w.widget_id, e);
+        }
+      }
+
+      if (newItems.length === 0) return;
+
+      // 追加到当前列表末尾
+      widgetItems = [...widgetItems, ...newItems];
+
+      // 自动跳转到新到来的第一个组件
+      currentIndex = widgetItems.length - newItems.length;
+      renderWidget(1);
+      updateControls();
+
+      // 显示到达通知
+      const label = newItems.length === 1
+        ? `收到新卡片: ${newItems[0].label}`
+        : `收到 ${newItems.length} 张新卡片`;
+      showSyncToast(label);
+
+      console.log('[Poll] New widgets arrived:', newItems.map(i => i.key));
+    } catch (e) {
+      // 静默处理网络错误
+      console.warn('[Poll] Error:', e.message);
+    } finally {
+      indicator.classList.remove('polling');
+    }
+  }
+
+  function startPolling() {
+    // 初始记录已有的 synced widget IDs（避免首次轮询误报）
+    fetch(`${API_BASE}/api/device/demo_device/widgets`)
+      .then(r => r.ok ? r.json() : { widgets: [] })
+      .then(data => {
+        for (const w of (data.widgets || [])) knownWidgetIds.add(w.widget_id);
+        console.log('[Poll] Initial known widgets:', knownWidgetIds.size);
+      })
+      .catch(() => {});
+
+    pollTimer = setInterval(pollForNewWidgets, POLL_INTERVAL);
+    console.log(`[Poll] Auto-sync started (${POLL_INTERVAL / 1000}s interval)`);
+  }
+
   // ── 初始加载 ──
   loadPreset('love');
+  startPolling();
 </script>
 
 </body>

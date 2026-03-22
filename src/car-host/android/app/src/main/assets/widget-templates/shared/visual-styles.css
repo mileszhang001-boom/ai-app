@@ -1,0 +1,275 @@
+/**
+ * Visual Style Macros — 4种视觉风格
+ * 通过 [data-visual-style] 属性切换
+ * 只覆盖结构性属性（blur/shadow/border/opacity），不覆盖颜色
+ * ~200行, ~4KB
+ */
+
+/* ═══════════════════════════════════════════
+   glass — 默认 Liquid Glass，无需额外 CSS
+   ═══════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════
+   minimal — 极简/墨线
+   ═══════════════════════════════════════════ */
+
+[data-visual-style="minimal"] .glow-primary,
+[data-visual-style="minimal"] .glow-secondary,
+[data-visual-style="minimal"] .glow-tertiary { display: none; }
+
+[data-visual-style="minimal"] .glass-card,
+[data-visual-style="minimal"] .glass-info,
+[data-visual-style="minimal"] .glass-details,
+[data-visual-style="minimal"] .glass-suggestion,
+[data-visual-style="minimal"] .glass-timeline,
+[data-visual-style="minimal"] .glass-controls,
+[data-visual-style="minimal"] .next-event-countdown {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+  border: 1px solid rgba(255,255,255, 0.06);
+  box-shadow: none;
+  border-radius: 4px;
+}
+
+[data-visual-style="minimal"] .glass-highlight { display: none; }
+[data-visual-style="minimal"] .particle-canvas,
+[data-visual-style="minimal"] .weather-canvas { display: none; }
+
+[data-visual-style="minimal"] .ambient-line {
+  height: 1px;
+  opacity: 0.08;
+}
+
+[data-visual-style="minimal"] .hero-number,
+[data-visual-style="minimal"] .temp-number,
+[data-visual-style="minimal"] .date-number,
+[data-visual-style="minimal"] .alarm-time {
+  font-weight: 200;
+  letter-spacing: -5px;
+}
+
+[data-visual-style="minimal"] .news-item {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: transparent;
+  border: 1px solid rgba(255,255,255, 0.04);
+  border-radius: 4px;
+}
+
+
+/* ═══════════════════════════════════════════
+   material — Material Design
+   ═══════════════════════════════════════════ */
+
+[data-visual-style="material"] .glow-primary,
+[data-visual-style="material"] .glow-secondary,
+[data-visual-style="material"] .glow-tertiary { display: none; }
+
+[data-visual-style="material"] .glass-card,
+[data-visual-style="material"] .glass-info,
+[data-visual-style="material"] .glass-details,
+[data-visual-style="material"] .glass-suggestion,
+[data-visual-style="material"] .glass-timeline,
+[data-visual-style="material"] .glass-controls,
+[data-visual-style="material"] .next-event-countdown {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(30, 30, 40, 0.95);
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.25);
+}
+
+[data-visual-style="material"] .glass-highlight { display: none; }
+
+[data-visual-style="material"] .particle-canvas,
+[data-visual-style="material"] .weather-canvas { opacity: 0.4; }
+
+[data-visual-style="material"] .ambient-line { display: none; }
+
+[data-visual-style="material"] .hero-number,
+[data-visual-style="material"] .temp-number,
+[data-visual-style="material"] .date-number,
+[data-visual-style="material"] .alarm-time {
+  font-weight: 700;
+  -webkit-text-fill-color: initial;
+  background: none;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+[data-visual-style="material"] .news-item {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(30, 30, 40, 0.90);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+
+/* ═══════════════════════════════════════════
+   pixel — 像素/8bit
+   ═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+[data-visual-style="pixel"] * {
+  image-rendering: pixelated;
+}
+
+[data-visual-style="pixel"] .glow-primary,
+[data-visual-style="pixel"] .glow-secondary,
+[data-visual-style="pixel"] .glow-tertiary { display: none; }
+
+[data-visual-style="pixel"] .glass-card,
+[data-visual-style="pixel"] .glass-info,
+[data-visual-style="pixel"] .glass-details,
+[data-visual-style="pixel"] .glass-suggestion,
+[data-visual-style="pixel"] .glass-timeline,
+[data-visual-style="pixel"] .glass-controls,
+[data-visual-style="pixel"] .next-event-countdown {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(20, 20, 30, 0.95);
+  border: 3px solid rgba(255,255,255, 0.20);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+}
+
+[data-visual-style="pixel"] .glass-highlight { display: none; }
+
+[data-visual-style="pixel"] .particle-canvas,
+[data-visual-style="pixel"] .weather-canvas { display: none; }
+
+[data-visual-style="pixel"] .ambient-line { display: none; }
+
+[data-visual-style="pixel"] .hero-number,
+[data-visual-style="pixel"] .temp-number,
+[data-visual-style="pixel"] .date-number,
+[data-visual-style="pixel"] .alarm-time {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(36px, 5vw, 48px);
+  letter-spacing: 2px;
+  -webkit-text-fill-color: initial;
+  background: none;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+[data-visual-style="pixel"] .subtitle-cn,
+[data-visual-style="pixel"] .caption-cn,
+[data-visual-style="pixel"] .suggestion-text,
+[data-visual-style="pixel"] .event-title,
+[data-visual-style="pixel"] .song-name,
+[data-visual-style="pixel"] .weather-desc {
+  font-family: 'Press Start 2P', system-ui;
+  letter-spacing: 1px;
+}
+
+[data-visual-style="pixel"] .news-item {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(20, 20, 30, 0.90);
+  border: 2px solid rgba(255,255,255, 0.15);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+}
+
+
+/* ═══════════════════════════════════════════
+   Dynamic color overrides (via CSS vars from color-engine.js)
+   ═══════════════════════════════════════════ */
+
+[data-style="dynamic"] .glow-primary {
+  background: radial-gradient(circle, var(--dyn-glow-primary) 0%, transparent 70%) !important;
+}
+
+[data-style="dynamic"] .glow-secondary {
+  background: radial-gradient(circle, var(--dyn-glow-secondary) 0%, transparent 70%) !important;
+}
+
+[data-style="dynamic"] .glow-tertiary {
+  background: radial-gradient(circle, var(--dyn-glow-tertiary) 0%, transparent 60%) !important;
+}
+
+[data-style="dynamic"] .ambient-line {
+  background: linear-gradient(90deg, var(--dyn-ambient-line) 0%, transparent 100%) !important;
+}
+
+[data-style="dynamic"] .glass-card,
+[data-style="dynamic"] .glass-info,
+[data-style="dynamic"] .glass-details,
+[data-style="dynamic"] .glass-suggestion,
+[data-style="dynamic"] .glass-timeline,
+[data-style="dynamic"] .glass-controls,
+[data-style="dynamic"] .next-event-countdown {
+  background: var(--dyn-glass-bg) !important;
+  border-color: var(--dyn-glass-border) !important;
+}
+
+[data-style="dynamic"] .unit-label,
+[data-style="dynamic"] .category-label,
+[data-style="dynamic"] .suggestion-label {
+  color: var(--dyn-label-color) !important;
+}
+
+[data-style="dynamic"] .divider {
+  background: var(--dyn-divider-color) !important;
+}
+
+/* Alarm ring */
+[data-style="dynamic"] .ring-progress {
+  stroke: var(--dyn-ring-stroke) !important;
+}
+
+/* News items */
+[data-style="dynamic"] .news-item {
+  background: var(--dyn-glass-bg) !important;
+  border-color: var(--dyn-glass-border) !important;
+}
+
+[data-style="dynamic"] .news-item-category {
+  background: var(--dyn-accent-bg) !important;
+  color: var(--dyn-accent) !important;
+}
+
+[data-style="dynamic"] .header-indicator {
+  background: var(--dyn-accent) !important;
+}
+
+[data-style="dynamic"] .carousel-dot.active {
+  background: var(--dyn-accent) !important;
+}
+
+/* Music */
+[data-style="dynamic"] .spectrum-bar {
+  background: var(--dyn-label-color) !important;
+}
+
+[data-style="dynamic"] .progress-fill {
+  background: linear-gradient(90deg, var(--dyn-label-color) 0%, var(--dyn-accent) 100%) !important;
+}
+
+[data-style="dynamic"] .progress-dot {
+  background: var(--dyn-accent) !important;
+}
+
+/* Calendar event dots */
+[data-style="dynamic"] .event-dot {
+  background: var(--dyn-label-color) !important;
+  box-shadow: 0 0 6px var(--dyn-divider-color) !important;
+}
+
+[data-style="dynamic"] .event-item.current .event-dot {
+  background: var(--dyn-accent) !important;
+  box-shadow: 0 0 8px var(--dyn-label-color) !important;
+}
+
+[data-style="dynamic"] .event-connector {
+  background: var(--dyn-divider-color) !important;
+}
+
+[data-style="dynamic"] .countdown-text {
+  color: var(--dyn-label-color) !important;
+}

@@ -18,7 +18,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 140px 84px 84px;
+  padding: 96px 84px 84px;
   box-sizing: border-box;
   background: linear-gradient(160deg, #12141a 0%, #151820 40%, #0e1015 100%);
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -271,6 +271,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-height: 600px;
+  overflow: hidden;
 }
 
 /* ── 事件项 ── */

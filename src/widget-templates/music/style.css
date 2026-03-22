@@ -18,7 +18,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 160px 84px 108px;
+  padding: 120px 84px 108px;
   box-sizing: border-box;
   background: linear-gradient(155deg, #1a1510 0%, #201810 35%, #141008 100%);
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -85,8 +85,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-music[data-style="neon-purple"] .album-art {
   border-color: rgba(160, 80, 255, 0.15);
   box-shadow:
-    0 12px 48px rgba(160, 80, 255, 0.15),
-    0 48px 120px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(160, 80, 255, 0.15),
+    0 32px 80px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(200, 140, 255, 0.10);
 }
 
@@ -153,8 +153,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-music[data-style="minimal-light"] .album-art {
   border-color: rgba(255, 255, 255, 0.10);
   box-shadow:
-    0 12px 48px rgba(255, 255, 255, 0.05),
-    0 48px 120px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(255, 255, 255, 0.05),
+    0 32px 80px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -247,17 +247,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 /* ── 专辑封面 ── */
 .widget-music .album-art {
-  width: 780px;
-  height: 780px;
-  border-radius: 60px;
+  width: 520px;
+  height: 520px;
+  border-radius: 48px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow:
-    0 12px 48px rgba(220, 160, 80, 0.10),
-    0 48px 120px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(220, 160, 80, 0.10),
+    0 32px 80px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
-  margin-bottom: 84px;
+  margin-bottom: 48px;
   animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -283,8 +283,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* Vinyl record decoration on placeholder */
 .widget-music .album-art-placeholder::before {
   content: '';
-  width: 240px;
-  height: 240px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
@@ -313,7 +313,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* ── 歌曲信息 ── */
 .widget-music .track-info {
   text-align: center;
-  margin-bottom: 36px;
+  margin-bottom: 20px;
   animation: stagger-fadeIn 0.5s ease-out both;
   animation-delay: 0.1s;
 }
@@ -349,7 +349,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   font-style: italic;
   color: rgba(255, 255, 255, 0.40);
   text-align: center;
-  margin-bottom: 72px;
+  margin-bottom: 36px;
   padding: 0 60px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -368,7 +368,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   justify-content: center;
   gap: 12px;
   height: 84px;
-  margin-bottom: 72px;
+  margin-bottom: 36px;
   animation: stagger-fadeIn 0.5s ease-out both;
   animation-delay: 0.25s;
 }
@@ -437,7 +437,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 72px;
+  margin-bottom: 36px;
   animation: stagger-fadeIn 0.5s ease-out both;
   animation-delay: 0.3s;
 }
@@ -461,7 +461,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   -webkit-backdrop-filter: blur(48px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 48px;
-  padding: 42px 96px;
+  padding: 30px 72px;
   margin-top: auto;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);

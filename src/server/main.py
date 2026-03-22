@@ -459,6 +459,8 @@ async def sync_to_car(request: SyncRequest, background_tasks: BackgroundTasks):
             import time
             time.sleep(2)  # 模拟网络延迟
             update_sync_status(sync_state.sync_id, SyncStatus.SUCCESS)
+            # 标记组件元数据已同步
+            mark_synced(request.widget_id)
 
         background_tasks.add_task(simulate_push)
 
