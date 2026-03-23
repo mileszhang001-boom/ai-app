@@ -176,15 +176,14 @@ html, body {
   flex-shrink: 0;
 }
 
-/* ── List cards (2nd, 3rd, 4th) ── */
+/* ── List cards (2nd, 3rd, 4th) — horizontal layout with thumbnail ── */
 .widget-news .news-card {
   border-radius: 20px;
   height: 190px;
   background: rgba(30, 41, 59, 0.5);
   padding: 24px 32px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 20px;
   flex-shrink: 0;
   cursor: pointer;
   overflow: hidden;
@@ -194,6 +193,34 @@ html, body {
 .widget-news .news-card:nth-child(2) { animation-delay: 0.08s; }
 .widget-news .news-card:nth-child(3) { animation-delay: 0.16s; }
 .widget-news .news-card:nth-child(4) { animation-delay: 0.24s; }
+
+/* Card text section */
+.widget-news .news-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+/* Thumbnail */
+.widget-news .news-card-thumb {
+  width: 160px;
+  height: 120px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1A2535, #0F172A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.widget-news .thumb-emoji {
+  font-size: 40px;
+  opacity: 0.35;
+}
 
 /* Card 2 has stroke */
 .widget-news .news-card-stroke {
@@ -226,6 +253,14 @@ html, body {
   color: #E2E8F0;
   line-height: 1.4;
   flex: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Title inside card-text: ensure 2-line clamp */
+.widget-news .news-card-text .news-title {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
