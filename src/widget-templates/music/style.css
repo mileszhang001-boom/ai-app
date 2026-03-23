@@ -247,8 +247,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 /* ── 专辑封面 ── */
 .widget-music .album-art {
-  width: 520px;
-  height: 520px;
+  width: 560px;
+  height: 560px;
   border-radius: 48px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.10);
@@ -345,7 +345,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* ── 歌词行 ── */
 .widget-music .lyrics-line {
   font-family: var(--font-cn-family);
-  font-size: 42px;
+  font-size: 32px;
   font-style: italic;
   color: rgba(255, 255, 255, 0.40);
   text-align: center;

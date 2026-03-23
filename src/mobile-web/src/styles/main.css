@@ -405,6 +405,18 @@ body.scroll-locked { overflow: hidden; }
   color: var(--color-text-tertiary);
   text-align: center;
 }
+.bg-upload-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary, #1a1d24);
+  border: 1.5px dashed var(--color-divider);
+  overflow: hidden;
+}
+.bg-upload-icon {
+  font-size: 18px;
+  opacity: 0.5;
+}
 
 /* Color Circles */
 .color-circles {

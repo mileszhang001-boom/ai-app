@@ -52,7 +52,6 @@ const BG_PRESETS = {
     { id: 'love_bg_03', label: '樱花树' },
     { id: 'love_bg_04', label: '城市夜景' },
     { id: 'love_bg_05', label: '星空草地' },
-    { id: 'love_bg_06', label: '默认渐变' },
   ],
   baby: [
     { id: 'baby_bg_01', label: '温暖婴儿房' },
@@ -60,7 +59,6 @@ const BG_PRESETS = {
     { id: 'baby_bg_03', label: '粉蓝气球' },
     { id: 'baby_bg_04', label: '积木玩具' },
     { id: 'baby_bg_05', label: '水彩童话' },
-    { id: 'baby_bg_06', label: '默认渐变' },
   ],
   countdown: [
     { id: 'holiday_bg_01', label: '烟花庆典' },
@@ -68,7 +66,6 @@ const BG_PRESETS = {
     { id: 'holiday_bg_03', label: '雪山日出' },
     { id: 'holiday_bg_04', label: '城市彩灯' },
     { id: 'holiday_bg_05', label: '热气球' },
-    { id: 'holiday_bg_06', label: '默认渐变' },
   ],
 };
 
@@ -199,28 +196,25 @@ export class ConfigPanel {
       const dateVal = this.currentData?.params?.start_date || this.currentData?.params?.target_date || this.currentData?.params?.date || '';
       const nameVal = this.currentData?.params?.nickname || this.currentData?.params?.event_name || this.currentData?.params?.title || '';
 
-      const photoSection = ['love', 'baby'].includes(this.sceneId) ? `
+      // 统一背景选择器：5 预设 + 1 上传入口
+      const bgPresets = BG_PRESETS[this.sceneId] || [];
+      const bgSection = bgPresets.length ? `
         <div class="config-section">
-          <div class="config-section-label">背景照片</div>
-          <div class="photo-upload-area" id="photoUploadArea">
-            <input type="file" accept="image/*" id="configPhotoInput" hidden>
-            <div class="photo-upload-placeholder" id="photoPlaceholder">点击上传照片</div>
-            <img id="photoPreview" class="photo-upload-preview" style="display:none">
-          </div>
-        </div>
-      ` : '';
-
-      const bgPresets = BG_PRESETS[this.sceneId];
-      const bgSection = bgPresets ? `
-        <div class="config-section">
-          <div class="config-section-label">预设背景</div>
+          <div class="config-section-label">背景</div>
           <div class="bg-grid">
             ${bgPresets.map(bg => `
               <button class="bg-grid-item${bg.id === this.selectedBgImage ? ' selected' : ''}" data-bg="${bg.id}">
-                <div class="bg-grid-thumb" style="background:linear-gradient(135deg, #2a1520, #1a2535);"></div>
+                <div class="bg-grid-thumb" style="background:linear-gradient(135deg, ${this.sceneId === 'baby' ? '#f5e6d8, #d4b896' : this.sceneId === 'countdown' ? '#c4250a, #d43808' : '#2a1520, #1a2535'});"></div>
                 <div class="bg-grid-label">${bg.label}</div>
               </button>
             `).join('')}
+            <button class="bg-grid-item bg-upload-slot${this.photoDataUrl ? ' selected' : ''}" id="bgUploadSlot">
+              <input type="file" accept="image/*" id="configPhotoInput" hidden>
+              <div class="bg-grid-thumb bg-upload-thumb" id="bgUploadThumb">
+                ${this.photoDataUrl ? `<img src="${this.photoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : '<span class="bg-upload-icon">+📷</span>'}
+              </div>
+              <div class="bg-grid-label">自定义</div>
+            </button>
           </div>
         </div>
       ` : '';
@@ -234,7 +228,6 @@ export class ConfigPanel {
           <div class="config-section-label">${l.name}</div>
           <input type="text" class="config-text-input" id="configName" placeholder="${l.ph}" value="${nameVal}">
         </div>
-        ${photoSection}
         ${bgSection}
       `;
     }
@@ -303,20 +296,15 @@ export class ConfigPanel {
       });
     });
 
-    // Photo upload
-    const photoArea = panel.querySelector('#photoUploadArea');
-    const photoInput = panel.querySelector('#configPhotoInput');
-    const photoPreview = panel.querySelector('#photoPreview');
-    const photoPlaceholder = panel.querySelector('#photoPlaceholder');
-    if (photoArea && photoInput) {
-      // Restore existing photo
-      if (this.photoDataUrl && photoPreview && photoPlaceholder) {
-        photoPreview.src = this.photoDataUrl;
-        photoPreview.style.display = 'block';
-        photoPlaceholder.style.display = 'none';
-      }
-      photoArea.addEventListener('click', () => photoInput.click());
-      photoInput.addEventListener('change', (e) => {
+    // Unified background: preset grid + upload slot
+    const bgUploadSlot = panel.querySelector('#bgUploadSlot');
+    const bgPhotoInput = panel.querySelector('#configPhotoInput');
+    if (bgUploadSlot && bgPhotoInput) {
+      bgUploadSlot.addEventListener('click', (e) => {
+        e.preventDefault();
+        bgPhotoInput.click();
+      });
+      bgPhotoInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -331,11 +319,12 @@ export class ConfigPanel {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             this.photoDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            if (photoPreview) {
-              photoPreview.src = this.photoDataUrl;
-              photoPreview.style.display = 'block';
-            }
-            if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+            this.selectedBgImage = '';  // 清除预设选择
+            // Update UI
+            panel.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
+            bgUploadSlot.classList.add('selected');
+            const thumb = panel.querySelector('#bgUploadThumb');
+            if (thumb) thumb.innerHTML = `<img src="${this.photoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
           };
           img.src = ev.target.result;
         };
@@ -369,18 +358,16 @@ export class ConfigPanel {
       });
     });
 
-    // Background image grid
-    panel.querySelectorAll('.bg-grid-item').forEach(btn => {
+    // Background preset grid (exclude upload slot which has its own handler)
+    panel.querySelectorAll('.bg-grid-item:not(.bg-upload-slot)').forEach(btn => {
       btn.addEventListener('click', () => {
         panel.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         this.selectedBgImage = btn.dataset.bg;
-        // Deselect photo when preset bg is chosen
+        // Deselect custom photo when preset is chosen
         this.photoDataUrl = null;
-        const photoPreview = panel.querySelector('#photoPreview');
-        const photoPlaceholder = panel.querySelector('#photoPlaceholder');
-        if (photoPreview) photoPreview.style.display = 'none';
-        if (photoPlaceholder) photoPlaceholder.style.display = '';
+        const thumb = panel.querySelector('#bgUploadThumb');
+        if (thumb) thumb.innerHTML = '<span class="bg-upload-icon">+📷</span>';
       });
     });
 

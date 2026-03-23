@@ -14,7 +14,7 @@
   // Mock 天气数据
   var mockWeather = {
     sunny: {
-      temp: 26, feelsLike: 28, desc: '晴', humidity: 35, wind: '3', aqi: '优',
+      temp: 26, feelsLike: 28, desc: '晴', humidity: 35, wind: '3', aqi: '优', uv: '较强',
       icon: '☀️',
       forecast: [
         { label: '明天', icon: '⛅', high: 28, low: 18 },
@@ -24,7 +24,7 @@
       suggestion: '天气晴好，适合户外活动。紫外线较强，建议涂抹防晒霜。'
     },
     cloudy: {
-      temp: 22, feelsLike: 21, desc: '多云', humidity: 55, wind: '2', aqi: '良',
+      temp: 22, feelsLike: 21, desc: '多云', humidity: 55, wind: '2', aqi: '良', uv: '中等',
       icon: '⛅',
       forecast: [
         { label: '明天', icon: '🌧️', high: 20, low: 14 },
@@ -34,7 +34,7 @@
       suggestion: '多云天气，温度适中。建议携带薄外套，以防温差。'
     },
     rainy: {
-      temp: 18, feelsLike: 16, desc: '小雨', humidity: 80, wind: '4', aqi: '良',
+      temp: 18, feelsLike: 16, desc: '小雨', humidity: 80, wind: '4', aqi: '良', uv: '弱',
       icon: '🌧️',
       forecast: [
         { label: '明天', icon: '🌧️', high: 17, low: 12 },
@@ -44,7 +44,7 @@
       suggestion: '雨天路滑，请小心驾驶。记得带伞，穿防水外套。'
     },
     snowy: {
-      temp: -2, feelsLike: -6, desc: '小雪', humidity: 70, wind: '3', aqi: '优',
+      temp: -2, feelsLike: -6, desc: '小雪', humidity: 70, wind: '3', aqi: '优', uv: '中等',
       icon: '❄️',
       forecast: [
         { label: '明天', icon: '❄️', high: -1, low: -8 },
@@ -106,7 +106,7 @@
     var windEl = document.getElementById('wind');
     if (windEl) windEl.textContent = data.wind + '级';
     var aqiEl = document.getElementById('aqi');
-    if (aqiEl) aqiEl.textContent = data.aqi;
+    if (aqiEl) aqiEl.textContent = data.uv || data.aqi;
 
     // 3日预报
     if (data.forecast) {
@@ -143,12 +143,13 @@
 
   function updateDate() {
     var now = new Date();
+    var weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
     var dateEl = document.getElementById('weatherDate');
     if (dateEl) {
-      dateEl.textContent = (now.getMonth() + 1) + '月' + now.getDate() + '日';
+      dateEl.textContent = (now.getMonth() + 1) + '月' + now.getDate() + '日 ' + weekdays[now.getDay()];
     }
     var locEl = document.getElementById('locationName');
-    if (locEl) locEl.textContent = params.city || '北京';
+    if (locEl) locEl.innerHTML = (params.city || '北京') + '<span class="location-pin">📍</span>';
   }
 
   // ── 城市切换 overlay ──

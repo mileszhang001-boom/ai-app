@@ -3,61 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0e1013">
-  <title>每日新闻卡片</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../shared/tokens.css">
-  <link rel="stylesheet" href="../shared/visual-styles.css">
+  <meta name="theme-color" content="#0F172A">
+  <title>每日简报</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="../shared/overlay.css">
 </head>
 <body>
   <div class="widget-news">
-    <!-- 光晕 -->
-    <div class="glow-primary"></div>
-
-    <!-- 氛围光线 -->
-    <div class="ambient-line"></div>
-
-    <!-- 内容区 -->
     <div class="content">
-      <!-- 顶部标题区 -->
       <div class="header">
-        <div class="header-left">
-          <div class="header-indicator"></div>
-          <div class="category-label">daily briefing</div>
-        </div>
-        <div class="date" id="currentDate">今日·--月--日</div>
+        <span class="header-title">每日简报</span>
+        <span class="header-date" id="currentDate">--月--日</span>
       </div>
-
-      <!-- 新闻列表 — 毛玻璃卡片式 -->
-      <div class="news-list" id="newsList">
-        <div class="news-item skeleton">
-          <div class="news-item-header">
-            <div class="news-item-category"></div>
-            <div class="news-item-title"></div>
-          </div>
-          <div class="news-item-time"></div>
-        </div>
-        <div class="news-item skeleton">
-          <div class="news-item-header">
-            <div class="news-item-category"></div>
-            <div class="news-item-title"></div>
-          </div>
-          <div class="news-item-time"></div>
-        </div>
-      </div>
-
-      <!-- 轮播指示器 -->
-      <div class="carousel-dots" id="carouselDots"></div>
-    </div>
-
-    <!-- 底部辅助信息 -->
-    <div class="footer">
-      <div class="divider"></div>
-      <span class="footer-text">AI 摘要 · 每日新闻</span>
+      <div class="news-list" id="newsList"></div>
     </div>
 
     <!-- 新闻详情浮层 -->
@@ -65,7 +23,6 @@
   </div>
 
   <script src="../shared/bridge.js"></script>
-  <script src="../shared/color-engine.js"></script>
   <script src="../shared/overlay.js"></script>
   <script src="main.js"></script>
 </body>
