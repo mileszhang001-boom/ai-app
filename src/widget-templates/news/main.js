@@ -155,13 +155,16 @@
       return;
     }
 
-    // Hero card (first item) — with category emoji decoration
+    // Hero card (first item) — real image or emoji fallback
     var hero = news[0];
     var heroEl = document.createElement('div');
     heroEl.className = 'news-card-hero';
     var heroEmoji = CATEGORY_EMOJI[hero.category] || '📰';
+    var heroImageContent = hero.image_url
+      ? '<div class="hero-image" style="background-image:url(' + hero.image_url + ');background-size:cover;background-position:center;"></div>'
+      : '<div class="hero-image"><span class="hero-emoji">' + heroEmoji + '</span></div>';
     heroEl.innerHTML =
-      '<div class="hero-image"><span class="hero-emoji">' + heroEmoji + '</span></div>' +
+      heroImageContent +
       '<div class="hero-info">' +
         '<span class="news-category ' + getCategoryClass(hero.category) + '">' + escapeHtml(hero.category) + '</span>' +
         '<div class="news-title">' + escapeHtml(hero.title) + '</div>' +
@@ -177,13 +180,15 @@
       var extraClass = (i === 1) ? ' news-card-stroke' : '';
       cardEl.className = 'news-card' + extraClass;
       var thumbEmoji = CATEGORY_EMOJI[item.category] || '📰';
+      var thumbContent = item.image_url
+        ? '<div class="news-card-thumb" style="background-image:url(' + item.image_url + ');background-size:cover;background-position:center;"></div>'
+        : '<div class="news-card-thumb"><span class="thumb-emoji">' + thumbEmoji + '</span></div>';
       cardEl.innerHTML =
         '<div class="news-card-text">' +
           '<span class="news-category ' + getCategoryClass(item.category) + '">' + escapeHtml(item.category) + '</span>' +
           '<div class="news-title">' + escapeHtml(item.title) + '</div>' +
           '<span class="news-source">' + escapeHtml(item.source || '') + (item.time ? ' \u00B7 ' + escapeHtml(item.time) : '') + '  \u203A</span>' +
-        '</div>' +
-        '<div class="news-card-thumb"><span class="thumb-emoji">' + thumbEmoji + '</span></div>';
+        '</div>' + thumbContent;
 
       (function(newsItem) {
         cardEl.addEventListener('click', function() { showDetail(newsItem); });

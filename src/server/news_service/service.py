@@ -81,6 +81,7 @@ class NewsService:
                 "category": item.category,
                 "time": time_str,
                 "source": item.source,
+                "image_url": getattr(item, 'image_url', ''),
             })
 
         return {

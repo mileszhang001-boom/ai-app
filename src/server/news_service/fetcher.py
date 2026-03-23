@@ -29,6 +29,7 @@ class NewsItem:
     url: str = ""
     category: str = "综合"
     published_at: str = ""
+    image_url: str = ""
     fetched_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
     def to_dict(self):
@@ -40,60 +41,53 @@ class NewsItem:
             "url": self.url,
             "category": self.category,
             "published_at": self.published_at,
+            "image_url": self.image_url,
             "fetched_at": self.fetched_at,
         }
 
 
-# RSS 源配置（免费、无需 API Key）
+# RSS 源配置（免费、无需 API Key，覆盖 5 大领域）
 RSS_SOURCES = {
     "general": [
-        {
-            "name": "人民网-国内",
-            "url": "http://www.people.com.cn/rss/politics.xml",
-            "category": "国内",
-        },
-        {
-            "name": "新华网",
-            "url": "http://www.news.cn/rss/ws.xml",
-            "category": "综合",
-        },
+        {"name": "人民网-国内", "url": "http://www.people.com.cn/rss/politics.xml", "category": "国内"},
+        {"name": "新华网", "url": "http://www.news.cn/rss/ws.xml", "category": "综合"},
     ],
     "tech": [
-        {
-            "name": "36氪",
-            "url": "https://36kr.com/feed",
-            "category": "科技",
-        },
-        {
-            "name": "IT之家",
-            "url": "https://www.ithome.com/rss/",
-            "category": "科技",
-        },
+        {"name": "36氪", "url": "https://36kr.com/feed", "category": "科技"},
+        {"name": "IT之家", "url": "https://www.ithome.com/rss/", "category": "科技"},
     ],
-    "auto": [
-        {
-            "name": "汽车之家",
-            "url": "https://www.autohome.com.cn/rss/",
-            "category": "汽车",
-        },
+    "automotive": [
+        {"name": "汽车之家", "url": "https://www.autohome.com.cn/rss/", "category": "汽车"},
+    ],
+    "auto": [  # 兼容旧 category 名
+        {"name": "汽车之家", "url": "https://www.autohome.com.cn/rss/", "category": "汽车"},
+    ],
+    "finance": [
+        {"name": "华尔街见闻", "url": "https://rsshub.app/wallstreetcn/news/global", "category": "财经"},
+        {"name": "东方财富", "url": "https://rsshub.app/eastmoney/report", "category": "财经"},
+    ],
+    "sports": [
+        {"name": "懂球帝", "url": "https://rsshub.app/dongqiudi/top_news", "category": "体育"},
+        {"name": "虎扑", "url": "https://rsshub.app/hupu/bbs/topic", "category": "体育"},
+    ],
+    "lifestyle": [
+        {"name": "澎湃新闻", "url": "https://rsshub.app/thepaper/featured", "category": "生活"},
     ],
 }
 
-# 备用 RSS 源（更可靠的国际源）
+# 备用 RSS 源（更可靠的国际源 + RSSHub 备用）
 FALLBACK_RSS_SOURCES = {
     "general": [
-        {
-            "name": "BBC中文",
-            "url": "https://feeds.bbci.co.uk/zhongwen/simp/rss.xml",
-            "category": "国际",
-        },
+        {"name": "BBC中文", "url": "https://feeds.bbci.co.uk/zhongwen/simp/rss.xml", "category": "国际"},
     ],
     "tech": [
-        {
-            "name": "Hacker News",
-            "url": "https://hnrss.org/frontpage?count=10",
-            "category": "科技",
-        },
+        {"name": "Hacker News", "url": "https://hnrss.org/frontpage?count=10", "category": "科技"},
+    ],
+    "finance": [
+        {"name": "新浪财经", "url": "https://rsshub.app/sina/finance/news", "category": "财经"},
+    ],
+    "sports": [
+        {"name": "ESPN中文", "url": "https://rsshub.app/espn/news", "category": "体育"},
     ],
 }
 
@@ -169,6 +163,9 @@ class NewsFetcher:
         # 支持 RSS 2.0 和 Atom 格式
         ns = {"atom": "http://www.w3.org/2005/Atom"}
 
+        # 命名空间（用于 media:content 等）
+        media_ns = {"media": "http://search.yahoo.com/mrss/"}
+
         # RSS 2.0
         for item_el in root.findall(".//item"):
             title = self._get_text(item_el, "title")
@@ -177,15 +174,17 @@ class NewsFetcher:
             description = self._get_text(item_el, "description") or ""
             link = self._get_text(item_el, "link") or ""
             pub_date = self._get_text(item_el, "pubDate") or ""
+            image_url = self._extract_image(item_el, description, media_ns)
 
             items.append(NewsItem(
                 id=f"rss_{hash(title) & 0xFFFFFFFF:08x}",
                 title=title.strip()[:80],
-                summary=self._clean_html(description)[:200],
+                summary=self._clean_html(description)[:500],
                 source=source["name"],
                 url=link,
                 category=source["category"],
                 published_at=pub_date,
+                image_url=image_url,
             ))
 
         # Atom
@@ -195,21 +194,49 @@ class NewsFetcher:
                 if not title:
                     continue
                 summary = self._get_text(entry, "atom:summary", ns) or ""
+                content = self._get_text(entry, "atom:content", ns) or ""
                 link_el = entry.find("atom:link", ns)
                 link = link_el.get("href", "") if link_el is not None else ""
                 published = self._get_text(entry, "atom:published", ns) or ""
+                image_url = self._extract_image(entry, summary or content, media_ns)
 
                 items.append(NewsItem(
                     id=f"atom_{hash(title) & 0xFFFFFFFF:08x}",
                     title=title.strip()[:80],
-                    summary=self._clean_html(summary)[:200],
+                    summary=self._clean_html(summary or content)[:500],
                     source=source["name"],
                     url=link,
                     category=source["category"],
                     published_at=published,
+                    image_url=image_url,
                 ))
 
         return items
+
+    @staticmethod
+    def _extract_image(item_el, description: str, media_ns: dict) -> str:
+        """从 RSS 条目提取图片 URL（按优先级尝试多种方式）"""
+        import re
+        # 1. media:content 或 media:thumbnail
+        for tag in ['{http://search.yahoo.com/mrss/}content', '{http://search.yahoo.com/mrss/}thumbnail']:
+            media = item_el.find(tag)
+            if media is not None:
+                url = media.get('url', '')
+                if url and ('http' in url):
+                    return url
+        # 2. enclosure（podcast/media 格式）
+        enclosure = item_el.find('enclosure')
+        if enclosure is not None:
+            enc_type = enclosure.get('type', '')
+            enc_url = enclosure.get('url', '')
+            if enc_url and ('image' in enc_type or enc_url.endswith(('.jpg', '.jpeg', '.png', '.webp'))):
+                return enc_url
+        # 3. description 中的 <img src>
+        if description:
+            img_match = re.search(r'<img[^>]+src=["\']([^"\']+)', description)
+            if img_match:
+                return img_match.group(1)
+        return ""
 
     @staticmethod
     def _get_text(el, tag, ns=None):
