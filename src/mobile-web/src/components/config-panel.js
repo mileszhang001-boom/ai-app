@@ -17,17 +17,20 @@ const SCENE_MAP = {
   news:      { component_type: 'news',        theme: 'daily',    title: '每日新闻',     subtitle: '今日要闻速览' },
 };
 
-const COLOR_PRESETS = ['#4A6CF7', '#E84393', '#27AE60', '#F59E0B', '#7B5CFA', '#0891B2'];
+const COLOR_PRESETS = [
+  '#4A90E2', '#5B6CF7', '#E84393', '#FF6B6B', '#27AE60', '#48D1CC',
+  '#F59E0B', '#F8C557', '#7B5CFA', '#AF7AC5', '#0891B2', '#4ADE80'
+];
 
 const SCENE_DEFAULT_COLORS = {
-  weather:   '#4A6CF7',
+  weather:   '#4A90E2',
   love:      '#E84393',
-  calendar:  '#27AE60',
-  music:     '#7B5CFA',
+  calendar:  '#4A90E2',
+  music:     '#E84393',
   countdown: '#F59E0B',
-  baby:      '#0891B2',
-  alarm:     '#7B5CFA',
-  news:      '#E84393',
+  baby:      '#48D1CC',
+  alarm:     '#4ADE80',
+  news:      '#5B6CF7',
 };
 
 const CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都'];
@@ -121,8 +124,9 @@ export class ConfigPanel {
           ${this._renderSceneFields()}
 
           <!-- Color picker -->
+          ${this._shouldShowColorPicker() ? `
           <div class="config-section">
-            <div class="config-section-label">主题配色</div>
+            <div class="config-section-label">${this._getColorPickerLabel()}</div>
             <div class="color-circles">
               ${COLOR_PRESETS.map(c => `
                 <button class="color-circle${c === this.selectedColor ? ' selected' : ''}"
@@ -131,6 +135,7 @@ export class ConfigPanel {
               `).join('')}
             </div>
           </div>
+          ` : ''}
 
           <!-- Free input -->
           <div class="config-section">
@@ -150,6 +155,15 @@ export class ConfigPanel {
     `;
 
     this._bindEvents();
+  }
+
+  _shouldShowColorPicker() {
+    return !['love', 'baby', 'countdown'].includes(this.sceneId);
+  }
+
+  _getColorPickerLabel() {
+    if (['calendar', 'alarm'].includes(this.sceneId)) return '强调色';
+    return '主题配色';
   }
 
   _renderAiSuggestion() {

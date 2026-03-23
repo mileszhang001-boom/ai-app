@@ -768,7 +768,7 @@
 
     // ── 动态配色引擎 ──
     if (params.primary_color && window.computePalette) {
-      var palette = window.computePalette(params.primary_color);
+      var palette = window.computePalette(params.primary_color, 'clean');
       Object.keys(palette.cssVars).forEach(function(k) {
         document.documentElement.style.setProperty(k, palette.cssVars[k]);
       });

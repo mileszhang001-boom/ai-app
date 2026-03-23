@@ -427,7 +427,8 @@ body.scroll-locked { overflow: hidden; }
 
 /* Color Circles */
 .color-circles {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
   padding: 6px;
   margin: -6px;
