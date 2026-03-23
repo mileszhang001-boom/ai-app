@@ -160,16 +160,21 @@ export class PreviewPage {
     const btn = document.getElementById('syncBtn');
     if (!btn) return;
     btn.disabled = true;
-    btn.textContent = '同步中...';
+    btn.textContent = '正在推送…';
 
     try {
-      const saved = await this.api.saveWidget({
+      const saveData = {
         user_id: 'demo_user',
-        component_type: this.currentData.component_type,
-        theme: this.currentData.theme || '',
+        component_type: this.isCodeMode ? 'code_gen' : this.currentData.component_type,
+        theme: this.isCodeMode ? 'custom' : (this.currentData.theme || ''),
         params: this.currentData.params || {},
         style_preset: this.currentData.style_preset || null,
-      });
+      };
+      if (this.isCodeMode) {
+        saveData.generation_mode = 'code';
+        saveData.html_content = this.currentData.html_content;
+      }
+      const saved = await this.api.saveWidget(saveData);
 
       if (!saved.success) {
         showToast('保存失败: ' + (saved.error || '未知错误'), 'error');
@@ -204,8 +209,8 @@ export class PreviewPage {
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
-      <div class="sync-success-title">已同步到车机</div>
-      <div class="sync-success-subtitle">下次上车即可看到你的专属卡片</div>
+      <div class="sync-success-title">已推送到车机</div>
+      <div class="sync-success-subtitle">请在车端确认接收卡片</div>
     `;
     document.body.appendChild(overlay);
 

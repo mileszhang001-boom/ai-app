@@ -89,26 +89,25 @@
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 8px;
-      z-index: 10;
-      opacity: 0.6;
-      transition: opacity 0.3s ease;
+      gap: 12px;
+      align-items: center;
+      z-index: 50;
+      transition: opacity 0.3s;
     }
 
     .dot-indicator.hidden { opacity: 0; }
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.3);
+    .dot-indicator .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.2);
       transition: all 0.3s ease;
     }
 
-    .dot.active {
-      background: rgba(255,255,255,0.9);
-      width: 16px;
-      border-radius: 3px;
+    .dot-indicator .dot.active {
+      width: 24px;
+      background: #F5F5F0;
     }
 
     /* 入场动画 */
@@ -268,6 +267,95 @@
       50% { opacity: 1; }
     }
 
+    /* 同步确认弹窗 */
+    .sync-confirm-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      animation: overlayFadeIn 0.3s ease;
+    }
+    .sync-confirm-overlay.visible { display: flex; }
+
+    .sync-confirm-panel {
+      width: 720px;
+      padding: 40px 48px;
+      background: #1E2530;
+      border-radius: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      animation: panelScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes overlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes panelScaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .sync-confirm-icon { font-size: 56px; }
+    .sync-confirm-title { font-size: 40px; font-weight: 600; color: #F5F5F0; }
+    .sync-confirm-desc { font-size: 28px; color: #94A3B8; text-align: center; line-height: 1.5; }
+    .sync-confirm-buttons { display: flex; gap: 24px; width: 100%; }
+    .sync-btn-cancel, .sync-btn-accept {
+      flex: 1; height: 88px; border: none; border-radius: 20px;
+      font-size: 32px; cursor: pointer; font-family: inherit;
+    }
+    .sync-btn-cancel { background: rgba(255,255,255,0.06); color: #94A3B8; font-weight: 500; }
+    .sync-btn-accept { background: #4A6CF7; color: #fff; font-weight: 600; }
+    .sync-btn-cancel:active { background: rgba(255,255,255,0.12); }
+    .sync-btn-accept:active { background: #3A5CE7; }
+
+    /* 滑动提示 */
+    .swipe-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 12px 32px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 40px;
+      font-size: 24px;
+      color: #F5F5F0;
+      z-index: 60;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+    .swipe-hint.visible { opacity: 1; }
+
+    /* 卡片切换动画 */
+    @keyframes cardSlideOutLeft {
+      from { transform: translateX(0); opacity: 1; }
+      to   { transform: translateX(-200px); opacity: 0.3; }
+    }
+    @keyframes cardSlideOutRight {
+      from { transform: translateX(0); opacity: 1; }
+      to   { transform: translateX(200px); opacity: 0.3; }
+    }
+    @keyframes cardSlideInFromRight {
+      from { transform: translateX(200px); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes cardSlideInFromLeft {
+      from { transform: translateX(-200px); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    .webview-container.anim-slide-out-left {
+      animation: cardSlideOutLeft 0.3s ease forwards;
+    }
+    .webview-container.anim-slide-out-right {
+      animation: cardSlideOutRight 0.3s ease forwards;
+    }
+    .webview-container.anim-slide-in-from-right {
+      animation: cardSlideInFromRight 0.3s ease forwards;
+    }
+    .webview-container.anim-slide-in-from-left {
+      animation: cardSlideInFromLeft 0.3s ease forwards;
+    }
+
     /* 响应式缩放 */
     @media (max-height: 1600px) {
       .car-screen { transform: scale(0.65); }
@@ -315,6 +403,22 @@
 
     <!-- 轮询状态灯 -->
     <div class="poll-indicator" id="pollIndicator" title="自动同步监听中"></div>
+
+    <!-- 滑动提示（首次切换时显示） -->
+    <div class="swipe-hint" id="swipeHint">◀  滑动切换  ▶</div>
+
+    <!-- 同步确认弹窗 -->
+    <div class="sync-confirm-overlay" id="syncConfirmOverlay">
+      <div class="sync-confirm-panel">
+        <div class="sync-confirm-icon">📲</div>
+        <div class="sync-confirm-title">收到新的卡片</div>
+        <div class="sync-confirm-desc" id="syncConfirmDesc">来自手机端的卡片<br>是否接收并显示在桌面？</div>
+        <div class="sync-confirm-buttons">
+          <button class="sync-btn-cancel" id="syncBtnCancel">取消</button>
+          <button class="sync-btn-accept" id="syncBtnAccept">接收</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 缩放信息 -->
@@ -335,82 +439,112 @@
 <script>
   // ── 组件管理 ──
 
-  const WIDGET_BASE = '/widget-templates';
-  const API_BASE = '';  // 同源，前端 dev server 代理 /api
+  var WIDGET_BASE = '/widget-templates';
+  var API_BASE = '';  // 同源，前端 dev server 代理 /api
 
   // 模板路径映射（用于同步组件）
-  const TEMPLATE_URL_MAP = {
-    'anniversary-love':    `${WIDGET_BASE}/anniversary/love/index.html`,
-    'anniversary-baby':    `${WIDGET_BASE}/anniversary/baby/index.html`,
-    'anniversary-holiday': `${WIDGET_BASE}/anniversary/holiday/index.html`,
-    'anniversary-warm':    `${WIDGET_BASE}/anniversary/warm/index.html`,
-    'news-daily':          `${WIDGET_BASE}/news/index.html`,
-    'news':                `${WIDGET_BASE}/news/index.html`,
-    'alarm-clock':         `${WIDGET_BASE}/alarm/index.html`,
-    'alarm':               `${WIDGET_BASE}/alarm/index.html`,
-    'weather-realtime':    `${WIDGET_BASE}/weather/index.html`,
-    'weather':             `${WIDGET_BASE}/weather/index.html`,
-    'music-player':        `${WIDGET_BASE}/music/index.html`,
-    'music':               `${WIDGET_BASE}/music/index.html`,
-    'calendar-schedule':   `${WIDGET_BASE}/calendar/index.html`,
-    'calendar':            `${WIDGET_BASE}/calendar/index.html`,
+  var TEMPLATE_URL_MAP = {
+    'anniversary-love':    WIDGET_BASE + '/anniversary/love/index.html',
+    'anniversary-baby':    WIDGET_BASE + '/anniversary/baby/index.html',
+    'anniversary-holiday': WIDGET_BASE + '/anniversary/holiday/index.html',
+    'anniversary-warm':    WIDGET_BASE + '/anniversary/warm/index.html',
+    'news-daily':          WIDGET_BASE + '/news/index.html',
+    'news':                WIDGET_BASE + '/news/index.html',
+    'alarm-clock':         WIDGET_BASE + '/alarm/index.html',
+    'alarm':               WIDGET_BASE + '/alarm/index.html',
+    'weather-realtime':    WIDGET_BASE + '/weather/index.html',
+    'weather':             WIDGET_BASE + '/weather/index.html',
+    'music-player':        WIDGET_BASE + '/music/index.html',
+    'music':               WIDGET_BASE + '/music/index.html',
+    'calendar-schedule':   WIDGET_BASE + '/calendar/index.html',
+    'calendar':            WIDGET_BASE + '/calendar/index.html',
+  };
+
+  // 组件类型名称映射（用于确认弹窗）
+  var TYPE_NAMES = {
+    'weather': '实时天气', 'anniversary-love': '恋爱纪念',
+    'anniversary-baby': '宝宝相册', 'anniversary-holiday': '放假倒计时',
+    'news': '每日新闻', 'alarm': '闹钟',
+    'music': '音乐播放', 'calendar': '日程安排'
   };
 
   function getTemplateUrl(componentType, theme) {
-    return TEMPLATE_URL_MAP[`${componentType}-${theme}`]
+    return TEMPLATE_URL_MAP[componentType + '-' + theme]
         || TEMPLATE_URL_MAP[componentType]
         || null;
   }
 
+  function getWidgetTypeName(item) {
+    if (item.type === 'code') return 'AI编程';
+    // Try component_type-theme, then component_type, then label
+    var key = item.component_type ? (item.component_type + '-' + (item.theme || '')) : '';
+    return TYPE_NAMES[key] || TYPE_NAMES[item.component_type] || item.label || '未知';
+  }
+
   // 组件列表（模板路径 + 默认参数）
-  const WIDGET_PRESETS = {
+  var WIDGET_PRESETS = {
     love: {
-      path: `${WIDGET_BASE}/anniversary/love/index.html`,
+      path: WIDGET_BASE + '/anniversary/love/index.html',
       label: '恋爱纪念',
       params: { title: '恋爱纪念', startDate: '2024-06-01', subtitle: '每一天都算数' }
     },
     baby: {
-      path: `${WIDGET_BASE}/anniversary/baby/index.html`,
+      path: WIDGET_BASE + '/anniversary/baby/index.html',
       label: '宝宝成长',
       params: { title: '宝宝成长', startDate: '2025-01-15', subtitle: '慢慢长大不着急' }
     },
     holiday: {
-      path: `${WIDGET_BASE}/anniversary/holiday/index.html`,
+      path: WIDGET_BASE + '/anniversary/holiday/index.html',
       label: '放假倒计时',
       params: { title: '国庆快乐', targetDate: '2026-10-01', subtitle: '假期在向你招手' }
     },
     warm: {
-      path: `${WIDGET_BASE}/anniversary/warm/index.html`,
+      path: WIDGET_BASE + '/anniversary/warm/index.html',
       label: '暖橙纪念',
       params: { title: '结婚纪念', startDate: '2020-05-20', subtitle: '岁月温柔' }
     },
     news: {
-      path: `${WIDGET_BASE}/news/index.html`,
+      path: WIDGET_BASE + '/news/index.html',
       label: '每日新闻',
       params: {}
     },
     alarm: {
-      path: `${WIDGET_BASE}/alarm/index.html`,
+      path: WIDGET_BASE + '/alarm/index.html',
       label: '闹钟',
       params: {}
     }
   };
 
-  // widgetItems: 统一的渲染列表 [{ type: 'preset'|'synced', key, path, params, label }]
-  let widgetItems = [];
-  let currentIndex = 0;
-  let hideTimer = null;
+  // widgetItems: 统一的渲染列表 [{ type: 'preset'|'synced'|'code', key, path, params, label }]
+  var widgetItems = [];
+  var currentIndex = 0;
+  var hideTimer = null;
 
-  const frame = document.getElementById('widgetFrame');
-  const container = document.getElementById('webviewContainer');
-  const navLeft = document.getElementById('navLeft');
-  const navRight = document.getElementById('navRight');
-  const dotIndicator = document.getElementById('dotIndicator');
-  const carScreen = document.getElementById('carScreen');
+  var frame = document.getElementById('widgetFrame');
+  var container = document.getElementById('webviewContainer');
+  var navLeft = document.getElementById('navLeft');
+  var navRight = document.getElementById('navRight');
+  var dotIndicator = document.getElementById('dotIndicator');
+  var carScreen = document.getElementById('carScreen');
+
+  // ── 确认弹窗相关 ──
+  var syncConfirmOverlay = document.getElementById('syncConfirmOverlay');
+  var syncConfirmDesc = document.getElementById('syncConfirmDesc');
+  var syncBtnCancel = document.getElementById('syncBtnCancel');
+  var syncBtnAccept = document.getElementById('syncBtnAccept');
+  var pendingWidgetItems = null;   // 待确认的新组件列表
+  var autoAcceptTimer = null;      // 5秒自动接收计时器
+
+  // ── 滑动手势相关 ──
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchDeltaX = 0;
+  var isSwiping = false;
+  var swipeThreshold = 100;        // 滑动阈值（px）
 
   // ── 时钟 ──
   function updateClock() {
-    const now = new Date();
+    var now = new Date();
     document.getElementById('clock').textContent =
       now.getHours().toString().padStart(2, '0') + ':' +
       now.getMinutes().toString().padStart(2, '0');
@@ -420,22 +554,23 @@
 
   // ── 构建预设 widgetItem ──
   function presetToItem(key) {
-    const preset = WIDGET_PRESETS[key];
+    var preset = WIDGET_PRESETS[key];
     if (!preset) return null;
-    return { type: 'preset', key, path: preset.path, params: preset.params, label: preset.label };
+    return { type: 'preset', key: key, path: preset.path, params: preset.params, label: preset.label };
   }
 
   // ── 加载单个预设 ──
   function loadPreset(key) {
-    const item = presetToItem(key);
+    var item = presetToItem(key);
     if (!item) return;
     widgetItems = [item];
     currentIndex = 0;
     renderWidget();
     updateControls();
 
-    document.querySelectorAll('.ctrl-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.textContent.includes(WIDGET_PRESETS[key]?.label || ''));
+    document.querySelectorAll('.ctrl-btn').forEach(function(btn) {
+      var preset = WIDGET_PRESETS[key];
+      btn.classList.toggle('active', btn.textContent.includes(preset ? preset.label : ''));
     });
   }
 
@@ -446,36 +581,38 @@
     renderWidget();
     updateControls();
 
-    document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector('.ctrl-btn.primary')?.classList.add('active');
+    document.querySelectorAll('.ctrl-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    var primaryBtn = document.querySelector('.ctrl-btn.primary');
+    if (primaryBtn) primaryBtn.classList.add('active');
   }
 
   // ── 从后端拉取同步组件 ──
   async function loadSyncedWidgets() {
-    const syncBtn = document.getElementById('syncLoadBtn');
+    var syncBtn = document.getElementById('syncLoadBtn');
     syncBtn.textContent = '⏳ 加载中…';
     syncBtn.disabled = true;
 
     try {
       // 1. 获取设备上已同步的 widget_id 列表
-      const deviceRes = await fetch(`${API_BASE}/api/device/demo_device/widgets`);
-      if (!deviceRes.ok) throw new Error(`HTTP ${deviceRes.status}`);
-      const deviceData = await deviceRes.json();
-      const syncedWidgets = (deviceData.widgets || []).filter(w => w.status === 'success');
+      var deviceRes = await fetch(API_BASE + '/api/device/demo_device/widgets');
+      if (!deviceRes.ok) throw new Error('HTTP ' + deviceRes.status);
+      var deviceData = await deviceRes.json();
+      var syncedWidgets = (deviceData.widgets || []).filter(function(w) { return w.status === 'success'; });
 
       if (syncedWidgets.length === 0) {
         syncBtn.textContent = '❌ 无同步组件';
-        setTimeout(() => { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 2000);
+        setTimeout(function() { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 2000);
         return;
       }
 
       // 2. 逐个获取 widget 详情
-      const syncedItems = [];
-      for (const w of syncedWidgets) {
+      var syncedItems = [];
+      for (var i = 0; i < syncedWidgets.length; i++) {
+        var w = syncedWidgets[i];
         try {
-          const detailRes = await fetch(`${API_BASE}/api/widgets/${w.widget_id}`);
+          var detailRes = await fetch(API_BASE + '/api/widgets/' + w.widget_id);
           if (!detailRes.ok) continue;
-          const detail = await detailRes.json();
+          var detail = await detailRes.json();
 
           // AI编程模式：直接用 html_content 渲染
           if (detail.generation_mode === 'code' && detail.html_content) {
@@ -488,7 +625,7 @@
             continue;
           }
 
-          const templateUrl = getTemplateUrl(detail.component_type, detail.theme);
+          var templateUrl = getTemplateUrl(detail.component_type, detail.theme);
           if (!templateUrl) continue;
 
           syncedItems.push({
@@ -497,7 +634,9 @@
             path: templateUrl,
             params: detail.params || {},
             style_preset: detail.style_preset,
-            label: `${detail.component_type}/${detail.theme || ''}`
+            component_type: detail.component_type,
+            theme: detail.theme,
+            label: detail.component_type + '/' + (detail.theme || '')
           });
         } catch (e) {
           console.warn('[Sync] Failed to fetch widget detail:', w.widget_id, e);
@@ -506,43 +645,50 @@
 
       if (syncedItems.length === 0) {
         syncBtn.textContent = '❌ 无可渲染组件';
-        setTimeout(() => { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 2000);
+        setTimeout(function() { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 2000);
         return;
       }
 
       // 3. 追加到已有预设列表（或单独展示同步组件）
-      widgetItems = [...Object.keys(WIDGET_PRESETS).map(presetToItem).filter(Boolean), ...syncedItems];
+      widgetItems = Object.keys(WIDGET_PRESETS).map(presetToItem).filter(Boolean).concat(syncedItems);
       currentIndex = widgetItems.length - syncedItems.length; // 跳到第一个同步组件
       renderWidget();
       updateControls();
 
-      syncBtn.textContent = `✅ 已加载 ${syncedItems.length} 个`;
-      document.querySelectorAll('.ctrl-btn').forEach(btn => btn.classList.remove('active'));
+      syncBtn.textContent = '✅ 已加载 ' + syncedItems.length + ' 个';
+      document.querySelectorAll('.ctrl-btn').forEach(function(btn) { btn.classList.remove('active'); });
     } catch (e) {
       console.error('[Sync] Load error:', e);
       syncBtn.textContent = '❌ 加载失败';
     } finally {
-      setTimeout(() => { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 3000);
+      setTimeout(function() { syncBtn.textContent = '🔄 同步组件'; syncBtn.disabled = false; }, 3000);
     }
   }
 
-  // ── 渲染当前组件（支持 preset 和 synced 两种模式） ──
-  const loadingOverlay = document.getElementById('loadingOverlay');
+  // ── 渲染当前组件（支持 preset / synced / code 三种模式） ──
+  var loadingOverlay = document.getElementById('loadingOverlay');
 
   async function renderWidget(direction) {
     if (widgetItems.length === 0) return;
 
-    const item = widgetItems[currentIndex];
+    var item = widgetItems[currentIndex];
     if (!item) return;
 
     // 显示加载遮罩
     loadingOverlay.classList.add('active');
 
-    // 切换动画
+    // 改进的切换动画
     if (direction !== undefined) {
-      container.classList.remove('slide-left', 'slide-right');
-      void container.offsetWidth;
-      container.classList.add(direction > 0 ? 'slide-right' : 'slide-left');
+      var animClasses = ['slide-left', 'slide-right',
+        'anim-slide-out-left', 'anim-slide-out-right',
+        'anim-slide-in-from-left', 'anim-slide-in-from-right'];
+      animClasses.forEach(function(c) { container.classList.remove(c); });
+      void container.offsetWidth; // force reflow
+      container.classList.add(direction > 0 ? 'anim-slide-in-from-right' : 'anim-slide-in-from-left');
+      // Remove animation class after it finishes
+      setTimeout(function() {
+        container.classList.remove('anim-slide-in-from-right', 'anim-slide-in-from-left');
+      }, 320);
     }
 
     if (item.type === 'code') {
@@ -550,8 +696,8 @@
       try {
         frame.removeAttribute('src');
         frame.srcdoc = item.html_content;
-        frame.onload = () => {
-          setTimeout(() => loadingOverlay.classList.remove('active'), 100);
+        frame.onload = function() {
+          setTimeout(function() { loadingOverlay.classList.remove('active'); }, 100);
         };
       } catch (e) {
         console.error('[Render] Code widget error:', e);
@@ -560,35 +706,35 @@
     } else if (item.type === 'synced') {
       // 同步组件：用 srcdoc 注入 __WIDGET_PARAMS__（与 preview.js 一致）
       try {
-        const resp = await fetch(`${item.path}?v=${Date.now()}`, { cache: 'no-cache' });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        let html = await resp.text();
+        var resp = await fetch(item.path + '?v=' + Date.now(), { cache: 'no-cache' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        var html = await resp.text();
 
-        const templateBasePath = item.path.replace('index.html', '');
+        var templateBasePath = item.path.replace('index.html', '');
 
         // 修复相对路径（与 render-widget.js 保持一致）
-        const ts = Date.now();
+        var ts = Date.now();
         html = html.replace(/(src|href)="\.\.\/\.\.\/shared\//g, '$1="/widget-templates/shared/');
         html = html.replace(/(src|href)="\.\.\/shared\//g, '$1="/widget-templates/shared/');
-        html = html.replace(/href="style\.css"/g, `href="${templateBasePath}style.css?v=${ts}"`);
-        html = html.replace(/src="style\.css"/g, `src="${templateBasePath}style.css?v=${ts}"`);
-        html = html.replace(/src="main\.js"/g, `src="${templateBasePath}main.js?v=${ts}"`);
-        html = html.replace(/(src|href)="(\/widget-templates\/[^"?]+)"/g, `$1="$2?v=${ts}"`);
+        html = html.replace(/href="style\.css"/g, 'href="' + templateBasePath + 'style.css?v=' + ts + '"');
+        html = html.replace(/src="style\.css"/g, 'src="' + templateBasePath + 'style.css?v=' + ts + '"');
+        html = html.replace(/src="main\.js"/g, 'src="' + templateBasePath + 'main.js?v=' + ts + '"');
+        html = html.replace(/(src|href)="(\/widget-templates\/[^"?]+)"/g, '$1="$2?v=' + ts + '"');
 
         // 注入 style_preset
         if (item.style_preset) {
-          html = html.replace(/<html/, `<html data-style="${item.style_preset}"`);
+          html = html.replace(/<html/, '<html data-style="' + item.style_preset + '"');
         }
 
         // 注入 templateBasePath + __WIDGET_PARAMS__
-        const basePathScript = `<script>window.__TEMPLATE_BASE_PATH__ = "${templateBasePath}";<\/script>`;
-        const paramsScript = `<script>window.__WIDGET_PARAMS__ = ${JSON.stringify(item.params)};<\/script>`;
+        var basePathScript = '<script>window.__TEMPLATE_BASE_PATH__ = "' + templateBasePath + '";<\/script>';
+        var paramsScript = '<script>window.__WIDGET_PARAMS__ = ' + JSON.stringify(item.params) + ';<\/script>';
         html = html.replace('</head>', basePathScript + paramsScript + '</head>');
 
         frame.removeAttribute('src');
         frame.srcdoc = html;
-        frame.onload = () => {
-          setTimeout(() => loadingOverlay.classList.remove('active'), 100);
+        frame.onload = function() {
+          setTimeout(function() { loadingOverlay.classList.remove('active'); }, 100);
         };
       } catch (e) {
         console.error('[Render] Synced widget error:', e);
@@ -598,13 +744,13 @@
       // 预设组件：直接加载 iframe src
       frame.removeAttribute('srcdoc');
       frame.src = item.path;
-      frame.onload = () => {
-        setTimeout(() => loadingOverlay.classList.remove('active'), 100);
+      frame.onload = function() {
+        setTimeout(function() { loadingOverlay.classList.remove('active'); }, 100);
       };
     }
   }
 
-  // ── 切换组件 ──
+  // ── 切换组件（带动画） ──
   function switchWidget(direction) {
     if (widgetItems.length <= 1) return;
 
@@ -615,25 +761,32 @@
     renderWidget(direction);
     updateDots();
     resetHideTimer();
+    maybeShowSwipeHint();
   }
 
   // ── 更新导航控件 ──
   function updateControls() {
-    const single = widgetItems.length <= 1;
+    var single = widgetItems.length <= 1;
     carScreen.classList.toggle('single-widget', single);
 
     if (!single) {
       updateDots();
       showNavigation();
       resetHideTimer();
+    } else {
+      updateDots();
     }
   }
 
   // ── 更新圆点 ──
   function updateDots() {
-    dotIndicator.innerHTML = widgetItems.map((_, i) =>
-      `<div class="dot${i === currentIndex ? ' active' : ''}"></div>`
-    ).join('');
+    dotIndicator.innerHTML = '';
+    if (widgetItems.length <= 1) return;
+    widgetItems.forEach(function(_, i) {
+      var dot = document.createElement('div');
+      dot.className = 'dot' + (i === currentIndex ? ' active' : '');
+      dotIndicator.appendChild(dot);
+    });
   }
 
   // ── 显示/隐藏导航 ──
@@ -657,51 +810,223 @@
 
   // 触摸/鼠标移动时显示导航
   carScreen.addEventListener('mousemove', resetHideTimer);
-  carScreen.addEventListener('touchstart', resetHideTimer);
 
   // ── 键盘快捷键 ──
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowLeft') switchWidget(-1);
     if (e.key === 'ArrowRight') switchWidget(1);
   });
 
   // ── 同步到达通知 ──
   function showSyncToast(message) {
-    const toast = document.getElementById('syncToast');
+    var toast = document.getElementById('syncToast');
     toast.textContent = message;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
+    setTimeout(function() { toast.classList.remove('show'); }, 3000);
   }
 
-  // ── 自动轮询：监听手机端推送的新组件 ──
-  const POLL_INTERVAL = 5000;
-  const knownWidgetIds = new Set();  // 已知的 widget_id，避免重复
-  let pollTimer = null;
+  // ══════════════════════════════════════════════
+  // Feature 1: 确认弹窗
+  // ══════════════════════════════════════════════
+
+  function showSyncConfirm(newItems) {
+    pendingWidgetItems = newItems;
+
+    // 构建描述文本
+    var desc;
+    if (newItems.length === 1) {
+      var typeName = getWidgetTypeName(newItems[0]);
+      desc = '来自手机端的「' + typeName + '」卡片<br>是否接收并显示在桌面？';
+    } else {
+      desc = '来自手机端的 ' + newItems.length + ' 张卡片<br>是否接收并显示在桌面？';
+    }
+    syncConfirmDesc.innerHTML = desc;
+
+    // 显示弹窗
+    syncConfirmOverlay.classList.add('visible');
+
+    // 5秒自动接收
+    clearTimeout(autoAcceptTimer);
+    autoAcceptTimer = setTimeout(function() {
+      acceptPendingWidgets();
+    }, 5000);
+  }
+
+  function acceptPendingWidgets() {
+    clearTimeout(autoAcceptTimer);
+    syncConfirmOverlay.classList.remove('visible');
+
+    if (!pendingWidgetItems || pendingWidgetItems.length === 0) return;
+
+    var newItems = pendingWidgetItems;
+    pendingWidgetItems = null;
+
+    // 追加到当前列表末尾
+    widgetItems = widgetItems.concat(newItems);
+
+    // 自动跳转到新到来的第一个组件
+    currentIndex = widgetItems.length - newItems.length;
+    renderWidget(1);
+    updateControls();
+
+    // 显示到达通知
+    var label = newItems.length === 1
+      ? '收到新卡片: ' + newItems[0].label
+      : '收到 ' + newItems.length + ' 张新卡片';
+    showSyncToast(label);
+
+    console.log('[Confirm] Accepted widgets:', newItems.map(function(i) { return i.key; }));
+  }
+
+  function dismissPendingWidgets() {
+    clearTimeout(autoAcceptTimer);
+    syncConfirmOverlay.classList.remove('visible');
+    pendingWidgetItems = null;
+    console.log('[Confirm] User dismissed new widgets');
+  }
+
+  // 绑定确认弹窗按钮
+  syncBtnAccept.addEventListener('click', acceptPendingWidgets);
+  syncBtnCancel.addEventListener('click', dismissPendingWidgets);
+
+  // ══════════════════════════════════════════════
+  // Feature 3: 触摸滑动手势
+  // ══════════════════════════════════════════════
+
+  // 滑动提示（仅首次显示）
+  function maybeShowSwipeHint() {
+    if (widgetItems.length <= 1) return;
+    if (localStorage.getItem('car_sim_swipe_hint_shown')) return;
+
+    var hint = document.getElementById('swipeHint');
+    hint.classList.add('visible');
+    localStorage.setItem('car_sim_swipe_hint_shown', '1');
+
+    setTimeout(function() {
+      hint.classList.remove('visible');
+    }, 2500);
+  }
+
+  // 触摸事件监听（绑定在 car-screen 上）
+  carScreen.addEventListener('touchstart', function(e) {
+    if (widgetItems.length <= 1) return;
+    // 不在确认弹窗上滑动
+    if (syncConfirmOverlay.classList.contains('visible')) return;
+
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchDeltaX = 0;
+    isSwiping = false;
+    resetHideTimer();
+  }, { passive: true });
+
+  carScreen.addEventListener('touchmove', function(e) {
+    if (widgetItems.length <= 1) return;
+    if (syncConfirmOverlay.classList.contains('visible')) return;
+
+    var dx = e.touches[0].clientX - touchStartX;
+    var dy = e.touches[0].clientY - touchStartY;
+
+    // 水平滑动幅度大于垂直时才认定为切换手势
+    if (!isSwiping && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+      isSwiping = true;
+    }
+
+    if (isSwiping) {
+      touchDeltaX = dx;
+      // 实时跟手偏移（带阻尼）
+      var dampedX = touchDeltaX * 0.4;
+      container.style.transform = 'translateX(' + dampedX + 'px)';
+      container.style.opacity = Math.max(0.5, 1 - Math.abs(dampedX) / 500).toString();
+    }
+  }, { passive: true });
+
+  carScreen.addEventListener('touchend', function(e) {
+    if (!isSwiping) return;
+    isSwiping = false;
+
+    // 还原容器样式
+    container.style.transform = '';
+    container.style.opacity = '';
+
+    if (Math.abs(touchDeltaX) > swipeThreshold) {
+      // 超过阈值：切换卡片
+      var direction = touchDeltaX < 0 ? 1 : -1; // 左滑 = 下一张，右滑 = 上一张
+      switchWidget(direction);
+    }
+
+    touchDeltaX = 0;
+  }, { passive: true });
+
+  // 鼠标拖拽（桌面端兼容）
+  var mouseDown = false;
+  var mouseStartX = 0;
+
+  carScreen.addEventListener('mousedown', function(e) {
+    if (widgetItems.length <= 1) return;
+    if (syncConfirmOverlay.classList.contains('visible')) return;
+    mouseDown = true;
+    mouseStartX = e.clientX;
+    touchDeltaX = 0;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!mouseDown) return;
+    touchDeltaX = e.clientX - mouseStartX;
+    var dampedX = touchDeltaX * 0.4;
+    container.style.transform = 'translateX(' + dampedX + 'px)';
+    container.style.opacity = Math.max(0.5, 1 - Math.abs(dampedX) / 500).toString();
+  });
+
+  document.addEventListener('mouseup', function(e) {
+    if (!mouseDown) return;
+    mouseDown = false;
+
+    container.style.transform = '';
+    container.style.opacity = '';
+
+    if (Math.abs(touchDeltaX) > swipeThreshold) {
+      var direction = touchDeltaX < 0 ? 1 : -1;
+      switchWidget(direction);
+    }
+
+    touchDeltaX = 0;
+  });
+
+  // ══════════════════════════════════════════════
+  // 自动轮询：监听手机端推送的新组件（含确认弹窗）
+  // ══════════════════════════════════════════════
+
+  var POLL_INTERVAL = 5000;
+  var knownWidgetIds = new Set();  // 已知的 widget_id，避免重复
+  var pollTimer = null;
 
   async function pollForNewWidgets() {
-    const indicator = document.getElementById('pollIndicator');
+    var indicator = document.getElementById('pollIndicator');
     indicator.classList.add('polling');
 
     try {
-      const res = await fetch(`${API_BASE}/api/device/demo_device/widgets`);
+      var res = await fetch(API_BASE + '/api/device/demo_device/widgets');
       if (!res.ok) return;
-      const data = await res.json();
-      const successWidgets = (data.widgets || []).filter(w => w.status === 'success');
+      var data = await res.json();
+      var successWidgets = (data.widgets || []).filter(function(w) { return w.status === 'success'; });
 
       // 找出新到达的组件
-      const newWidgets = successWidgets.filter(w => !knownWidgetIds.has(w.widget_id));
+      var newWidgets = successWidgets.filter(function(w) { return !knownWidgetIds.has(w.widget_id); });
       if (newWidgets.length === 0) return;
 
       // 记录所有已知 ID
-      for (const w of successWidgets) knownWidgetIds.add(w.widget_id);
+      for (var i = 0; i < successWidgets.length; i++) knownWidgetIds.add(successWidgets[i].widget_id);
 
-      // 拉取新组件详情并加入渲染列表
-      const newItems = [];
-      for (const w of newWidgets) {
+      // 拉取新组件详情
+      var newItems = [];
+      for (var j = 0; j < newWidgets.length; j++) {
+        var w = newWidgets[j];
         try {
-          const detailRes = await fetch(`${API_BASE}/api/widgets/${w.widget_id}`);
+          var detailRes = await fetch(API_BASE + '/api/widgets/' + w.widget_id);
           if (!detailRes.ok) continue;
-          const detail = await detailRes.json();
+          var detail = await detailRes.json();
 
           // AI编程模式：直接用 html_content 渲染
           if (detail.generation_mode === 'code' && detail.html_content) {
@@ -714,7 +1039,7 @@
             continue;
           }
 
-          const templateUrl = getTemplateUrl(detail.component_type, detail.theme);
+          var templateUrl = getTemplateUrl(detail.component_type, detail.theme);
           if (!templateUrl) continue;
 
           newItems.push({
@@ -723,7 +1048,9 @@
             path: templateUrl,
             params: detail.params || {},
             style_preset: detail.style_preset,
-            label: `${detail.component_type}/${detail.theme || ''}`
+            component_type: detail.component_type,
+            theme: detail.theme,
+            label: detail.component_type + '/' + (detail.theme || '')
           });
         } catch (e) {
           console.warn('[Poll] Fetch detail error:', w.widget_id, e);
@@ -732,21 +1059,10 @@
 
       if (newItems.length === 0) return;
 
-      // 追加到当前列表末尾
-      widgetItems = [...widgetItems, ...newItems];
+      // 弹出确认弹窗，而非直接渲染
+      showSyncConfirm(newItems);
 
-      // 自动跳转到新到来的第一个组件
-      currentIndex = widgetItems.length - newItems.length;
-      renderWidget(1);
-      updateControls();
-
-      // 显示到达通知
-      const label = newItems.length === 1
-        ? `收到新卡片: ${newItems[0].label}`
-        : `收到 ${newItems.length} 张新卡片`;
-      showSyncToast(label);
-
-      console.log('[Poll] New widgets arrived:', newItems.map(i => i.key));
+      console.log('[Poll] New widgets arrived, showing confirm:', newItems.map(function(i) { return i.key; }));
     } catch (e) {
       // 静默处理网络错误
       console.warn('[Poll] Error:', e.message);
@@ -757,16 +1073,17 @@
 
   function startPolling() {
     // 初始记录已有的 synced widget IDs（避免首次轮询误报）
-    fetch(`${API_BASE}/api/device/demo_device/widgets`)
-      .then(r => r.ok ? r.json() : { widgets: [] })
-      .then(data => {
-        for (const w of (data.widgets || [])) knownWidgetIds.add(w.widget_id);
+    fetch(API_BASE + '/api/device/demo_device/widgets')
+      .then(function(r) { return r.ok ? r.json() : { widgets: [] }; })
+      .then(function(data) {
+        var widgets = data.widgets || [];
+        for (var i = 0; i < widgets.length; i++) knownWidgetIds.add(widgets[i].widget_id);
         console.log('[Poll] Initial known widgets:', knownWidgetIds.size);
       })
-      .catch(() => {});
+      .catch(function() {});
 
     pollTimer = setInterval(pollForNewWidgets, POLL_INTERVAL);
-    console.log(`[Poll] Auto-sync started (${POLL_INTERVAL / 1000}s interval)`);
+    console.log('[Poll] Auto-sync started (' + (POLL_INTERVAL / 1000) + 's interval)');
   }
 
   // ── 初始加载 ──
