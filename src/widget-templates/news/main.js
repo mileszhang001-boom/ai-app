@@ -177,8 +177,7 @@
     for (var i = 1; i < news.length && i <= 3; i++) {
       var item = news[i];
       var cardEl = document.createElement('div');
-      var extraClass = (i === 1) ? ' news-card-stroke' : '';
-      cardEl.className = 'news-card' + extraClass;
+      cardEl.className = 'news-card';
       var thumbEmoji = CATEGORY_EMOJI[item.category] || '📰';
       var thumbContent = item.image_url
         ? '<div class="news-card-thumb" style="background-image:url(' + item.image_url + ');background-size:cover;background-position:center;"></div>'
@@ -246,15 +245,24 @@
         nav.appendChild(backBtn);
         container.appendChild(nav);
 
-        // Hero image area (full-width decorative)
+        // Hero image area (real image or decorative fallback)
         var heroImg = document.createElement('div');
-        heroImg.style.cssText = 'margin:0 0 32px;padding:0 48px;';
-        heroImg.innerHTML =
-          '<div style="width:100%;height:360px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#1a2a4a 0%,#0F172A 50%,#1E293B 100%);display:flex;align-items:center;justify-content:center;position:relative;">' +
-            '<div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,' + catColor + '18,transparent 50%),radial-gradient(circle at 70% 60%,' + catColor + '10,transparent 50%);"></div>' +
-            '<span style="font-size:96px;opacity:0.2;z-index:1;">' + emoji + '</span>' +
-            '<div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,#0A0E14,transparent);"></div>' +
-          '</div>';
+        heroImg.style.cssText = 'width:100%;height:380px;overflow:hidden;position:relative;';
+        if (item.image_url) {
+          heroImg.style.backgroundImage = 'url(' + item.image_url + ')';
+          heroImg.style.backgroundSize = 'cover';
+          heroImg.style.backgroundPosition = 'center';
+        } else {
+          heroImg.style.background = 'linear-gradient(135deg,#1a2a4a 0%,#0F172A 50%,#1E293B 100%)';
+          heroImg.style.display = 'flex';
+          heroImg.style.alignItems = 'center';
+          heroImg.style.justifyContent = 'center';
+          heroImg.innerHTML = '<span style="font-size:96px;opacity:0.2;">' + emoji + '</span>';
+        }
+        // Bottom fade
+        var fade = document.createElement('div');
+        fade.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,#0A0E14,transparent);';
+        heroImg.appendChild(fade);
         container.appendChild(heroImg);
 
         // Article body
@@ -317,13 +325,15 @@
           body.appendChild(para);
         });
 
-        // Inline image (decorative div with emoji + caption)
+        // Inline image (real image or decorative fallback + caption)
         var inlineImgWrap = document.createElement('div');
         inlineImgWrap.style.cssText = 'margin:12px 0;';
+        var inlineImgStyle = item.image_url
+          ? 'width:100%;height:280px;border-radius:16px;overflow:hidden;background-image:url(' + item.image_url + ');background-size:cover;background-position:center;'
+          : 'width:100%;height:280px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1a2a4a,#0F172A);display:flex;align-items:center;justify-content:center;';
+        var inlineImgContent = item.image_url ? '' : '<span style="font-size:80px;opacity:0.2;">' + emoji + '</span>';
         inlineImgWrap.innerHTML =
-          '<div style="width:100%;height:280px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1a2a4a,#0F172A);display:flex;align-items:center;justify-content:center;">' +
-            '<span style="font-size:80px;opacity:0.2;">' + emoji + '</span>' +
-          '</div>' +
+          '<div style="' + inlineImgStyle + '">' + inlineImgContent + '</div>' +
           '<div style="font-size:22px;color:#64748B;text-align:center;margin-top:8px;">' +
             '\u25B2 ' + caption +
           '</div>';

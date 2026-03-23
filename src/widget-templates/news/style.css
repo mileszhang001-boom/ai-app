@@ -51,6 +51,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  height: 64px;
   flex-shrink: 0;
   margin-bottom: 32px;
 }
@@ -80,9 +81,9 @@ html, body {
 
 /* ── Hero card: first news item ── */
 .widget-news .news-card-hero {
-  border-radius: 24px;
+  border-radius: 20px;
   overflow: hidden;
-  height: 510px;
+  height: 480px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -98,7 +99,7 @@ html, body {
 
 /* Hero image area */
 .widget-news .hero-image {
-  height: 220px;
+  height: 240px;
   flex-shrink: 0;
   background: linear-gradient(135deg, #1a2a4a 0%, #0F172A 50%, #1E293B 100%);
   background-size: cover;
@@ -141,9 +142,9 @@ html, body {
 
 /* Hero info section */
 .widget-news .hero-info {
-  height: 290px;
+  height: 240px;
   background: #1E293B;
-  padding: 28px 32px;
+  padding: 24px 32px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -181,12 +182,13 @@ html, body {
   border-radius: 20px;
   height: 190px;
   background: rgba(30, 41, 59, 0.5);
-  padding: 24px 32px;
+  padding: 24px;
   display: flex;
-  gap: 20px;
+  gap: 24px;
   flex-shrink: 0;
   cursor: pointer;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.03);
   animation: card-fadeIn 0.4s ease-out both;
 }
 
