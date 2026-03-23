@@ -544,16 +544,15 @@ async def create_widget(request: CreateWidgetRequest):
             widget_data=widget_data
         )
 
-        # 生成 H5 内容（代码模式直接使用传入的 html_content）
+        # 生成 H5 内容
+        # - 代码模式：直接使用传入的 html_content
+        # - 模板模式：车端/前端从本地 assets 渲染，此处只存储元数据占位
         if request.generation_mode == "code" and request.html_content:
             html_content = request.html_content
         else:
-            html_content = TemplateRenderer.render_html(
-                component_type=request.component_type,
-                theme=request.theme,
-                params=request.params,
-                style_preset=request.style_preset or "minimal-dark"
-            )
+            # 模板模式不需要服务端预渲染（模板在车端本地 assets 中）
+            # 用简单占位 HTML，实际渲染由车端 WebView 完成
+            html_content = f"<!-- template:{request.component_type}/{request.theme} -->"
 
         # 保存 H5 产物
         assets = save_widget_assets(

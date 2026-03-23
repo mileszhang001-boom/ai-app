@@ -8,8 +8,12 @@ data class WidgetDetail(
     val theme: String,
     val stylePreset: String,
     val params: JSONObject,
-    val createdAt: String
+    val createdAt: String,
+    val generationMode: String? = null,   // "template" | "code"
+    val htmlContent: String? = null        // code-mode 的完整 HTML
 ) {
+    val isCodeMode: Boolean get() = generationMode == "code" && !htmlContent.isNullOrBlank()
+
     fun toJson(): JSONObject = JSONObject().apply {
         put("widget_id", widgetId)
         put("component_type", componentType)
@@ -17,6 +21,8 @@ data class WidgetDetail(
         put("style_preset", stylePreset)
         put("params", params)
         put("created_at", createdAt)
+        generationMode?.let { put("generation_mode", it) }
+        htmlContent?.let { put("html_content", it) }
     }
 
     companion object {
@@ -26,7 +32,9 @@ data class WidgetDetail(
             theme = json.optString("theme", ""),
             stylePreset = json.optString("style_preset", ""),
             params = json.optJSONObject("params") ?: JSONObject(),
-            createdAt = json.optString("created_at", "")
+            createdAt = json.optString("created_at", ""),
+            generationMode = json.optString("generation_mode", null),
+            htmlContent = json.optString("html_content", null)
         )
     }
 }
