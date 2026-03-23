@@ -48,12 +48,12 @@
     return CATEGORY_CSS_CLASS[category] || 'cat-general';
   }
 
-  // ── Mock data ──
+  // ── Mock data（丰富内容 + 配图）──
   var mockNews = [
-    { id: 1, title: 'AI在汽车领域取得新突破，智能驾驶进入新阶段', summary: 'AI技术持续推动自动驾驶发展，多家车企宣布新一代智驾方案，有望在年内实现城市NOA全面开放。', category: '科技', time: '2小时前', url: '', source: '36氪' },
-    { id: 2, title: '小米汽车Q2交付量创新高，产能持续爬坡', summary: '小米汽车第二季度累计交付超过预期目标，产能持续爬坡。', category: '汽车', time: '3小时前', url: '', source: '汽车之家' },
-    { id: 3, title: 'A股三大指数集体上涨，新能源板块领涨', summary: '受利好政策推动，新能源板块全线走强，机构看好后市表现。', category: '财经', time: '4小时前', url: '', source: '第一财经' },
-    { id: 4, title: 'CBA季后赛今日开战，多场焦点对决值得关注', summary: 'CBA季后赛首轮对阵出炉，多支强队将展开激烈角逐。', category: '体育', time: '5小时前', url: '', source: '懂球帝' }
+    { id: 1, title: 'AI在汽车领域取得新突破，智能驾驶进入新阶段', summary: 'AI技术持续推动自动驾驶发展，多家车企宣布新一代智驾方案，有望在年内实现城市NOA全面开放。全球范围内，自动驾驶技术正从高速公路场景向城市复杂路况延伸，激光雷达成本持续下降，算法训练数据量级提升至PB级别，推动L3级别自动驾驶加速商用落地。', category: '科技', time: '2小时前', url: '', source: '36氪', image_url: 'https://picsum.photos/seed/tech1/800/400' },
+    { id: 2, title: '小米汽车YU7开启预订，首日订单突破10万', summary: '小米汽车旗下第二款车型YU7正式开启预订，首日订单量突破10万台，远超市场预期。新车搭载自研超级电机、800V高压平台和全新智驾系统，综合续航超过700公里。业内分析认为，小米凭借品牌号召力和生态优势，正在快速改变新能源汽车市场格局。', category: '汽车', time: '3小时前', url: '', source: '汽车之家', image_url: 'https://picsum.photos/seed/auto1/800/400' },
+    { id: 3, title: '央行宣布降准0.5个百分点，释放长期资金约1万亿', summary: '中国人民银行决定下调金融机构存款准备金率0.5个百分点，预计将释放长期资金约1万亿元。此次降准旨在加大对实体经济的支持力度，降低社会融资成本，促进经济平稳增长。市场分析人士认为，这一举措释放了积极的货币政策信号，有利于提振市场信心。', category: '财经', time: '4小时前', url: '', source: '第一财经', image_url: '' },
+    { id: 4, title: 'CBA季后赛：北京首钢逆转广东，晋级四强', summary: 'CBA季后赛半决赛上演经典对决，北京首钢在客场落后15分的情况下实现惊天逆转，最终以98-95击败广东宏远，总比分3-2淘汰对手晋级四强。首钢队核心球员砍下38分12篮板的两双数据，成为球队逆转的关键人物。', category: '体育', time: '5小时前', url: '', source: '虎扑', image_url: '' }
   ];
 
   var cachedNews = null;
@@ -96,7 +96,8 @@
             category: item.tag || item.category || '综合',
             time: item.time || '刚刚',
             url: item.url || '',
-            source: item.source || ''
+            source: item.source || '',
+            image_url: item.image_url || item.imageUrl || ''
           };
         });
       } else {
@@ -124,12 +125,13 @@
       return;
     }
 
-    // Hero card (first item)
+    // Hero card (first item) — with image if available
     var hero = news[0];
     var heroEl = document.createElement('div');
     heroEl.className = 'news-card-hero';
+    var heroImageStyle = hero.image_url ? 'background-image:url(' + hero.image_url + ');background-size:cover;background-position:center;' : '';
     heroEl.innerHTML =
-      '<div class="hero-image"></div>' +
+      '<div class="hero-image" style="' + heroImageStyle + '"></div>' +
       '<div class="hero-info">' +
         '<span class="news-category ' + getCategoryClass(hero.category) + '">' + escapeHtml(hero.category) + '</span>' +
         '<div class="news-title">' + escapeHtml(hero.title) + '</div>' +
@@ -280,10 +282,15 @@
   // ── Init ──
   async function init() {
     updateDate();
-    renderSkeleton();
 
-    var news = await fetchNews();
-    renderNews(news);
+    // Mock 优先：立即渲染 mock 数据，后台异步拉 API
+    var limit = params.max_items || 4;
+    renderNews(mockNews.slice(0, limit));
+
+    // 后台尝试 API 数据替换
+    fetchNews().then(function(news) {
+      if (news && news !== mockNews) renderNews(news);
+    }).catch(function() {});
 
     // Refresh every 30 minutes
     setInterval(async function() {

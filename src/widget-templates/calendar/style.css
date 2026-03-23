@@ -272,8 +272,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   flex-direction: column;
   gap: 0;
   max-height: 600px;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
+.widget-calendar .glass-timeline::-webkit-scrollbar { width: 0; display: none; }
 
 /* ── 事件项 ── */
 .widget-calendar .event-item {

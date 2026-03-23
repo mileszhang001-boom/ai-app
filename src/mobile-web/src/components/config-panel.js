@@ -173,17 +173,9 @@ export class ConfigPanel {
   }
 
   _renderSceneFields() {
+    // weather: 城市在卡片内切换，config 不需要城市选择
     if (this.sceneId === 'weather') {
-      return `
-        <div class="config-section">
-          <div class="config-section-label">城市</div>
-          <div class="city-pills">
-            ${CITIES.map(c => `
-              <button class="city-pill${c === this.selectedCity ? ' selected' : ''}" data-city="${c}">${c}</button>
-            `).join('')}
-          </div>
-        </div>
-      `;
+      return '';
     }
 
     if (['love', 'baby', 'countdown'].includes(this.sceneId)) {
@@ -196,25 +188,29 @@ export class ConfigPanel {
       const dateVal = this.currentData?.params?.start_date || this.currentData?.params?.target_date || this.currentData?.params?.date || '';
       const nameVal = this.currentData?.params?.nickname || this.currentData?.params?.event_name || this.currentData?.params?.title || '';
 
-      // 统一背景选择器：5 预设 + 1 上传入口
+      // 统一背景选择器：5 预设缩略图 + 1 上传入口
       const bgPresets = BG_PRESETS[this.sceneId] || [];
+      const themeDirMap = { love: 'love', baby: 'baby', countdown: 'holiday' };
+      const themeDir = themeDirMap[this.sceneId] || this.sceneId;
       const bgSection = bgPresets.length ? `
         <div class="config-section">
           <div class="config-section-label">背景</div>
           <div class="bg-grid">
-            ${bgPresets.map(bg => `
+            ${bgPresets.map(bg => {
+              const bgUrl = '/widget-templates/anniversary/' + themeDir + '/backgrounds/' + bg.id + '.jpg';
+              return `
               <button class="bg-grid-item${bg.id === this.selectedBgImage ? ' selected' : ''}" data-bg="${bg.id}">
-                <div class="bg-grid-thumb" style="background:linear-gradient(135deg, ${this.sceneId === 'baby' ? '#f5e6d8, #d4b896' : this.sceneId === 'countdown' ? '#c4250a, #d43808' : '#2a1520, #1a2535'});"></div>
+                <div class="bg-grid-thumb" style="background-image:url('${bgUrl}');background-size:cover;background-position:center;"></div>
                 <div class="bg-grid-label">${bg.label}</div>
-              </button>
-            `).join('')}
-            <button class="bg-grid-item bg-upload-slot${this.photoDataUrl ? ' selected' : ''}" id="bgUploadSlot">
-              <input type="file" accept="image/*" id="configPhotoInput" hidden>
+              </button>`;
+            }).join('')}
+            <label class="bg-grid-item bg-upload-slot${this.photoDataUrl ? ' selected' : ''}" id="bgUploadSlot" for="configPhotoInput">
+              <input type="file" accept="image/*" id="configPhotoInput" style="display:none;">
               <div class="bg-grid-thumb bg-upload-thumb" id="bgUploadThumb">
                 ${this.photoDataUrl ? `<img src="${this.photoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : '<span class="bg-upload-icon">+📷</span>'}
               </div>
               <div class="bg-grid-label">自定义</div>
-            </button>
+            </label>
           </div>
         </div>
       ` : '';
@@ -296,14 +292,10 @@ export class ConfigPanel {
       });
     });
 
-    // Unified background: preset grid + upload slot
-    const bgUploadSlot = panel.querySelector('#bgUploadSlot');
+    // Unified background: upload slot uses <label for="configPhotoInput"> (most reliable on mobile)
     const bgPhotoInput = panel.querySelector('#configPhotoInput');
-    if (bgUploadSlot && bgPhotoInput) {
-      bgUploadSlot.addEventListener('click', (e) => {
-        e.preventDefault();
-        bgPhotoInput.click();
-      });
+    const bgUploadSlot = panel.querySelector('#bgUploadSlot');
+    if (bgPhotoInput) {
       bgPhotoInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -397,9 +389,7 @@ export class ConfigPanel {
       data.params.background_image = this.selectedBgImage;
     }
 
-    if (this.sceneId === 'weather') {
-      data.params.city = this.selectedCity;
-    }
+    // weather 城市在卡片内切换，不从 config 传
 
     if (this.sceneId === 'news') {
       data.params.categories = this.selectedCategories;

@@ -427,9 +427,18 @@
 
     initCitySwitcher();
     updateDate();
-    var data = await fetchWeather();
-    renderWeather(data);
+
+    // Mock 优先：立即渲染 mock 数据，后台异步拉 API
+    var type = params.weather_type || 'sunny';
+    var mockData = mockWeather[type] || mockWeather.sunny;
+    mockData.city = params.city || '北京';
+    renderWeather(mockData);
     initWeatherParticles();
+
+    // 后台尝试 API 数据替换
+    fetchWeather().then(function(data) {
+      if (data && data !== mockData) renderWeather(data);
+    }).catch(function() {});
 
     // 每30分钟刷新
     setInterval(async function() {
