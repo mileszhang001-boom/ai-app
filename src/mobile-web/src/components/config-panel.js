@@ -22,14 +22,14 @@ const SCENE_COLOR_MAP = {
   weather:   ['#4A90E2', '#48D1CC', '#F8C557', '#27AE60', '#AF7AC5', '#FF6B6B'],  // 亮色、清新、自然感
   news:      ['#5B6CF7', '#FF6B6B', '#27AE60', '#F59E0B', '#0891B2', '#7B5CFA'],  // 沉稳、信息感、分类对应
   music:     ['#E84393', '#7B5CFA', '#FF6B6B', '#F59E0B', '#4A90E2', '#48D1CC'],  // 情绪感强、浓烈、个性化
-  calendar:  ['#4A90E2', '#27AE60', '#F59E0B', '#7B5CFA', '#FF6B6B', '#0891B2'],  // 简约、商务、清晰区分
-  alarm:     ['#4ADE80', '#4A90E2', '#FF6B6B', '#F59E0B', '#7B5CFA', '#48D1CC'],  // 简约、功能、高对比
+  calendar:  ['#3B82F6', '#64748B', '#10B981', '#F59E0B', '#8B5CF6', '#334155'],  // 白底简洁：蓝/灰/绿/橙/紫/深灰
+  alarm:     ['#4ADE80', '#3B82F6', '#F59E0B', '#64748B', '#8B5CF6', '#94A3B8'],  // 黑底简洁：绿/蓝/橙/灰/紫/浅灰
 };
 
 const SCENE_DEFAULT_COLORS = {
   weather:   '#4A90E2',
   love:      '#E84393',
-  calendar:  '#4A90E2',
+  calendar:  '#3B82F6',
   music:     '#E84393',
   countdown: '#F59E0B',
   baby:      '#48D1CC',
