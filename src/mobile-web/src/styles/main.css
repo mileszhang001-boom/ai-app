@@ -425,13 +425,11 @@ body.scroll-locked { overflow: hidden; }
   opacity: 0.5;
 }
 
-/* Color Circles */
+/* Color Circles — single row, 6 per scene */
 .color-circles {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
   gap: 12px;
   padding: 6px;
-  margin: -6px;
 }
 .color-circle {
   width: 32px; height: 32px;

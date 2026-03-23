@@ -17,10 +17,14 @@ const SCENE_MAP = {
   news:      { component_type: 'news',        theme: 'daily',    title: '每日新闻',     subtitle: '今日要闻速览' },
 };
 
-const COLOR_PRESETS = [
-  '#4A90E2', '#5B6CF7', '#E84393', '#FF6B6B', '#27AE60', '#48D1CC',
-  '#F59E0B', '#F8C557', '#7B5CFA', '#AF7AC5', '#0891B2', '#4ADE80'
-];
+// 场景化 6 色推荐（广色域 + 场景属性匹配）
+const SCENE_COLOR_MAP = {
+  weather:   ['#4A90E2', '#48D1CC', '#F8C557', '#27AE60', '#AF7AC5', '#FF6B6B'],  // 亮色、清新、自然感
+  news:      ['#5B6CF7', '#FF6B6B', '#27AE60', '#F59E0B', '#0891B2', '#7B5CFA'],  // 沉稳、信息感、分类对应
+  music:     ['#E84393', '#7B5CFA', '#FF6B6B', '#F59E0B', '#4A90E2', '#48D1CC'],  // 情绪感强、浓烈、个性化
+  calendar:  ['#4A90E2', '#27AE60', '#F59E0B', '#7B5CFA', '#FF6B6B', '#0891B2'],  // 简约、商务、清晰区分
+  alarm:     ['#4ADE80', '#4A90E2', '#FF6B6B', '#F59E0B', '#7B5CFA', '#48D1CC'],  // 简约、功能、高对比
+};
 
 const SCENE_DEFAULT_COLORS = {
   weather:   '#4A90E2',
@@ -128,7 +132,7 @@ export class ConfigPanel {
           <div class="config-section">
             <div class="config-section-label">${this._getColorPickerLabel()}</div>
             <div class="color-circles">
-              ${COLOR_PRESETS.map(c => `
+              ${(SCENE_COLOR_MAP[this.sceneId] || SCENE_COLOR_MAP.weather).map(c => `
                 <button class="color-circle${c === this.selectedColor ? ' selected' : ''}"
                         data-color="${c}"
                         style="background:${c}"></button>
