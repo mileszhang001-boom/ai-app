@@ -25,7 +25,9 @@ html, body {
   overflow: hidden;
   border-radius: 24px;
   background: #2A1520;
+  animation: widget-fadeIn 0.5s ease;
 }
+@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Full-bleed photo background */
 .widget-love .photo-area {
@@ -36,6 +38,7 @@ html, body {
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0.85;
+  transition: opacity 0.6s ease;
   /* Default gradient fallback when no image is set */
   background-image: linear-gradient(160deg, #3D1A2E 0%, #2A1520 40%, #1E0E18 100%);
 }
@@ -119,6 +122,9 @@ html, body {
   font-weight: 400;
   color: rgba(245, 245, 240, 0.63);
 }
+
+/* Photo loading state: hidden until image loads, then fades in */
+.widget-love .photo-area.loading { opacity: 0; }
 
 /* Easter egg canvas overlay */
 .widget-love .easter-egg-canvas {

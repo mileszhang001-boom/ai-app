@@ -27,6 +27,7 @@ html, body {
   position: relative;
   display: flex;
   flex-direction: column;
+  animation: widget-fadeIn 0.5s ease;
   background:
     radial-gradient(ellipse at 20% 20%, #1E293B 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, #162033 0%, transparent 50%),
@@ -104,6 +105,18 @@ html, body {
   background-position: center;
   position: relative;
   overflow: hidden;
+}
+/* Shimmer sweep while loading */
+.widget-news .hero-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  animation: hero-shimmer 2s ease-in-out infinite;
+}
+@keyframes hero-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* Decorative pattern for hero image placeholder */
@@ -261,6 +274,11 @@ html, body {
 @keyframes shimmer-pulse {
   0%, 100% { opacity: 0.5; }
   50%      { opacity: 0.8; }
+}
+
+@keyframes widget-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ── News detail overlay (fallback) ── */

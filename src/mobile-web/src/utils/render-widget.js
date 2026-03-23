@@ -107,7 +107,7 @@ export async function renderWidgetInFrame(frameEl, data) {
   frameEl.innerHTML = '';
   const iframe = document.createElement('iframe');
   iframe.srcdoc = html;
-  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:inherit;';
+  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:inherit;background:#0e1013;';
   frameEl.appendChild(iframe);
 }
 
@@ -166,7 +166,7 @@ export function renderCodeWidgetInFrame(frameEl, htmlContent) {
   const iframe = document.createElement('iframe');
   iframe.sandbox = 'allow-scripts';
   iframe.srcdoc = html;
-  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:inherit;';
+  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:inherit;background:#0e1013;';
   frameEl.appendChild(iframe);
 }
 

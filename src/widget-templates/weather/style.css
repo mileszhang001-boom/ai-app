@@ -21,6 +21,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   box-sizing: border-box;
   background: linear-gradient(160deg, #0d1520 0%, #0a1525 40%, #081018 100%);
   border: 1px solid rgba(255, 255, 255, 0.04);
+  animation: widget-fadeIn 0.5s ease;
+}
+@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Data transition: smooth fade when values update */
+.widget-weather .weather-desc,
+.widget-weather .feels-like,
+.widget-weather .detail-value,
+.widget-weather .forecast-temp {
+  transition: opacity 0.4s ease;
 }
 
 /* ── 天气动画画布 ── */

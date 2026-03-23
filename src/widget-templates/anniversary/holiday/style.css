@@ -26,7 +26,9 @@ html, body {
   overflow: hidden;
   border-radius: 24px;
   background: #0A2A2A;
+  animation: widget-fadeIn 0.5s ease;
 }
+@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Full-bleed photo background — full opacity, no reduction */
 .widget-holiday .photo-area {
@@ -36,9 +38,11 @@ html, body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  transition: opacity 0.6s ease;
   /* Default gradient fallback when no image is set */
   background-image: linear-gradient(160deg, #1A4A3A 0%, #0A2A2A 40%, #0D3D2D 100%);
 }
+.widget-holiday .photo-area.loading { opacity: 0; }
 
 /* Glass panel: FULL WIDTH 896px, height 598, positioned at y=866 (bottom: 1464-866-598=0) */
 .widget-holiday .glass-panel {

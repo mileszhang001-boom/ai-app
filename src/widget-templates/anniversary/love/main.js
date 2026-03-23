@@ -51,7 +51,7 @@
     return map[milestone] || '第' + milestone + '天，特别的日子';
   }
 
-  // -- Background image loading (v0.4 with __TEMPLATE_BASE_PATH__) --
+  // -- Background image loading with fade-in transition --
   function loadBackgroundImage() {
     var bgImage = params.background_image;
     if (!bgImage) return;
@@ -61,13 +61,24 @@
     var basePath = window.__TEMPLATE_BASE_PATH__ || './';
     var url = basePath + 'backgrounds/' + bgImage + '.webp';
 
+    photoBg.classList.add('loading'); // 隐藏，显示底部渐变
+
     var img = new Image();
     img.onload = function() {
       photoBg.style.backgroundImage = 'url(' + url + ')';
+      requestAnimationFrame(function() { photoBg.classList.remove('loading'); }); // 渐入
     };
     img.onerror = function() {
       var jpgUrl = basePath + 'backgrounds/' + bgImage + '.jpg';
-      photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
+      var img2 = new Image();
+      img2.onload = function() {
+        photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
+        requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
+      };
+      img2.onerror = function() {
+        photoBg.classList.remove('loading'); // 回退到渐变
+      };
+      img2.src = jpgUrl;
     };
     img.src = url;
   }
@@ -122,11 +133,13 @@
       });
     }
 
-    // Photo from user upload (DataURL)
+    // Photo from user upload (DataURL) — with fade-in
     if (params.bg_photo) {
       var photoBg = document.getElementById('photoBg');
       if (photoBg) {
+        photoBg.classList.add('loading');
         photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
+        requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
       }
     }
 
