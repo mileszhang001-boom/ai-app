@@ -9,8 +9,11 @@
   var params = window.__WIDGET_PARAMS__ || {
     category: 'general',
     categories: null,
-    max_items: 4
+    max_items: 8
   };
+
+  // 数据分层：preview 用 mock 数据 + 角标，live 用真实 API
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
 
   // Multi-category support: categories array takes priority
   var activeCategories = params.categories || (params.category ? [params.category] : ['general']);
@@ -63,9 +66,21 @@
       subheading: '市场走势与政策预期分析',
       category: '财经', time: '4小时前', url: '', source: '第一财经' },
     { id: 4, title: 'CBA季后赛：北京首钢逆转广东，晋级四强',
-      summary: 'CBA季后赛半决赛上演经典对决，北京首钢在客场落后15分的情况下实现惊天逆转，最终以98-95击败广东宏远，总比分3-2淘汰对手晋级四强。首钢队核心球员砍下38分12篮板的两双数据，成为逆转关键人物。\n比赛最后两分钟堪称经典：首钢连续两记三分球追平比分，随后通过一次精妙的挡拆配合完成绝杀上篮。广东队主帅赛后承认，球队在关键时刻的防守轮转出现了致命失误。\n首钢将在半决赛中迎战辽宁队，这将是两支北方劲旅时隔三年再次在季后赛相遇，票务平台数据显示，系列赛门票已在开售30分钟内售罄。',
+      summary: 'CBA季后赛半决赛上演经典对决，北京首钢在客场落后15分的情况下实现惊天逆转，最终以98-95击败广东宏远，总比分3-2淘汰对手晋级四强。',
       subheading: '关键时刻防守轮转成胜负手',
-      category: '体育', time: '5小时前', url: '', source: '虎扑' }
+      category: '体育', time: '5小时前', url: '', source: '虎扑' },
+    { id: 5, title: '固态电池量产进程加速，续航有望突破1000公里',
+      summary: '宁德时代宣布其半固态电池将在Q4量产上车，能量密度达到400Wh/kg。分析人士指出，固态电池的量产将从根本上解决电动车续航和安全焦虑。',
+      category: '汽车', time: '6小时前', url: '', source: '澎湃新闻' },
+    { id: 6, title: '开源大模型社区活跃度创新高',
+      summary: 'GitHub上AI相关项目星标数突破500万，贡献者数量同比增长120%。以Llama、Qwen、DeepSeek为代表的开源模型生态日趋成熟。',
+      category: '科技', time: '7小时前', url: '', source: '36氪' },
+    { id: 7, title: '充电基础设施建设提速，超充站年内翻倍',
+      summary: '全国公共充电桩保有量达到380万台，超充桩占比提升至18%。多地推出"充电15分钟补能400公里"的超快充服务。',
+      category: '汽车', time: '8小时前', url: '', source: '第一财经' },
+    { id: 8, title: '端侧AI芯片性能翻倍，功耗降低30%',
+      summary: '新一代手机和车载AI芯片算力翻倍，端侧推理使得AI功能无需联网即可运行，既保护隐私又降低延迟。',
+      category: '科技', time: '10小时前', url: '', source: 'IT之家' }
   ];
 
   // 分类 → hero 装饰 emoji
@@ -91,6 +106,14 @@
 
   // ── Fetch news (multi-category, JSBridge compatible) ──
   async function fetchNews() {
+    var limit = params.max_items || 4;
+
+    // preview 模式：直接用 mock 数据，不调 API
+    if (dataMode === 'preview') {
+      cachedNews = mockNews.slice(0, limit);
+      return cachedNews;
+    }
+
     var now = Date.now();
     if (cachedNews && (now - lastFetchTime) < CACHE_DURATION) {
       return cachedNews;
@@ -99,7 +122,6 @@
     try {
       var newsData = null;
       var catParam = activeCategories.join(',');
-      var limit = params.max_items || 4;
       var apiUrl = '/api/news?categories=' + encodeURIComponent(catParam) + '&limit=' + limit;
 
       if (window.AIWidgetBridge && window.AIWidgetBridge.isCarEnvironment && window.AIWidgetBridge.isCarEnvironment()) {
@@ -155,53 +177,41 @@
       return;
     }
 
-    // Hero card (first item) — real image or emoji fallback
-    var hero = news[0];
-    var heroEl = document.createElement('div');
-    heroEl.className = 'news-card-hero';
-    var heroEmoji = CATEGORY_EMOJI[hero.category] || '📰';
-    var heroImageContent = hero.image_url
-      ? '<div class="hero-image" style="background-image:url(' + hero.image_url + ');background-size:cover;background-position:center;"></div>'
-      : '<div class="hero-image"><span class="hero-emoji">' + heroEmoji + '</span></div>';
-    heroEl.innerHTML =
-      heroImageContent +
-      '<div class="hero-info">' +
-        '<span class="news-category ' + getCategoryClass(hero.category) + '">' + escapeHtml(hero.category) + '</span>' +
-        '<div class="news-title">' + escapeHtml(hero.title) + '</div>' +
-        '<span class="news-source">' + escapeHtml(hero.source || '') + (hero.time ? ' \u00B7 ' + escapeHtml(hero.time) : '') + '  \u203A</span>' +
-      '</div>';
-    heroEl.addEventListener('click', function() { showDetail(hero); });
-    newsListEl.appendChild(heroEl);
-
-    // List cards (remaining items) — with thumbnails
-    for (var i = 1; i < news.length && i <= 3; i++) {
-      var item = news[i];
+    // v2.0: 纵向滚动新闻流，有图/无图双布局
+    news.forEach(function(item, idx) {
       var cardEl = document.createElement('div');
-      cardEl.className = 'news-card';
-      var thumbEmoji = CATEGORY_EMOJI[item.category] || '📰';
-      var thumbContent = item.image_url
-        ? '<div class="news-card-thumb" style="background-image:url(' + item.image_url + ');background-size:cover;background-position:center;"></div>'
-        : '<div class="news-card-thumb"><span class="thumb-emoji">' + thumbEmoji + '</span></div>';
-      cardEl.innerHTML =
-        '<div class="news-card-text">' +
-          '<span class="news-category ' + getCategoryClass(item.category) + '">' + escapeHtml(item.category) + '</span>' +
-          '<div class="news-title">' + escapeHtml(item.title) + '</div>' +
-          '<span class="news-source">' + escapeHtml(item.source || '') + (item.time ? ' \u00B7 ' + escapeHtml(item.time) : '') + '  \u203A</span>' +
-        '</div>' + thumbContent;
+      var catColor = getCategoryColor(item.category);
+      var summaryText = item.summary || '';
+      var summaryPreview = summaryText.length > 80 ? summaryText.substring(0, 80) + '…' : summaryText;
+
+      if (item.image_url) {
+        // 有图模式：左图右文
+        cardEl.className = 'news-card news-card-with-image';
+        cardEl.innerHTML =
+          '<div class="news-card-thumb" style="background-image:url(' + item.image_url + ');background-size:cover;background-position:center;"></div>' +
+          '<div class="news-card-text">' +
+            '<span class="news-category ' + getCategoryClass(item.category) + '">' + escapeHtml(item.category) + '</span>' +
+            '<div class="news-title">' + escapeHtml(item.title) + '</div>' +
+            '<span class="news-source">' + escapeHtml(item.source || '') + (item.time ? ' \u00B7 ' + escapeHtml(item.time) : '') + '</span>' +
+          '</div>';
+      } else {
+        // 无图模式：纯文字，标题加大 + 摘要预览
+        cardEl.className = 'news-card news-card-text-only';
+        cardEl.innerHTML =
+          '<div class="news-card-text">' +
+            '<span class="news-category ' + getCategoryClass(item.category) + '">' + escapeHtml(item.category) + '</span>' +
+            '<div class="news-title news-title-lg">' + escapeHtml(item.title) + '</div>' +
+            (summaryPreview ? '<div class="news-summary-preview">' + escapeHtml(summaryPreview) + '</div>' : '') +
+            '<span class="news-source">' + escapeHtml(item.source || '') + (item.time ? ' \u00B7 ' + escapeHtml(item.time) : '') + '</span>' +
+          '</div>';
+      }
 
       (function(newsItem) {
         cardEl.addEventListener('click', function() { showDetail(newsItem); });
       })(item);
 
       newsListEl.appendChild(cardEl);
-
-      // Add spacer after card (except after last)
-      if (i < news.length - 1 && i < 3) {
-        var spacer = document.createElement('div');
-        spacer.className = 'card-spacer';
-        newsListEl.appendChild(spacer);
-      }
-    }
+    });
   }
 
   // ── Show article detail (fullscreen overlay preferred) ──
@@ -396,21 +406,30 @@
   async function init() {
     updateDate();
 
-    // Mock 优先：立即渲染 mock 数据，后台异步拉 API
+    // preview 模式：显示"示例内容"角标
+    if (dataMode === 'preview') {
+      var badge = document.createElement('div');
+      badge.className = 'demo-badge';
+      badge.textContent = '示例内容';
+      document.querySelector('.widget-news').appendChild(badge);
+    }
+
+    // Mock 优先：立即渲染 mock 数据
     var limit = params.max_items || 4;
     renderNews(mockNews.slice(0, limit));
 
-    // 后台尝试 API 数据替换
-    fetchNews().then(function(news) {
-      if (news && news !== mockNews) renderNews(news);
-    }).catch(function() {});
+    // live 模式：后台尝试 API 数据替换 + 定期刷新
+    if (dataMode === 'live') {
+      fetchNews().then(function(news) {
+        if (news && news !== mockNews) renderNews(news);
+      }).catch(function() {});
 
-    // Refresh every 30 minutes
-    setInterval(async function() {
-      cachedNews = null;
-      var freshNews = await fetchNews();
-      renderNews(freshNews);
-    }, 30 * 60 * 1000);
+      setInterval(async function() {
+        cachedNews = null;
+        var freshNews = await fetchNews();
+        renderNews(freshNews);
+      }, 30 * 60 * 1000);
+    }
 
     // Theme bridge
     if (window.AIWidgetBridge) {

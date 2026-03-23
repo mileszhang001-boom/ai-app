@@ -117,16 +117,17 @@
     }),
 
     getMediaSession: () => ({
-      song_name: '晴天',
+      song_name: '夜曲',
       artist: '周杰伦',
-      album: '叶惠美',
-      duration: 269,
+      album: '十一月的萧邦',
+      duration: 280,
       position: 45,
       isPlaying: true,
-      albumArtUrl: ''
+      albumArtUrl: '',
+      lyrics_snippet: '一群嗜血的蚂蚁 被腐肉所吸引'
     }),
 
-    mediaControl: () => ({ success: true })
+    mediaControl: (params) => ({ success: true, action: params?.action || 'toggle' })
   };
 
   /**

@@ -157,15 +157,15 @@
 
     function createParticle() {
       var rgb = randomColor();
-      var size = 2 + Math.random() * 4;
+      var size = 6 + Math.random() * 12;
       return {
         x: Math.random() * canvas.width,
         y: canvas.height * 0.2 + Math.random() * canvas.height * 0.7,
         size: size,
         baseSize: size,
         // 萤火虫：缓慢随机漂移，不像心形那样统一上升
-        speedX: (Math.random() - 0.5) * 0.2,
-        speedY: (Math.random() - 0.5) * 0.15,
+        speedX: (Math.random() - 0.5) * 0.6,
+        speedY: (Math.random() - 0.5) * 0.45,
         opacity: 0,
         targetOpacity: 0.12 + Math.random() * 0.28,
         phase: 'fadeIn',  // fadeIn -> glow -> fadeOut
@@ -178,7 +178,7 @@
         // 横向飘动
         wobble: Math.random() * Math.PI * 2,
         wobbleSpeed: 0.008 + Math.random() * 0.012,
-        wobbleAmp: 0.4 + Math.random() * 0.6,
+        wobbleAmp: 1.2 + Math.random() * 1.8,
         // 光晕半径（萤火虫特有的柔光圈）
         glowRadius: size * (2.5 + Math.random() * 1.5)
       };
@@ -240,7 +240,7 @@
         // 缓慢漂移 + 横向轻摆
         p.wobble += p.wobbleSpeed;
         p.x += p.speedX + Math.sin(p.wobble) * p.wobbleAmp;
-        p.y += p.speedY + Math.cos(p.wobble * 0.7) * 0.15;
+        p.y += p.speedY + Math.cos(p.wobble * 0.7) * 0.45;
 
         // 移除已消亡的粒子
         if (p.opacity <= 0 || p.life > p.maxLife) {

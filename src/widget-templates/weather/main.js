@@ -11,6 +11,9 @@
     weather_type: 'sunny'
   };
 
+  // 数据分层：preview 用 mock 数据 + 角标，live 用真实 API
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
+
   // Mock 天气数据
   var mockWeather = {
     sunny: {
@@ -60,6 +63,14 @@
   async function fetchWeather() {
     if (cachedData) return cachedData;
 
+    // preview 模式：直接用精品 mock 数据，不调 API
+    if (dataMode === 'preview') {
+      var type = params.weather_type || 'sunny';
+      cachedData = mockWeather[type] || mockWeather.sunny;
+      return cachedData;
+    }
+
+    // live 模式：尝试真实 API
     try {
       if (window.AIWidgetBridge && window.AIWidgetBridge.isCarEnvironment && window.AIWidgetBridge.isCarEnvironment()) {
         var response = await window.AIWidgetBridge.fetchData('/api/weather?city=' + encodeURIComponent(params.city));
@@ -153,21 +164,17 @@
   }
 
   // ── 城市切换 overlay ──
-  var CITIES = [
-    { name: '北京', desc: '晴', temp: '26°' },
-    { name: '上海', desc: '多云', temp: '24°' },
-    { name: '广州', desc: '阵雨', temp: '27°' },
-    { name: '深圳', desc: '晴', temp: '28°' },
-    { name: '杭州', desc: '多云转晴', temp: '23°' },
-    { name: '成都', desc: '阴', temp: '22°' }
-  ];
+  var HOT_CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都', '重庆', '武汉', '南京', '天津', '西安', '长沙'];
 
   var cityStore = window.WidgetStorage ? window.WidgetStorage('weather') : null;
 
   function openCitySwitcher() {
     if (!window.createOverlay) return;
 
-    var overlay = window.createOverlay({
+    var searchTimer = null;
+    var overlayRef = null;
+
+    overlayRef = window.createOverlay({
       title: '切换地点',
       theme: 'dark',
       showSave: false,
@@ -178,7 +185,7 @@
         searchWrap.style.cssText = 'padding:16px 36px;';
         var searchInput = document.createElement('input');
         searchInput.className = 'overlay-input';
-        searchInput.placeholder = '搜索城市';
+        searchInput.placeholder = '搜索任意城市...';
         searchInput.style.cssText = 'height:56px; border-radius:16px; font-size:28px;';
         searchWrap.appendChild(searchInput);
         body.appendChild(searchWrap);
@@ -199,65 +206,82 @@
         d2.className = 'overlay-divider full';
         body.appendChild(d2);
 
-        // 已保存城市标签
-        var savedLabel = document.createElement('div');
-        savedLabel.style.cssText = 'padding:14px 36px; font-size:24px; color:rgba(100,116,139,1); font-family:MiSans_VF,sans-serif;';
-        savedLabel.textContent = '已保存的城市';
-        body.appendChild(savedLabel);
+        // 城市列表区域
+        var listLabel = document.createElement('div');
+        listLabel.style.cssText = 'padding:14px 36px; font-size:24px; color:rgba(100,116,139,1); font-family:MiSans_VF,sans-serif;';
+        listLabel.textContent = '热门城市';
+        body.appendChild(listLabel);
 
-        // 城市列表
         var cityList = document.createElement('div');
         cityList.className = 'city-list';
+        body.appendChild(cityList);
 
-        function renderCities(filter) {
-          cityList.innerHTML = '';
-          var filtered = CITIES.filter(function(c) {
-            if (!filter) return true;
-            return c.name.indexOf(filter) >= 0;
+        function selectCity(name) {
+          params.city = name;
+          cachedData = null;
+          updateDate();
+          fetchWeather().then(function(data) {
+            renderWeather(data);
           });
-          filtered.forEach(function(city, idx) {
+          if (cityStore) cityStore.set('selected_city', name);
+          overlayRef.hide();
+        }
+
+        function renderCityList(cities) {
+          cityList.innerHTML = '';
+          cities.forEach(function(name, idx) {
             var row = document.createElement('div');
             row.className = 'overlay-row';
-            row.style.cssText = 'cursor:pointer; min-height:120px; flex-direction:column; align-items:flex-start; justify-content:center; padding:16px 36px;';
-            row.innerHTML =
-              '<div style="display:flex;width:100%;align-items:center;">' +
-                '<span style="font-size:32px;font-weight:500;color:#F5F5F0;font-family:MiSans_VF,sans-serif;">' + city.name + '</span>' +
-                '<span style="margin-left:auto;font-size:36px;font-weight:300;color:#F5F5F0;font-family:MiSans_VF,sans-serif;">' + city.temp + '</span>' +
-              '</div>' +
-              '<span style="font-size:26px;color:#94A3B8;font-family:MiSans_VF,sans-serif;margin-top:8px;">' + city.desc + '</span>';
-
-            row.addEventListener('click', function() {
-              params.city = city.name;
-              cachedData = null;
-              updateDate();
-              fetchWeather().then(function(data) {
-                renderWeather(data);
-              });
-              if (cityStore) cityStore.set('selected_city', city.name);
-              overlay.hide();
-            });
+            row.style.cssText = 'cursor:pointer; min-height:84px; align-items:center; padding:16px 36px; -webkit-tap-highlight-color:transparent;';
+            row.innerHTML = '<span style="font-size:32px;font-weight:500;color:#F5F5F0;font-family:MiSans_VF,sans-serif;">' + name + '</span>';
+            row.addEventListener('click', function() { selectCity(name); });
             cityList.appendChild(row);
-
-            // 分割线（非最后一个）
-            if (idx < filtered.length - 1) {
+            if (idx < cities.length - 1) {
               var divider = document.createElement('div');
               divider.className = 'overlay-divider full';
               divider.style.background = 'rgba(51,65,85,1)';
               cityList.appendChild(divider);
             }
           });
+          if (cities.length === 0) {
+            var empty = document.createElement('div');
+            empty.style.cssText = 'padding:40px 36px; text-align:center; font-size:26px; color:rgba(255,255,255,0.3);';
+            empty.textContent = '未找到匹配城市';
+            cityList.appendChild(empty);
+          }
         }
 
-        renderCities('');
-        searchInput.addEventListener('input', function() {
-          renderCities(searchInput.value.trim());
-        });
+        // 默认显示热门城市
+        renderCityList(HOT_CITIES);
 
-        body.appendChild(cityList);
+        // 搜索框输入 → 调 API（300ms 防抖）
+        searchInput.addEventListener('input', function() {
+          var q = searchInput.value.trim();
+          clearTimeout(searchTimer);
+          if (!q) {
+            listLabel.textContent = '热门城市';
+            renderCityList(HOT_CITIES);
+            return;
+          }
+          listLabel.textContent = '搜索结果';
+          searchTimer = setTimeout(function() {
+            fetch('/api/weather/city-search?q=' + encodeURIComponent(q))
+              .then(function(r) { return r.ok ? r.json() : { cities: [] }; })
+              .then(function(data) {
+                var names = (data.cities || []).map(function(c) { return c.name; });
+                renderCityList(names.length > 0 ? names : []);
+              })
+              .catch(function() {
+                // Fallback: 本地模糊匹配热门城市
+                var matches = HOT_CITIES.filter(function(c) { return c.indexOf(q) >= 0; });
+                renderCityList(matches);
+              });
+          }, 300);
+        });
       }
     });
 
-    overlay.show();
+    overlayRef.show();
   }
 
   function initCitySwitcher() {
@@ -428,6 +452,14 @@
     initCitySwitcher();
     updateDate();
 
+    // preview 模式：显示"示例数据"角标
+    if (dataMode === 'preview') {
+      var badge = document.createElement('div');
+      badge.className = 'demo-badge';
+      badge.textContent = '示例数据';
+      document.querySelector('.widget-weather').appendChild(badge);
+    }
+
     // Mock 优先：立即渲染 mock 数据，后台异步拉 API
     var type = params.weather_type || 'sunny';
     var mockData = mockWeather[type] || mockWeather.sunny;
@@ -435,17 +467,19 @@
     renderWeather(mockData);
     initWeatherParticles();
 
-    // 后台尝试 API 数据替换
-    fetchWeather().then(function(data) {
-      if (data && data !== mockData) renderWeather(data);
-    }).catch(function() {});
+    // live 模式：后台尝试 API 数据替换
+    if (dataMode === 'live') {
+      fetchWeather().then(function(data) {
+        if (data && data !== mockData) renderWeather(data);
+      }).catch(function() {});
 
-    // 每30分钟刷新
-    setInterval(async function() {
-      cachedData = null;
-      var fresh = await fetchWeather();
-      renderWeather(fresh);
-    }, 30 * 60 * 1000);
+      // 每30分钟刷新
+      setInterval(async function() {
+        cachedData = null;
+        var fresh = await fetchWeather();
+        renderWeather(fresh);
+      }, 30 * 60 * 1000);
+    }
 
     if (window.AIWidgetBridge) {
       window.AIWidgetBridge.onThemeChange(function(theme) {

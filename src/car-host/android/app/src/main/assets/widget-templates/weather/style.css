@@ -12,15 +12,25 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-weather {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 60px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 32px 28px 28px;
+  padding: 96px 84px 84px;
   box-sizing: border-box;
   background: linear-gradient(160deg, #0d1520 0%, #0a1525 40%, #081018 100%);
   border: 1px solid rgba(255, 255, 255, 0.04);
+  animation: widget-fadeIn 0.5s ease;
+}
+@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Data transition: smooth fade when values update */
+.widget-weather .weather-desc,
+.widget-weather .feels-like,
+.widget-weather .detail-value,
+.widget-weather .forecast-temp {
+  transition: opacity 0.4s ease;
 }
 
 /* ── 天气动画画布 ── */
@@ -104,11 +114,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   position: absolute;
   top: 5%;
   right: -10%;
-  width: 260px;
-  height: 260px;
+  width: 780px;
+  height: 780px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(80, 140, 220, 0.12) 0%, transparent 70%);
-  filter: blur(50px);
+  filter: blur(150px);
   pointer-events: none;
   animation: breathing-glow 5s ease-in-out infinite;
 }
@@ -117,11 +127,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   position: absolute;
   bottom: 30%;
   left: -10%;
-  width: 180px;
-  height: 180px;
+  width: 540px;
+  height: 540px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(60, 120, 200, 0.06) 0%, transparent 70%);
-  filter: blur(40px);
+  filter: blur(120px);
   pointer-events: none;
 }
 
@@ -131,7 +141,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   bottom: 0;
   left: 0;
   width: 45%;
-  height: 2px;
+  height: 6px;
   background: linear-gradient(90deg, rgba(80, 140, 220, 0.35) 0%, transparent 100%);
   border-radius: 1px;
   pointer-events: none;
@@ -151,15 +161,24 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 72px;
 }
 
 .widget-weather .location {
   font-family: var(--font-cn-family);
-  font-size: 14px;
+  font-size: 42px;
   font-weight: var(--font-weight-medium, 500);
   color: rgba(255, 255, 255, 0.60);
-  letter-spacing: 0.5px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.widget-weather .location-pin {
+  font-size: 36px;
+  opacity: 0.6;
 }
 
 .widget-weather .date {
@@ -172,7 +191,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-weather .hero-section {
   text-align: center;
   margin-top: auto;
-  margin-bottom: 28px;
+  margin-bottom: 60px;
   flex-shrink: 0;
 }
 
@@ -184,9 +203,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-weather .temp-number {
   font-family: var(--font-hero-family);
-  font-size: 96px;
+  font-size: 288px;
   font-weight: 300;
-  letter-spacing: -4px;
+  letter-spacing: -12px;
   line-height: 0.85;
   background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.55) 100%);
   -webkit-background-clip: text;
@@ -196,25 +215,25 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-weather .temp-unit {
   font-family: var(--font-hero-family);
-  font-size: 32px;
+  font-size: 96px;
   font-weight: 300;
   color: rgba(255, 255, 255, 0.40);
-  margin-top: 12px;
+  margin-top: 36px;
 }
 
 .widget-weather .weather-desc {
   font-family: var(--font-cn-family);
-  font-size: 16px;
+  font-size: 48px;
   color: rgba(255, 255, 255, 0.65);
-  margin-top: 8px;
-  letter-spacing: 1px;
+  margin-top: 24px;
+  letter-spacing: 3px;
 }
 
 .widget-weather .feels-like {
   font-family: var(--font-cn-family);
-  font-size: 12px;
+  font-size: 36px;
   color: rgba(255, 255, 255, 0.25);
-  margin-top: 4px;
+  margin-top: 12px;
 }
 
 /* ── 毛玻璃详情 ── */
@@ -223,12 +242,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   align-items: center;
   justify-content: center;
   background: rgba(80, 140, 220, 0.04);
-  backdrop-filter: blur(16px) saturate(1.6);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  backdrop-filter: blur(48px) saturate(1.6);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 14px 20px;
-  margin-bottom: 20px;
+  border-radius: 36px;
+  padding: 42px 60px;
+  margin-bottom: 60px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -239,30 +258,30 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-weather .detail-label {
   font-family: var(--font-cn-family);
-  font-size: 11px;
+  font-size: 33px;
   color: rgba(255, 255, 255, 0.30);
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 
 .widget-weather .detail-value {
   font-family: var(--font-en-family);
-  font-size: 14px;
+  font-size: 42px;
   font-weight: var(--font-weight-medium, 500);
   color: rgba(255, 255, 255, 0.75);
 }
 
 .widget-weather .detail-divider {
   width: 1px;
-  height: 24px;
+  height: 72px;
   background: rgba(255, 255, 255, 0.06);
-  margin: 0 8px;
+  margin: 0 24px;
 }
 
 /* ── 3日预报 ── */
 .widget-weather .forecast-row {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 16px;
+  margin-bottom: 48px;
 }
 
 .widget-weather .forecast-day {
@@ -277,48 +296,48 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-weather .forecast-label {
   font-family: var(--font-cn-family);
-  font-size: 11px;
+  font-size: 33px;
   color: rgba(255, 255, 255, 0.30);
-  margin-bottom: 6px;
+  margin-bottom: 18px;
 }
 
 .widget-weather .forecast-icon {
-  font-size: 20px;
-  margin-bottom: 4px;
+  font-size: 60px;
+  margin-bottom: 12px;
   line-height: 1.2;
 }
 
 .widget-weather .forecast-temp {
   font-family: var(--font-en-family);
-  font-size: 12px;
+  font-size: 36px;
   color: rgba(255, 255, 255, 0.50);
 }
 
 /* ── AI建议 ── */
 .widget-weather .glass-suggestion {
   background: rgba(80, 140, 220, 0.04);
-  backdrop-filter: blur(12px) saturate(1.4);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(36px) saturate(1.4);
+  -webkit-backdrop-filter: blur(36px) saturate(1.4);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 12px 16px;
+  border-radius: 30px;
+  padding: 36px 48px;
   margin-top: auto;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .widget-weather .suggestion-label {
   font-family: var(--font-en-family);
-  font-size: 10px;
+  font-size: 30px;
   font-weight: var(--font-weight-medium, 500);
-  letter-spacing: 1px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   color: rgba(80, 140, 220, 0.55);
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 
 .widget-weather .suggestion-text {
   font-family: var(--font-cn-family);
-  font-size: 13px;
+  font-size: 39px;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1.5;
   display: -webkit-box;

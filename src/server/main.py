@@ -34,6 +34,7 @@ from ai_generator.validator import validate_component
 from storage.metadata import (
     get_metadata_store,
     create_widget as create_widget_metadata,
+    create_or_update_widget,
     get_widget as get_widget_metadata,
     get_user_widgets as get_user_widgets_list,
     mark_synced,
@@ -538,8 +539,8 @@ async def create_widget(request: CreateWidgetRequest):
         if request.html_content:
             widget_data["html_content"] = request.html_content
 
-        # 创建元数据
-        widget_metadata = create_widget_metadata(
+        # 创建或更新元数据（基于内容哈希去重）
+        widget_metadata, is_new = create_or_update_widget(
             user_id=request.user_id,
             widget_data=widget_data
         )
@@ -550,8 +551,6 @@ async def create_widget(request: CreateWidgetRequest):
         if request.generation_mode == "code" and request.html_content:
             html_content = request.html_content
         else:
-            # 模板模式不需要服务端预渲染（模板在车端本地 assets 中）
-            # 用简单占位 HTML，实际渲染由车端 WebView 完成
             html_content = f"<!-- template:{request.component_type}/{request.theme} -->"
 
         # 保存 H5 产物
@@ -568,7 +567,8 @@ async def create_widget(request: CreateWidgetRequest):
             widget_id=widget_metadata.widget_id,
             data={
                 "metadata": widget_metadata.to_dict(),
-                "assets": assets
+                "assets": assets,
+                "is_update": not is_new
             }
         )
 
@@ -665,6 +665,17 @@ async def get_weather(city: str = "北京"):
     except Exception as e:
         print(f"[API] Weather service error: {e}")
         raise HTTPException(status_code=500, detail=f"Weather service error: {str(e)}")
+
+
+@app.get("/api/weather/city-search")
+async def weather_city_search(q: str = ""):
+    """搜索城市（和风天气 GeoAPI / 内置列表 fallback）"""
+    try:
+        service = get_weather_service()
+        cities = await service.search_cities(q)
+        return {"cities": cities}
+    except Exception as e:
+        return {"cities": [], "error": str(e)}
 
 
 @app.get("/api/calendar/today")

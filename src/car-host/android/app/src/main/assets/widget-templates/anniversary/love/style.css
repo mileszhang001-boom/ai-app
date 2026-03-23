@@ -1,11 +1,9 @@
 /**
- * 恋爱纪念日 · 玫瑰（Rose） — Liquid Glass Edition
- *
- * 底部对齐布局 + 毛玻璃信息卡片 + 粒子系统
- * 支持风格预设切换
+ * 恋爱纪念日 — Full-Bleed Photo + Bottom Text Overlay
+ * Design at 896x1464, card.pen spec (node UyUeC)
  */
 
-/* 基础重置 */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -19,530 +17,121 @@ html, body {
   background: transparent;
 }
 
-/* 卡片容器 */
+/* Container: 896x1464 */
 .widget-love {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
-  overflow: hidden;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 40px 28px 40px;
-  box-sizing: border-box;
-
-  /* 默认玫瑰渐变背景 */
-  background: var(--love-bg-dark, linear-gradient(155deg, #1e0e24 0%, #261530 35%, #180e1e 100%));
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  border-radius: 24px;
+  background: #2A1520;
+  animation: widget-fadeIn 0.5s ease;
 }
+@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ── 粒子画布 ── */
-.widget-love .particle-canvas {
+/* Full-bleed photo background */
+.widget-love .photo-area {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
+  inset: 0;
+  border-radius: 32px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  transition: opacity 0.6s ease;
+  /* Default gradient fallback when no image is set */
+  background-image: linear-gradient(160deg, #3D1A2E 0%, #2A1520 40%, #1E0E18 100%);
 }
 
-/* ── 风格预设：基于 data-style 属性 ── */
-
-/* 活力橙 */
-[data-style="vibrant-orange"] .widget-love,
-.widget-love[data-style="vibrant-orange"] {
-  background: linear-gradient(155deg, #2a1a0f 0%, #362012 35%, #1f150a 100%);
-}
-
-[data-style="vibrant-orange"] .widget-love .glow-primary,
-.widget-love[data-style="vibrant-orange"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 106, 0, 0.22) 0%, transparent 70%);
-}
-
-[data-style="vibrant-orange"] .widget-love .glow-secondary,
-.widget-love[data-style="vibrant-orange"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 180, 60, 0.12) 0%, transparent 70%);
-}
-
-[data-style="vibrant-orange"] .widget-love .glow-tertiary,
-.widget-love[data-style="vibrant-orange"] .glow-tertiary {
-  background: radial-gradient(circle, rgba(255, 140, 40, 0.06) 0%, transparent 70%);
-}
-
-[data-style="vibrant-orange"] .widget-love .ambient-line,
-.widget-love[data-style="vibrant-orange"] .ambient-line {
-  background: linear-gradient(90deg, rgba(255, 140, 60, 0.50) 0%, transparent 100%);
-}
-
-[data-style="vibrant-orange"] .widget-love .glass-card,
-.widget-love[data-style="vibrant-orange"] .glass-card {
-  background: rgba(255, 140, 60, 0.04);
-  border-color: rgba(255, 160, 80, 0.10);
-}
-
-[data-style="vibrant-orange"] .widget-love .unit-label,
-.widget-love[data-style="vibrant-orange"] .unit-label {
-  color: rgba(255, 160, 80, 0.50);
-}
-
-[data-style="vibrant-orange"] .widget-love .divider,
-.widget-love[data-style="vibrant-orange"] .divider {
-  background: rgba(255, 160, 80, 0.20);
-}
-
-/* 海洋蓝 */
-[data-style="ocean-blue"] .widget-love,
-.widget-love[data-style="ocean-blue"] {
-  background: linear-gradient(155deg, #0f1a2a 0%, #152035 35%, #0d1520 100%);
-}
-
-[data-style="ocean-blue"] .widget-love .glow-primary,
-.widget-love[data-style="ocean-blue"] .glow-primary {
-  background: radial-gradient(circle, rgba(0, 122, 255, 0.22) 0%, transparent 70%);
-}
-
-[data-style="ocean-blue"] .widget-love .glow-secondary,
-.widget-love[data-style="ocean-blue"] .glow-secondary {
-  background: radial-gradient(circle, rgba(0, 180, 255, 0.12) 0%, transparent 70%);
-}
-
-[data-style="ocean-blue"] .widget-love .glow-tertiary,
-.widget-love[data-style="ocean-blue"] .glow-tertiary {
-  background: radial-gradient(circle, rgba(0, 150, 255, 0.06) 0%, transparent 70%);
-}
-
-[data-style="ocean-blue"] .widget-love .ambient-line,
-.widget-love[data-style="ocean-blue"] .ambient-line {
-  background: linear-gradient(90deg, rgba(0, 140, 220, 0.50) 0%, transparent 100%);
-}
-
-[data-style="ocean-blue"] .widget-love .glass-card,
-.widget-love[data-style="ocean-blue"] .glass-card {
-  background: rgba(0, 140, 220, 0.04);
-  border-color: rgba(0, 160, 230, 0.10);
-}
-
-[data-style="ocean-blue"] .widget-love .unit-label,
-.widget-love[data-style="ocean-blue"] .unit-label {
-  color: rgba(0, 160, 230, 0.50);
-}
-
-[data-style="ocean-blue"] .widget-love .divider,
-.widget-love[data-style="ocean-blue"] .divider {
-  background: rgba(0, 160, 230, 0.20);
-}
-
-/* 森林绿 */
-[data-style="forest-green"] .widget-love,
-.widget-love[data-style="forest-green"] {
-  background: linear-gradient(155deg, #0f2a15 0%, #15351f 35%, #0d2010 100%);
-}
-
-[data-style="forest-green"] .widget-love .glow-primary,
-.widget-love[data-style="forest-green"] .glow-primary {
-  background: radial-gradient(circle, rgba(0, 200, 83, 0.22) 0%, transparent 70%);
-}
-
-[data-style="forest-green"] .widget-love .glow-secondary,
-.widget-love[data-style="forest-green"] .glow-secondary {
-  background: radial-gradient(circle, rgba(100, 220, 120, 0.12) 0%, transparent 70%);
-}
-
-[data-style="forest-green"] .widget-love .glow-tertiary,
-.widget-love[data-style="forest-green"] .glow-tertiary {
-  background: radial-gradient(circle, rgba(60, 210, 100, 0.06) 0%, transparent 70%);
-}
-
-[data-style="forest-green"] .widget-love .ambient-line,
-.widget-love[data-style="forest-green"] .ambient-line {
-  background: linear-gradient(90deg, rgba(80, 200, 100, 0.50) 0%, transparent 100%);
-}
-
-[data-style="forest-green"] .widget-love .glass-card,
-.widget-love[data-style="forest-green"] .glass-card {
-  background: rgba(80, 200, 100, 0.04);
-  border-color: rgba(100, 200, 120, 0.10);
-}
-
-[data-style="forest-green"] .widget-love .unit-label,
-.widget-love[data-style="forest-green"] .unit-label {
-  color: rgba(100, 200, 120, 0.50);
-}
-
-[data-style="forest-green"] .widget-love .divider,
-.widget-love[data-style="forest-green"] .divider {
-  background: rgba(100, 200, 120, 0.20);
-}
-
-/* 甜蜜粉 */
-[data-style="sweet-pink"] .widget-love,
-.widget-love[data-style="sweet-pink"] {
-  background: linear-gradient(155deg, #2a1020 0%, #35152a 35%, #1f0d18 100%);
-}
-
-[data-style="sweet-pink"] .widget-love .glow-primary,
-.widget-love[data-style="sweet-pink"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 107, 157, 0.22) 0%, transparent 70%);
-}
-
-[data-style="sweet-pink"] .widget-love .glow-secondary,
-.widget-love[data-style="sweet-pink"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 142, 83, 0.12) 0%, transparent 70%);
-}
-
-[data-style="sweet-pink"] .widget-love .glow-tertiary,
-.widget-love[data-style="sweet-pink"] .glow-tertiary {
-  background: radial-gradient(circle, rgba(255, 120, 140, 0.06) 0%, transparent 70%);
-}
-
-[data-style="sweet-pink"] .widget-love .ambient-line,
-.widget-love[data-style="sweet-pink"] .ambient-line {
-  background: linear-gradient(90deg, rgba(255, 120, 130, 0.50) 0%, transparent 100%);
-}
-
-[data-style="sweet-pink"] .widget-love .glass-card,
-.widget-love[data-style="sweet-pink"] .glass-card {
-  background: rgba(255, 120, 130, 0.04);
-  border-color: rgba(255, 140, 150, 0.10);
-}
-
-[data-style="sweet-pink"] .widget-love .unit-label,
-.widget-love[data-style="sweet-pink"] .unit-label {
-  color: rgba(255, 140, 150, 0.50);
-}
-
-[data-style="sweet-pink"] .widget-love .divider,
-.widget-love[data-style="sweet-pink"] .divider {
-  background: rgba(255, 140, 150, 0.20);
-}
-
-/* 柔和紫 */
-[data-style="soft-purple"] .widget-love,
-.widget-love[data-style="soft-purple"] {
-  background: linear-gradient(155deg, #1a102a 0%, #241538 35%, #150d22 100%);
-}
-
-[data-style="soft-purple"] .widget-love .glow-primary,
-.widget-love[data-style="soft-purple"] .glow-primary {
-  background: radial-gradient(circle, rgba(124, 77, 255, 0.22) 0%, transparent 70%);
-}
-
-[data-style="soft-purple"] .widget-love .glow-secondary,
-.widget-love[data-style="soft-purple"] .glow-secondary {
-  background: radial-gradient(circle, rgba(179, 136, 255, 0.12) 0%, transparent 70%);
-}
-
-[data-style="soft-purple"] .widget-love .glow-tertiary,
-.widget-love[data-style="soft-purple"] .glow-tertiary {
-  background: radial-gradient(circle, rgba(150, 100, 255, 0.06) 0%, transparent 70%);
-}
-
-[data-style="soft-purple"] .widget-love .ambient-line,
-.widget-love[data-style="soft-purple"] .ambient-line {
-  background: linear-gradient(90deg, rgba(160, 110, 255, 0.50) 0%, transparent 100%);
-}
-
-[data-style="soft-purple"] .widget-love .glass-card,
-.widget-love[data-style="soft-purple"] .glass-card {
-  background: rgba(160, 110, 255, 0.04);
-  border-color: rgba(170, 130, 255, 0.10);
-}
-
-[data-style="soft-purple"] .widget-love .unit-label,
-.widget-love[data-style="soft-purple"] .unit-label {
-  color: rgba(170, 130, 255, 0.50);
-}
-
-[data-style="soft-purple"] .widget-love .divider,
-.widget-love[data-style="soft-purple"] .divider {
-  background: rgba(170, 130, 255, 0.20);
-}
-
-/* 温暖黄 */
-[data-style="warm-yellow"] .widget-love,
-.widget-love[data-style="warm-yellow"] {
-  background: linear-gradient(155deg, #2a240f 0%, #363012 35%, #1f1a0a 100%);
-}
-
-[data-style="warm-yellow"] .widget-love .glow-primary,
-.widget-love[data-style="warm-yellow"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 214, 0, 0.22) 0%, transparent 70%);
-}
-
-[data-style="warm-yellow"] .widget-love .glow-secondary,
-.widget-love[data-style="warm-yellow"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 171, 0, 0.12) 0%, transparent 70%);
-}
-
-[data-style="warm-yellow"] .widget-love .glow-tertiary,
-.widget-love[data-style="warm-yellow"] .glow-tertiary {
-  background: radial-gradient(circle, rgba(255, 190, 30, 0.06) 0%, transparent 70%);
-}
-
-[data-style="warm-yellow"] .widget-love .ambient-line,
-.widget-love[data-style="warm-yellow"] .ambient-line {
-  background: linear-gradient(90deg, rgba(255, 190, 60, 0.50) 0%, transparent 100%);
-}
-
-[data-style="warm-yellow"] .widget-love .glass-card,
-.widget-love[data-style="warm-yellow"] .glass-card {
-  background: rgba(255, 190, 60, 0.04);
-  border-color: rgba(255, 200, 80, 0.10);
-}
-
-[data-style="warm-yellow"] .widget-love .unit-label,
-.widget-love[data-style="warm-yellow"] .unit-label {
-  color: rgba(255, 200, 80, 0.50);
-}
-
-[data-style="warm-yellow"] .widget-love .divider,
-.widget-love[data-style="warm-yellow"] .divider {
-  background: rgba(255, 200, 80, 0.20);
-}
-
-/* 极简暗 */
-[data-style="minimal-dark"] .widget-love,
-.widget-love[data-style="minimal-dark"] {
-  background: linear-gradient(155deg, #1a1a2e 0%, #16213e 35%, #0f0f1a 100%);
-}
-
-[data-style="minimal-dark"] .widget-love .glow-primary,
-.widget-love[data-style="minimal-dark"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
-}
-
-[data-style="minimal-dark"] .widget-love .glow-secondary,
-.widget-love[data-style="minimal-dark"] .glow-secondary {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-}
-
-[data-style="minimal-dark"] .widget-love .glow-tertiary,
-.widget-love[data-style="minimal-dark"] .glow-tertiary {
-  background: none;
-}
-
-[data-style="minimal-dark"] .widget-love .ambient-line,
-.widget-love[data-style="minimal-dark"] .ambient-line {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
-}
-
-[data-style="minimal-dark"] .widget-love .glass-card,
-.widget-love[data-style="minimal-dark"] .glass-card {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.06);
-}
-
-[data-style="minimal-dark"] .widget-love .unit-label,
-.widget-love[data-style="minimal-dark"] .unit-label {
-  color: rgba(255, 255, 255, 0.30);
-}
-
-[data-style="minimal-dark"] .widget-love .divider,
-.widget-love[data-style="minimal-dark"] .divider {
-  background: rgba(255, 255, 255, 0.10);
-}
-
-/* ── 背景光晕 — 三层呼吸系统 ── */
-
-/* 主光晕：右上角，缓慢呼吸 */
-.widget-love .glow-primary {
-  position: absolute;
-  top: 8%;
-  right: -8%;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 120, 180, 0.22) 0%, transparent 70%);
-  filter: blur(60px);
-  pointer-events: none;
-  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
-}
-
-/* 副光晕：左下角 */
-.widget-love .glow-secondary {
-  position: absolute;
-  bottom: 20%;
-  left: -12%;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 150, 100, 0.12) 0%, transparent 70%);
-  filter: blur(45px);
-  pointer-events: none;
-  animation: breathing-glow var(--anim-breathing-duration, 4s) ease-in-out infinite;
-  animation-delay: -2s;
-}
-
-/* 第三光晕：中部漫反射 */
-.widget-love .glow-tertiary {
-  position: absolute;
-  top: 40%;
-  left: 30%;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 140, 180, 0.06) 0%, transparent 60%);
-  filter: blur(80px);
-  pointer-events: none;
-}
-
-/* ── 氛围光线（底部） ── */
-.widget-love .ambient-line {
+/* Bottom darken overlay: 896x600, positioned at y=864 */
+.widget-love .bottom-darken {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 55%;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(220, 140, 180, 0.50) 0%, transparent 100%);
-  border-radius: 1px;
-  opacity: 1;
+  width: 100%;
+  height: 600px;
+  background: rgba(26, 10, 21, 0.31);
   pointer-events: none;
 }
 
-/* ── 毛玻璃信息卡片 ── */
-.widget-love .glass-card {
-  position: relative;
-  z-index: 1;
-  background: rgba(200, 120, 180, 0.04);
-  backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 32px 24px 28px;
-  box-shadow:
-    var(--glass-inner-glow),
-    var(--shadow-subtle);
-  overflow: hidden;
-  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
-}
-
-/* 高光扫过效果 */
-.widget-love .glass-highlight {
+/* Glass panel: 776x532, positioned at x=60 y=884 (bottom: 1464-884-532=48) */
+.widget-love .glass-panel {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 60px;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.04) 50%,
-    transparent 100%
-  );
-  animation: light-sweep var(--anim-sweep-duration, 3s) ease-in-out infinite;
-  animation-delay: 2s;
-  pointer-events: none;
+  bottom: 48px;
+  left: 60px;
+  width: 776px;
+  min-height: 532px;
+  border-radius: 28px;
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  z-index: 2;
 }
 
-/* ── 核心数字 ── */
-.widget-love .hero-number {
-  font-family: var(--font-hero-family);
-  font-size: var(--size-hero-md);
-  font-weight: var(--font-hero-weight);
-  letter-spacing: var(--font-hero-letter-spacing);
-  line-height: var(--font-hero-line-height);
-  margin-bottom: var(--gap-hero-to-unit);
-  perspective: 500px;
-
-  /* 数字渐变色：白色渐变 */
-  background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.6) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Emoji icon */
+.widget-love .icon-emoji {
+  font-size: 32px;
+  line-height: 1.2;
 }
 
-/* 数字翻牌动画 */
-.widget-love .digit-group {
-  display: inline-block;
-  transform-origin: center bottom;
+/* Big number */
+.widget-love .big-number {
+  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+  font-size: 160px;
+  font-weight: 300;
+  letter-spacing: -4px;
+  line-height: 1;
+  color: #F5F5F0;
 }
 
-.widget-love .digit-group.flip-out {
-  animation: digit-flip-out var(--anim-digit-flip-duration, 0.3s) ease-in forwards;
+/* Label text */
+.widget-love .label-text {
+  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+  font-size: 42px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: rgba(245, 245, 240, 0.82);
 }
 
-.widget-love .digit-group.flip-in {
-  animation: digit-flip-in var(--anim-digit-flip-duration, 0.3s) ease-out forwards;
-}
-
-/* ── 英文单位标注 ── */
-.widget-love .unit-label {
-  font-family: var(--font-en-family);
-  font-size: var(--size-unit);
-  font-weight: var(--font-weight-medium, 500);
-  letter-spacing: var(--letter-spacing-unit, 3px);
-  text-transform: uppercase;
-  color: var(--love-label-dark);
-  margin-bottom: var(--gap-unit-to-divider);
-}
-
-/* ── 分割线 ── */
+/* Divider */
 .widget-love .divider {
-  width: 24px;
-  height: 1px;
-  background: var(--love-line);
-  margin-bottom: var(--gap-divider-to-subtitle);
+  width: 48px;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.38);
+  flex-shrink: 0;
 }
 
-/* ── 中文副标题 ── */
-.widget-love .subtitle-cn {
-  font-family: var(--font-cn-family);
-  font-size: var(--size-subtitle);
-  font-weight: var(--font-weight-regular, 400);
-  color: rgba(255, 255, 255, 0.75);
-  letter-spacing: var(--letter-spacing-body, 0.3px);
-  margin-bottom: var(--gap-subtitle-caption);
+/* Subtitle */
+.widget-love .subtitle {
+  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #F5F5F0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
 }
 
-/* ── 中文辅助信息 ── */
-.widget-love .caption-cn {
-  font-family: var(--font-cn-family);
-  font-size: var(--size-caption);
-  font-weight: var(--font-weight-regular, 400);
-  color: rgba(255, 255, 255, 0.30);
-  letter-spacing: 0.2px;
+/* Date text */
+.widget-love .date-text {
+  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(245, 245, 240, 0.63);
 }
 
-/* ── 动态配色（color-engine） ── */
-[data-style="dynamic"] .widget-love {
-  background: var(--dyn-bg);
-}
+/* Photo loading state: hidden until image loads, then fades in */
+.widget-love .photo-area.loading { opacity: 0; }
 
-/* ── WebView 兼容性 ── */
-
-@supports not (-webkit-background-clip: text) {
-  .widget-love .hero-number {
-    background: none;
-    -webkit-text-fill-color: initial;
-    color: #ffffff;
-  }
-}
-
-@supports not ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
-  .widget-love .glass-card {
-    background: rgba(30, 20, 35, 0.85);
-  }
-}
-
-@supports not (filter: blur(50px)) {
-  .widget-love .glow-primary,
-  .widget-love .glow-secondary,
-  .widget-love .glow-tertiary {
-    filter: none;
-    opacity: 0.5;
-  }
-}
-
-/* ─── 响应式（开发预览） ─── */
-@media (max-width: 900px) {
-  .widget-love {
-    width: 100%;
-    height: 100%;
-  }
+/* Easter egg canvas overlay */
+.widget-love .easter-egg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
 }

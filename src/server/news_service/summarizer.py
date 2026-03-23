@@ -1,8 +1,8 @@
 """
 新闻 AI 摘要服务
 
-使用 LLM 将长新闻正文压缩为适合卡片展示的短摘要（≤60字）
-复用项目已有的 Qwen API 通道
+使用 LLM 将长新闻正文压缩为 150-300 字摘要 + 关键观点
+v2.0：增强摘要质量，适合车载新闻流卡片
 """
 
 import os
@@ -26,7 +26,7 @@ class NewsSummarizer:
         self.model = model or os.getenv("AI_MODEL", "qwen-plus")
         self.endpoint = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
 
-    async def summarize_batch(self, items: List[NewsItem], max_summary_len: int = 60) -> List[NewsItem]:
+    async def summarize_batch(self, items: List[NewsItem], max_summary_len: int = 300) -> List[NewsItem]:
         """
         批量生成摘要
 
@@ -74,13 +74,14 @@ class NewsSummarizer:
         )
 
         system_prompt = (
-            "你是一个新闻摘要助手。将每条新闻压缩为一句话摘要，"
-            f"每条不超过{max_len}字。简洁、信息密度高、适合车载卡片展示。"
+            "你是一个专业新闻编辑。为每条新闻生成 150-300 字的高质量摘要。"
+            "要求：提取 2-3 个关键观点，包含具体数据和事实，"
+            "语言简洁有力，适合车载新闻卡片阅读。"
         )
 
         user_prompt = (
-            f"请为以下{len(items)}条新闻各生成一句话摘要，"
-            f"每条不超过{max_len}字。\n"
+            f"请为以下{len(items)}条新闻各生成一段摘要（150-300字），"
+            "包含关键事实和核心观点。\n"
             "只输出 JSON 数组，格式：[\"摘要1\", \"摘要2\", ...]\n\n"
             f"{news_text}"
         )

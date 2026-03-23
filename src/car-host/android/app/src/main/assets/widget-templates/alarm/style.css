@@ -1,284 +1,46 @@
 /**
- * 闹钟 · 小米橙 — Liquid Glass Edition
+ * 闹钟 · 多闹钟管理 — Liquid Glass Edition
  *
- * 进度环 + 毛玻璃信息区 + 日夜感知
- * 支持风格预设切换
+ * 列表视图 + 表盘视图 + 新建闹钟浮层
+ * 设计尺寸 896×1464
  */
 
 /* 基础重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: transparent;
-}
-
-/* 卡片容器 */
+/* ── 卡片容器 ── */
 .widget-alarm {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 60px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 48px 28px 32px;
+  padding: 0;
   box-sizing: border-box;
-
-  background: var(--alarm-bg-dark, linear-gradient(145deg, #1a120e 0%, #140e0c 100%));
+  background: #1A1A1C;
   border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-/* 日夜感知 — 夜间模式（默认暗色已是夜间） */
-.widget-alarm[data-time="day"] {
-  background: linear-gradient(145deg, #1f1812 0%, #1a1510 100%);
 }
 
 /* ── 背景光晕 ── */
 .widget-alarm .glow-primary {
   position: absolute;
-  top: 15%;
-  right: -5%;
-  width: 220px;
-  height: 220px;
+  top: 10%;
+  right: -10%;
+  width: 660px;
+  height: 660px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 106, 0, 0.12) 0%, transparent 70%);
-  filter: blur(50px);
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.08) 0%, transparent 70%);
+  filter: blur(150px);
   pointer-events: none;
   animation: breathing-glow 5s ease-in-out infinite;
 }
 
-/* ── 风格预设 ── */
-
-/* 活力橙 - 默认 */
-[data-style="vibrant-orange"] .widget-alarm .ring-progress,
-.widget-alarm[data-style="vibrant-orange"] .ring-progress { stroke: rgba(255, 106, 0, 0.60); }
-[data-style="vibrant-orange"] .widget-alarm .unit-label,
-.widget-alarm[data-style="vibrant-orange"] .unit-label { color: rgba(255, 106, 0, 0.35); }
-[data-style="vibrant-orange"] .widget-alarm .divider,
-.widget-alarm[data-style="vibrant-orange"] .divider { background: rgba(255, 106, 0, 0.15); }
-[data-style="vibrant-orange"] .widget-alarm .category-label,
-.widget-alarm[data-style="vibrant-orange"] .category-label { color: rgba(255, 106, 0, 0.40); }
-[data-style="vibrant-orange"] .widget-alarm .ambient-line,
-.widget-alarm[data-style="vibrant-orange"] .ambient-line { background: linear-gradient(90deg, rgba(255, 106, 0, 0.35) 0%, transparent 100%); }
-[data-style="vibrant-orange"] .widget-alarm .glass-info,
-.widget-alarm[data-style="vibrant-orange"] .glass-info { background: rgba(255, 106, 0, 0.03); border-color: rgba(255, 106, 0, 0.08); }
-[data-style="vibrant-orange"] .widget-alarm .glow-primary,
-.widget-alarm[data-style="vibrant-orange"] .glow-primary { background: radial-gradient(circle, rgba(255, 106, 0, 0.14) 0%, transparent 70%); }
-
-/* 海洋蓝 */
-[data-style="ocean-blue"] .widget-alarm,
-.widget-alarm[data-style="ocean-blue"] { background: linear-gradient(145deg, #0f1a2a 0%, #0d1520 100%); }
-[data-style="ocean-blue"] .widget-alarm .ring-progress,
-.widget-alarm[data-style="ocean-blue"] .ring-progress { stroke: rgba(0, 122, 255, 0.60); }
-[data-style="ocean-blue"] .widget-alarm .unit-label,
-.widget-alarm[data-style="ocean-blue"] .unit-label { color: rgba(0, 122, 255, 0.35); }
-[data-style="ocean-blue"] .widget-alarm .divider,
-.widget-alarm[data-style="ocean-blue"] .divider { background: rgba(0, 122, 255, 0.15); }
-[data-style="ocean-blue"] .widget-alarm .category-label,
-.widget-alarm[data-style="ocean-blue"] .category-label { color: rgba(0, 122, 255, 0.40); }
-[data-style="ocean-blue"] .widget-alarm .ambient-line,
-.widget-alarm[data-style="ocean-blue"] .ambient-line { background: linear-gradient(90deg, rgba(0, 122, 255, 0.35) 0%, transparent 100%); }
-[data-style="ocean-blue"] .widget-alarm .glass-info,
-.widget-alarm[data-style="ocean-blue"] .glass-info { background: rgba(0, 122, 255, 0.03); border-color: rgba(0, 122, 255, 0.08); }
-[data-style="ocean-blue"] .widget-alarm .glow-primary,
-.widget-alarm[data-style="ocean-blue"] .glow-primary { background: radial-gradient(circle, rgba(0, 122, 255, 0.14) 0%, transparent 70%); }
-
-/* 森林绿 */
-[data-style="forest-green"] .widget-alarm,
-.widget-alarm[data-style="forest-green"] { background: linear-gradient(145deg, #0f2a15 0%, #0d2010 100%); }
-[data-style="forest-green"] .widget-alarm .ring-progress,
-.widget-alarm[data-style="forest-green"] .ring-progress { stroke: rgba(0, 200, 83, 0.60); }
-[data-style="forest-green"] .widget-alarm .unit-label,
-.widget-alarm[data-style="forest-green"] .unit-label { color: rgba(0, 200, 83, 0.35); }
-[data-style="forest-green"] .widget-alarm .divider,
-.widget-alarm[data-style="forest-green"] .divider { background: rgba(0, 200, 83, 0.15); }
-[data-style="forest-green"] .widget-alarm .category-label,
-.widget-alarm[data-style="forest-green"] .category-label { color: rgba(0, 200, 83, 0.40); }
-[data-style="forest-green"] .widget-alarm .ambient-line,
-.widget-alarm[data-style="forest-green"] .ambient-line { background: linear-gradient(90deg, rgba(0, 200, 83, 0.35) 0%, transparent 100%); }
-[data-style="forest-green"] .widget-alarm .glass-info,
-.widget-alarm[data-style="forest-green"] .glass-info { background: rgba(0, 200, 83, 0.03); border-color: rgba(0, 200, 83, 0.08); }
-[data-style="forest-green"] .widget-alarm .glow-primary,
-.widget-alarm[data-style="forest-green"] .glow-primary { background: radial-gradient(circle, rgba(0, 200, 83, 0.14) 0%, transparent 70%); }
-
-/* 极简暗 */
-[data-style="minimal-dark"] .widget-alarm,
-.widget-alarm[data-style="minimal-dark"] { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); }
-[data-style="minimal-dark"] .widget-alarm .ring-progress,
-.widget-alarm[data-style="minimal-dark"] .ring-progress { stroke: rgba(255, 106, 0, 0.50); }
-[data-style="minimal-dark"] .widget-alarm .unit-label,
-.widget-alarm[data-style="minimal-dark"] .unit-label { color: rgba(255, 106, 0, 0.35); }
-[data-style="minimal-dark"] .widget-alarm .divider,
-.widget-alarm[data-style="minimal-dark"] .divider { background: rgba(255, 106, 0, 0.15); }
-[data-style="minimal-dark"] .widget-alarm .category-label,
-.widget-alarm[data-style="minimal-dark"] .category-label { color: rgba(255, 106, 0, 0.40); }
-[data-style="minimal-dark"] .widget-alarm .ambient-line,
-.widget-alarm[data-style="minimal-dark"] .ambient-line { background: linear-gradient(90deg, rgba(255, 106, 0, 0.35) 0%, transparent 100%); }
-
-/* 数码霓虹 */
-[data-style="digital-neon"] .widget-alarm,
-.widget-alarm[data-style="digital-neon"] { background: linear-gradient(145deg, #1a0a2e 0%, #140620 100%); }
-[data-style="digital-neon"] .widget-alarm .ring-progress,
-.widget-alarm[data-style="digital-neon"] .ring-progress { stroke: rgba(189, 0, 255, 0.60); }
-[data-style="digital-neon"] .widget-alarm .unit-label,
-.widget-alarm[data-style="digital-neon"] .unit-label { color: rgba(189, 0, 255, 0.50); }
-[data-style="digital-neon"] .widget-alarm .divider,
-.widget-alarm[data-style="digital-neon"] .divider { background: rgba(189, 0, 255, 0.30); }
-[data-style="digital-neon"] .widget-alarm .category-label,
-.widget-alarm[data-style="digital-neon"] .category-label { color: rgba(189, 0, 255, 0.60); }
-[data-style="digital-neon"] .widget-alarm .ambient-line,
-.widget-alarm[data-style="digital-neon"] .ambient-line { background: linear-gradient(90deg, rgba(189, 0, 255, 0.50) 0%, transparent 100%); }
-[data-style="digital-neon"] .widget-alarm .alarm-time,
-.widget-alarm[data-style="digital-neon"] .alarm-time { text-shadow: 0 0 30px rgba(189, 0, 255, 0.40); }
-[data-style="digital-neon"] .widget-alarm .glass-info,
-.widget-alarm[data-style="digital-neon"] .glass-info { background: rgba(189, 0, 255, 0.03); border-color: rgba(189, 0, 255, 0.10); }
-[data-style="digital-neon"] .widget-alarm .glow-primary,
-.widget-alarm[data-style="digital-neon"] .glow-primary { background: radial-gradient(circle, rgba(189, 0, 255, 0.14) 0%, transparent 70%); }
-
-/* ── 内容区 ── */
-.widget-alarm .content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* ── 左侧类别标注 ── */
-.widget-alarm .category-label {
-  position: absolute;
-  top: -16px;
-  left: 0;
-  font-family: var(--font-en-family);
-  font-size: var(--size-unit);
-  font-weight: var(--font-weight-medium, 500);
-  letter-spacing: var(--letter-spacing-category, 2px);
-  text-transform: uppercase;
-  color: rgba(255, 106, 0, 0.40);
-}
-
-/* ── 右上角当前时间 ── */
-.widget-alarm .current-time {
-  position: absolute;
-  top: -16px;
-  right: 0;
-  font-family: var(--font-en-family);
-  font-size: var(--size-caption);
-  color: rgba(255, 255, 255, 0.25);
-  letter-spacing: 1px;
-}
-
-/* ── 进度环容器 ── */
-.widget-alarm .ring-container {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  margin-bottom: 24px;
-}
-
-.widget-alarm .progress-ring {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.widget-alarm .ring-bg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.04);
-  stroke-width: 2;
-}
-
-.widget-alarm .ring-progress {
-  fill: none;
-  stroke: rgba(255, 106, 0, 0.60);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-dasharray: 553;
-  stroke-dashoffset: 553;
-  transition: stroke-dashoffset 1s ease-out;
-}
-
-/* ── 环内内容 ── */
-.widget-alarm .ring-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.widget-alarm .alarm-time {
-  font-family: var(--font-hero-family);
-  font-size: 56px;
-  font-weight: var(--font-hero-weight);
-  letter-spacing: -2px;
-  line-height: 1;
-  background: linear-gradient(180deg, #ffffff 20%, rgba(255,255,255,0.55) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
-}
-
-.widget-alarm .time-remaining {
-  font-family: var(--font-cn-family);
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.30);
-  margin-top: 4px;
-  letter-spacing: 0.3px;
-}
-
-/* ── 毛玻璃信息区 ── */
-.widget-alarm .glass-info {
-  background: rgba(255, 106, 0, 0.03);
-  backdrop-filter: blur(16px) saturate(1.6);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 16px 24px;
-  text-align: center;
-  width: 100%;
-  max-width: 260px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-/* ── 英文单位标注 ── */
-.widget-alarm .unit-label {
-  font-family: var(--font-en-family);
-  font-size: var(--size-unit);
-  font-weight: var(--font-weight-medium, 500);
-  letter-spacing: var(--letter-spacing-unit-wide, 4px);
-  text-transform: uppercase;
-  color: rgba(255, 106, 0, 0.35);
-  margin-bottom: 10px;
-}
-
-/* ── 分割线 ── */
-.widget-alarm .divider {
-  width: 24px;
-  height: 1px;
-  background: rgba(255, 106, 0, 0.15);
-  margin: 0 auto 10px;
-}
-
-/* ── 中文说明 ── */
-.widget-alarm .subtitle-cn {
-  font-family: var(--font-cn-family);
-  font-size: var(--size-subtitle);
-  font-weight: var(--font-weight-regular, 400);
-  color: rgba(255, 255, 255, 0.65);
-  letter-spacing: 0.2px;
+@keyframes breathing-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 /* ── 氛围光线 ── */
@@ -287,34 +49,698 @@ html, body {
   bottom: 0;
   left: 0;
   width: 45%;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(255, 106, 0, 0.35) 0%, transparent 100%);
+  height: 6px;
+  background: linear-gradient(90deg, rgba(74, 222, 128, 0.35) 0%, transparent 100%);
   border-radius: 1px;
   pointer-events: none;
 }
 
-/* ── 动态配色（color-engine） ── */
+/* ── 内容区 ── */
+.alarm-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 96px 64px 84px;
+  overflow: visible;
+  min-height: 0; /* 允许 flex 子元素滚动 */
+}
+
+/* ── Header ── */
+.alarm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.alarm-title {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 52px;
+  font-weight: 600;
+  color: #F5F5F0;
+  letter-spacing: 0.5px;
+}
+
+.alarm-menu {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(245, 245, 240, 0.35);
+  cursor: pointer;
+  letter-spacing: 4px;
+  -webkit-tap-highlight-color: transparent;
+  padding: 8px 0;
+}
+
+/* ── 倒计时文字 ── */
+.countdown-text {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 36px;
+  color: rgba(245, 245, 240, 0.35);
+  margin-bottom: 48px;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+
+/* ══════════════════════════════════
+   列表视图
+   ══════════════════════════════════ */
+
+.alarm-list-view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.alarm-list-view::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+.alarm-list-view::-webkit-scrollbar-track {
+  background: transparent;
+}
+.alarm-list-view::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* ── 分类标签 ── */
+.section-label {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #4ADE80;
+  letter-spacing: 1px;
+  margin-top: 36px;
+  margin-bottom: 24px;
+  padding-left: 4px;
+}
+
+.section-label:first-child {
+  margin-top: 0;
+}
+
+/* ── 闹钟行 ── */
+.alarm-row {
+  display: flex;
+  align-items: center;
+  min-height: 160px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  transition: opacity 0.25s ease;
+  position: relative;
+}
+
+.alarm-row.disabled {
+  opacity: 0.45;
+}
+
+.alarm-row-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-shrink: 0;
+  min-width: 240px;
+}
+
+.alarm-time {
+  font-family: 'Bebas Neue', 'MiSans_VF', sans-serif;
+  font-size: 72px;
+  font-weight: 400;
+  color: #F5F5F0;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.alarm-period {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: rgba(245, 245, 240, 0.35);
+  margin-left: 4px;
+}
+
+.alarm-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 24px;
+  min-width: 0;
+}
+
+.alarm-repeat {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  color: rgba(245, 245, 240, 0.45);
+  letter-spacing: 0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alarm-label {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 26px;
+  color: rgba(245, 245, 240, 0.25);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 开关 ── */
+.alarm-toggle {
+  position: relative;
+  width: 64px;
+  height: 36px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.10);
+  cursor: pointer;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+  margin-left: 20px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.alarm-toggle.on {
+  background: #4ADE80;
+}
+
+.alarm-toggle .toggle-knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: #fff;
+  transition: transform 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.alarm-toggle.on .toggle-knob {
+  transform: translateX(28px);
+}
+
+/* ══════════════════════════════════
+   FAB 按钮
+   ══════════════════════════════════ */
+
+.fab-add-alarm {
+  position: absolute;
+  bottom: 120px;
+  right: 84px;
+  width: 96px;
+  height: 96px;
+  border-radius: 48px;
+  background: rgba(74, 222, 128, 0.15);
+  border: none;
+  color: #4ADE80;
+  font-size: 52px;
+  font-weight: 300;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.fab-add-alarm:active {
+  transform: scale(0.92);
+}
+
+/* ══════════════════════════════════
+   表盘视图
+   ══════════════════════════════════ */
+
+.alarm-dial-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.alarm-dial-view::-webkit-scrollbar { width: 4px; }
+.alarm-dial-view::-webkit-scrollbar-track { background: transparent; }
+.alarm-dial-view::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ── SVG 时钟 ── */
+.clock-face {
+  width: 520px;
+  height: 520px;
+  flex-shrink: 0;
+}
+
+.clock-number {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  fill: #F5F5F0;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.clock-tick {
+  stroke: rgba(245, 245, 240, 0.15);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.clock-tick-major {
+  stroke: rgba(245, 245, 240, 0.3);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.clock-hand-hour {
+  stroke: #F5F5F0;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.clock-hand-minute {
+  stroke: rgba(245, 245, 240, 0.6);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.clock-center-dot {
+  fill: #F5F5F0;
+}
+
+.alarm-marker {
+  fill: #4ADE80;
+  filter: drop-shadow(0 0 4px rgba(74, 222, 128, 0.5));
+}
+
+.alarm-marker-disabled {
+  fill: rgba(245, 245, 240, 0.2);
+  filter: none;
+}
+
+.clock-rim {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 2;
+}
+
+/* ── 表盘下方信息 ── */
+.dial-time {
+  font-family: 'Bebas Neue', 'MiSans_VF', sans-serif;
+  font-size: 80px;
+  font-weight: 400;
+  color: #F5F5F0;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-top: 32px;
+  line-height: 1;
+}
+
+.dial-countdown {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 30px;
+  color: rgba(245, 245, 240, 0.35);
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 36px;
+}
+
+/* ── 表盘紧凑闹钟列表 ── */
+.dial-alarm-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dial-alarm-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dial-alarm-row.disabled {
+  opacity: 0.45;
+}
+
+.dial-alarm-time {
+  font-family: 'Bebas Neue', 'MiSans_VF', sans-serif;
+  font-size: 44px;
+  font-weight: 400;
+  color: #F5F5F0;
+  letter-spacing: 1px;
+  line-height: 1;
+  min-width: 120px;
+}
+
+.dial-alarm-period {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 22px;
+  color: rgba(245, 245, 240, 0.35);
+  margin-left: 6px;
+  margin-right: auto;
+}
+
+.dial-alarm-label {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  color: rgba(245, 245, 240, 0.35);
+  margin-right: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.dial-alarm-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4ADE80;
+  flex-shrink: 0;
+}
+
+.dial-alarm-row.disabled .dial-alarm-dot {
+  background: rgba(245, 245, 240, 0.2);
+}
+
+/* ══════════════════════════════════
+   新建闹钟浮层（自定义，不使用通用overlay）
+   ══════════════════════════════════ */
+
+.new-alarm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.new-alarm-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.new-alarm-panel {
+  width: 760px;
+  border-radius: 36px;
+  background: #1E1E22;
+  backdrop-filter: blur(60px) saturate(1.8);
+  -webkit-backdrop-filter: blur(60px) saturate(1.8);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(40px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.new-alarm-backdrop.visible .new-alarm-panel {
+  transform: translateY(0);
+}
+
+/* Header */
+.new-alarm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88px;
+  padding: 0 36px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.new-alarm-header-btn {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  color: rgba(245, 245, 240, 0.4);
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.new-alarm-header-btn.save {
+  color: #4ADE80;
+  font-weight: 600;
+}
+
+.new-alarm-header-title {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  color: #F5F5F0;
+}
+
+/* Time display */
+.new-alarm-time-display {
+  text-align: center;
+  padding: 48px 0 12px;
+  flex-shrink: 0;
+}
+
+.new-alarm-time-text {
+  font-family: 'Bebas Neue', 'MiSans_VF', sans-serif;
+  font-size: 120px;
+  font-weight: 400;
+  color: #F5F5F0;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.new-alarm-time-colon {
+  color: rgba(245, 245, 240, 0.4);
+}
+
+/* Time pickers */
+.new-alarm-pickers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding: 24px 0 36px;
+  flex-shrink: 0;
+}
+
+.picker-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.picker-btn {
+  width: 72px;
+  height: 52px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(245, 245, 240, 0.5);
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.picker-btn:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.picker-value {
+  font-family: 'Bebas Neue', 'MiSans_VF', sans-serif;
+  font-size: 60px;
+  font-weight: 400;
+  color: #F5F5F0;
+  line-height: 1;
+  min-width: 72px;
+  text-align: center;
+}
+
+.picker-label {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 22px;
+  color: rgba(245, 245, 240, 0.3);
+  margin-top: 4px;
+}
+
+.picker-separator {
+  font-family: 'Bebas Neue', 'MiSans_VF', sans-serif;
+  font-size: 60px;
+  color: rgba(245, 245, 240, 0.3);
+  line-height: 1;
+  padding-bottom: 32px;
+}
+
+/* AM/PM toggle */
+.ampm-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+.ampm-btn {
+  width: 72px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(245, 245, 240, 0.4);
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+
+.ampm-btn.active {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.3);
+  color: #4ADE80;
+}
+
+/* Repeat days */
+.new-alarm-section {
+  padding: 0 36px;
+  margin-bottom: 28px;
+}
+
+.new-alarm-section-title {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 26px;
+  color: rgba(245, 245, 240, 0.35);
+  margin-bottom: 16px;
+}
+
+.repeat-days {
+  display: flex;
+  gap: 12px;
+}
+
+.day-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(245, 245, 240, 0.5);
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+
+.day-circle.active {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #4ADE80;
+  font-weight: 600;
+}
+
+.repeat-presets {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.preset-btn {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 24px;
+  color: rgba(245, 245, 240, 0.4);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  padding: 10px 28px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+
+.preset-btn.active {
+  color: #4ADE80;
+  background: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.25);
+}
+
+/* Label input */
+.new-alarm-label-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  color: #F5F5F0;
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  padding: 18px 24px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.new-alarm-label-input::placeholder {
+  color: rgba(245, 245, 240, 0.2);
+}
+
+.new-alarm-label-input:focus {
+  border-color: rgba(74, 222, 128, 0.35);
+}
+
+/* Bottom spacer for overlay */
+.new-alarm-bottom-spacer {
+  height: 36px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════
+   动态配色 (color-engine)
+   ══════════════════════════════════ */
+
 [data-style="dynamic"] .widget-alarm {
   background: var(--dyn-bg);
 }
 
 /* ── WebView 兼容 ── */
-
-@supports not (-webkit-background-clip: text) {
-  .widget-alarm .alarm-time {
-    background: none;
-    -webkit-text-fill-color: initial;
-    color: #ffffff;
-  }
-}
-
 @supports not ((-webkit-backdrop-filter: blur(16px)) or (backdrop-filter: blur(16px))) {
-  .widget-alarm .glass-info {
-    background: rgba(30, 20, 15, 0.80);
+  .new-alarm-panel {
+    background: #1E1E22;
   }
 }
 
-/* ─── 响应式 ─── */
+/* ── 响应式 ── */
 @media (max-width: 900px) {
   .widget-alarm {
     width: 100%;

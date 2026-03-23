@@ -13,12 +13,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-calendar {
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 60px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 32px 28px 28px;
+  padding: 96px 84px 84px;
   box-sizing: border-box;
   background: linear-gradient(160deg, #12141a 0%, #151820 40%, #0e1015 100%);
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -62,12 +62,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 [data-style="nature-green"] .widget-calendar .event-dot,
 .widget-calendar[data-style="nature-green"] .event-dot {
   background: rgba(80, 200, 130, 0.40);
-  box-shadow: 0 0 6px rgba(80, 200, 130, 0.25);
+  box-shadow: 0 0 18px rgba(80, 200, 130, 0.25);
 }
 [data-style="nature-green"] .widget-calendar .event-item.current .event-dot,
 .widget-calendar[data-style="nature-green"] .event-item.current .event-dot {
   background: rgba(80, 200, 130, 0.90);
-  box-shadow: 0 0 8px rgba(80, 200, 130, 0.45);
+  box-shadow: 0 0 24px rgba(80, 200, 130, 0.45);
 }
 [data-style="nature-green"] .widget-calendar .event-connector,
 .widget-calendar[data-style="nature-green"] .event-connector {
@@ -112,12 +112,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 [data-style="elegant-white"] .widget-calendar .event-dot,
 .widget-calendar[data-style="elegant-white"] .event-dot {
   background: rgba(240, 220, 180, 0.40);
-  box-shadow: 0 0 6px rgba(240, 220, 180, 0.20);
+  box-shadow: 0 0 18px rgba(240, 220, 180, 0.20);
 }
 [data-style="elegant-white"] .widget-calendar .event-item.current .event-dot,
 .widget-calendar[data-style="elegant-white"] .event-item.current .event-dot {
   background: rgba(240, 220, 180, 0.90);
-  box-shadow: 0 0 8px rgba(240, 220, 180, 0.40);
+  box-shadow: 0 0 24px rgba(240, 220, 180, 0.40);
 }
 [data-style="elegant-white"] .widget-calendar .event-connector,
 .widget-calendar[data-style="elegant-white"] .event-connector {
@@ -138,11 +138,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   position: absolute;
   top: 5%;
   right: -10%;
-  width: 240px;
-  height: 240px;
+  width: 720px;
+  height: 720px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(140, 160, 200, 0.10) 0%, transparent 70%);
-  filter: blur(50px);
+  filter: blur(150px);
   pointer-events: none;
   animation: breathing-glow 5s ease-in-out infinite;
 }
@@ -153,7 +153,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   bottom: 0;
   left: 0;
   width: 42%;
-  height: 2px;
+  height: 6px;
   background: linear-gradient(90deg, rgba(140, 160, 200, 0.30) 0%, transparent 100%);
   border-radius: 1px;
   pointer-events: none;
@@ -173,22 +173,22 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  margin-bottom: 72px;
+  padding-bottom: 48px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .widget-calendar .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
 }
 
 .widget-calendar .header-indicator {
-  width: 3px;
-  height: 14px;
+  width: 9px;
+  height: 42px;
   background: rgba(140, 160, 200, 0.85);
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .widget-calendar .category-label {
@@ -210,16 +210,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-calendar .date-hero {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 30px;
+  margin-bottom: 24px;
   animation: entrance-fadeIn 0.6s ease-out;
 }
 
 .widget-calendar .date-number {
   font-family: 'Bebas Neue', var(--font-hero-family);
-  font-size: 80px;
+  font-size: 240px;
   font-weight: 400;
-  letter-spacing: -2px;
+  letter-spacing: -6px;
   line-height: 0.85;
   background: linear-gradient(180deg, #ffffff 20%, rgba(255, 255, 255, 0.55) 100%);
   -webkit-background-clip: text;
@@ -230,13 +230,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-calendar .date-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-bottom: 8px;
+  gap: 6px;
+  padding-bottom: 24px;
 }
 
 .widget-calendar .date-month {
   font-family: var(--font-cn-family);
-  font-size: 14px;
+  font-size: 42px;
   font-weight: var(--font-weight-medium, 500);
   color: rgba(255, 255, 255, 0.65);
   line-height: 1.2;
@@ -244,7 +244,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-calendar .date-year {
   font-family: var(--font-en-family);
-  font-size: 12px;
+  font-size: 36px;
   color: rgba(255, 255, 255, 0.25);
   line-height: 1.2;
 }
@@ -252,33 +252,37 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* ── 农历信息 ── */
 .widget-calendar .lunar-info {
   font-family: var(--font-cn-family);
-  font-size: 13px;
+  font-size: 39px;
   color: rgba(255, 255, 255, 0.30);
-  margin-bottom: 24px;
-  letter-spacing: 0.3px;
+  margin-bottom: 72px;
+  letter-spacing: 0.9px;
 }
 
 /* ── 毛玻璃时间线 ── */
 .widget-calendar .glass-timeline {
   background: rgba(140, 160, 200, 0.04);
-  backdrop-filter: blur(16px) saturate(1.6);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  backdrop-filter: blur(48px) saturate(1.6);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-bottom: 16px;
+  border-radius: 36px;
+  padding: 48px 54px;
+  margin-bottom: 48px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   display: flex;
   flex-direction: column;
   gap: 0;
+  max-height: 600px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
+.widget-calendar .glass-timeline::-webkit-scrollbar { width: 0; display: none; }
 
 /* ── 事件项 ── */
 .widget-calendar .event-item {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  padding: 10px 0;
+  gap: 42px;
+  padding: 30px 0;
   position: relative;
   animation: stagger-fadeIn 0.5s ease-out both;
 }
@@ -290,12 +294,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* 事件时间 */
 .widget-calendar .event-time {
   font-family: 'Bebas Neue', var(--font-en-family);
-  font-size: 16px;
+  font-size: 48px;
   color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 1px;
-  width: 48px;
+  letter-spacing: 3px;
+  width: 144px;
   flex-shrink: 0;
-  padding-top: 1px;
+  padding-top: 3px;
 }
 
 /* 时间线（竖线 + 圆点） */
@@ -304,17 +308,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 12px;
+  width: 36px;
   position: relative;
-  padding-top: 4px;
+  padding-top: 12px;
 }
 
 .widget-calendar .event-dot {
-  width: 8px;
-  height: 8px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: rgba(140, 160, 200, 0.35);
-  box-shadow: 0 0 6px rgba(140, 160, 200, 0.20);
+  box-shadow: 0 0 18px rgba(140, 160, 200, 0.20);
   flex-shrink: 0;
   position: relative;
   z-index: 1;
@@ -322,7 +326,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 /* 竖线连接器（通过伪元素在事件之间绘制） */
 .widget-calendar .event-connector {
-  width: 1.5px;
+  width: 4.5px;
   background: rgba(140, 160, 200, 0.10);
   margin: 0 auto;
   flex-shrink: 0;
@@ -336,7 +340,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-calendar .event-title {
   font-family: var(--font-cn-family);
-  font-size: 14px;
+  font-size: 42px;
   font-weight: var(--font-weight-medium, 500);
   color: rgba(255, 255, 255, 0.80);
   line-height: 1.4;
@@ -347,9 +351,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-calendar .event-location {
   font-family: var(--font-cn-family);
-  font-size: 12px;
+  font-size: 36px;
   color: rgba(255, 255, 255, 0.25);
-  margin-top: 2px;
+  margin-top: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -358,7 +362,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* ── 当前/高亮事件 ── */
 .widget-calendar .event-item.current .event-dot {
   background: rgba(140, 160, 200, 0.85);
-  box-shadow: 0 0 8px rgba(140, 160, 200, 0.40);
+  box-shadow: 0 0 24px rgba(140, 160, 200, 0.40);
 }
 
 .widget-calendar .event-item.current .event-time {
@@ -376,11 +380,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 /* ── 下一事件倒计时 ── */
 .widget-calendar .next-event-countdown {
   background: rgba(140, 160, 200, 0.04);
-  backdrop-filter: blur(12px) saturate(1.4);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(36px) saturate(1.4);
+  -webkit-backdrop-filter: blur(36px) saturate(1.4);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 12px 16px;
+  border-radius: 30px;
+  padding: 36px 48px;
   margin-top: auto;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   text-align: center;
@@ -388,9 +392,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 
 .widget-calendar .countdown-text {
   font-family: var(--font-cn-family);
-  font-size: 13px;
+  font-size: 39px;
   color: rgba(140, 160, 200, 0.55);
-  letter-spacing: 0.3px;
+  letter-spacing: 0.9px;
 }
 
 /* ── 已过去的事件 ── */
@@ -423,6 +427,48 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
     background: rgba(20, 25, 35, 0.80);
   }
 }
+
+/* ── FAB 添加事件按钮 ── */
+.fab-add-event {
+  position: absolute;
+  bottom: 120px;
+  right: 84px;
+  width: 96px;
+  height: 96px;
+  border-radius: 48px;
+  background: rgba(10, 132, 255, 0.2);
+  border: none;
+  color: #3B82F6;
+  font-size: 48px;
+  font-weight: 300;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s;
+}
+.fab-add-event:active { transform: scale(0.92); }
+
+/* ── 长按删除确认气泡 ── */
+.delete-confirm {
+  position: absolute;
+  top: -48px;
+  right: 20px;
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-size: 24px;
+  font-family: 'MiSans_VF', sans-serif;
+  z-index: 50;
+  cursor: pointer;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
 /* ── 响应式 ── */
 @media (max-width: 900px) {

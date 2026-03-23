@@ -9,7 +9,7 @@
 (function() {
   'use strict';
 
-  var POOL_SIZE = 25;
+  var POOL_SIZE = 12;
   var COOLDOWN = 2000;
   var lastTrigger = 0;
   var particles = [];
@@ -17,7 +17,7 @@
   var rafId = null;
   var activeCanvas = null;
 
-  // 预分配粒子池
+  // 预分配粒子池（v2.0 缩减到 12，微动效风格）
   for (var i = 0; i < POOL_SIZE; i++) {
     particles.push({ active: false });
   }
@@ -107,13 +107,13 @@
     p.vx = Math.cos(angle) * speed;
     p.vy = Math.sin(angle) * speed - 3; // 偏向上浮
     p.gravity = 0.02;
-    p.size = 8 + Math.random() * 12;
-    p.opacity = 0.9;
+    p.size = 4 + Math.random() * 6;
+    p.opacity = 0.85;
     p.rotation = (Math.random() - 0.5) * 0.5;
     p.rotSpeed = (Math.random() - 0.5) * 0.05;
     p.color = randomColor(LOVE_COLORS);
     p.life = 0;
-    p.maxLife = 60 + Math.random() * 40; // ~1.5-2s at 60fps
+    p.maxLife = 40 + Math.random() * 25;
     p.type = 'heart';
     p.active = true;
   }
@@ -126,13 +126,13 @@
     p.vx = Math.cos(angle) * speed;
     p.vy = Math.sin(angle) * speed;
     p.gravity = 0.12; // 更强重力
-    p.size = 8 + Math.random() * 10;
-    p.opacity = 0.9;
+    p.size = 4 + Math.random() * 6;
+    p.opacity = 0.85;
     p.rotation = Math.random() * Math.PI * 2;
     p.rotSpeed = (Math.random() - 0.5) * 0.1;
     p.color = randomColor(BABY_COLORS);
     p.life = 0;
-    p.maxLife = 80 + Math.random() * 40;
+    p.maxLife = 50 + Math.random() * 30;
     p.type = Math.random() < 0.5 ? 'star' : 'circle';
     p.bounce = 0.4; // 弹跳系数
     p.groundY = y + 100 + Math.random() * 200;
@@ -148,13 +148,13 @@
     p.vx = Math.cos(angle) * speed;
     p.vy = Math.sin(angle) * speed;
     p.gravity = 0.1;
-    p.size = 6 + Math.random() * 10;
-    p.opacity = 1.0;
+    p.size = 3 + Math.random() * 6;
+    p.opacity = 0.9;
     p.rotation = Math.random() * Math.PI * 2;
     p.rotSpeed = (Math.random() - 0.5) * 0.15;
     p.color = randomColor(HOLIDAY_COLORS);
     p.life = 0;
-    p.maxLife = 70 + Math.random() * 50;
+    p.maxLife = 45 + Math.random() * 30;
     p.type = Math.random() < 0.3 ? 'sparkle' : 'confetti';
     p.drift = (Math.random() - 0.5) * 0.08; // 左右摆动
     p.active = true;
@@ -183,7 +183,7 @@
     }
 
     // 淡出
-    var fadeStart = p.maxLife * 0.6;
+    var fadeStart = p.maxLife * 0.35;
     if (p.life > fadeStart) {
       p.opacity = Math.max(0, 1 - (p.life - fadeStart) / (p.maxLife - fadeStart));
     }
@@ -226,7 +226,7 @@
     lastTrigger = now;
 
     activeCanvas = canvas;
-    var count = 15 + Math.floor(Math.random() * 6); // 15-20
+    var count = 5 + Math.floor(Math.random() * 4); // 5-8 微动效
     var inits = { love: initLoveParticle, baby: initBabyParticle, holiday: initHolidayParticle };
     var initFn = inits[type] || inits.love;
 

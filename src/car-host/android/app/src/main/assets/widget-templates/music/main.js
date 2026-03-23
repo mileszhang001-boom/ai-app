@@ -104,20 +104,96 @@
     }
   }
 
+  // ── 封面取色 ──
+  function extractDominantColor(imgEl) {
+    try {
+      var canvas = document.createElement('canvas');
+      var size = 50;
+      canvas.width = size;
+      canvas.height = size;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0, size, size);
+      var data = ctx.getImageData(0, 0, size, size).data;
+
+      // 采样统计，排除灰色像素
+      var colorCounts = {};
+      var step = 4 * 4; // 每4个像素采样一次
+      for (var i = 0; i < data.length; i += step) {
+        var r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+        if (a < 128) continue;
+        // 排除接近灰色的像素
+        if (Math.abs(r - g) + Math.abs(g - b) < 35) continue;
+        // 排除太暗/太亮的
+        var brightness = (r + g + b) / 3;
+        if (brightness < 30 || brightness > 230) continue;
+        // 量化为 16 色阶
+        var qr = Math.round(r / 32) * 32;
+        var qg = Math.round(g / 32) * 32;
+        var qb = Math.round(b / 32) * 32;
+        var key = qr + ',' + qg + ',' + qb;
+        colorCounts[key] = (colorCounts[key] || 0) + 1;
+      }
+
+      // 找最频繁的色
+      var maxKey = null, maxCount = 0;
+      for (var k in colorCounts) {
+        if (colorCounts[k] > maxCount) {
+          maxCount = colorCounts[k];
+          maxKey = k;
+        }
+      }
+
+      if (!maxKey) return null;
+      var parts = maxKey.split(',');
+      var hex = '#' +
+        ('0' + parseInt(parts[0]).toString(16)).slice(-2) +
+        ('0' + parseInt(parts[1]).toString(16)).slice(-2) +
+        ('0' + parseInt(parts[2]).toString(16)).slice(-2);
+      return hex;
+    } catch (e) {
+      // SecurityError (CORS) or other errors
+      return null;
+    }
+  }
+
+  function applyExtractedColor(hex) {
+    if (!hex || !window.computePalette) return;
+    var palette = window.computePalette(hex);
+    Object.keys(palette.cssVars).forEach(function(k) {
+      document.documentElement.style.setProperty(k, palette.cssVars[k]);
+    });
+    document.documentElement.setAttribute('data-style', 'dynamic');
+  }
+
   // ── 专辑封面 ──
   function renderAlbumArt(url, altText) {
     if (!url || !albumArt) return;
 
     var img = document.createElement('img');
+    img.crossOrigin = 'anonymous';
     img.src = url;
     img.alt = altText || '专辑封面';
-    img.onerror = function() {};
+    img.onerror = function() {
+      // CORS 失败时重试不带 crossOrigin（放弃取色）
+      var img2 = document.createElement('img');
+      img2.src = url;
+      img2.alt = altText || '专辑封面';
+      img2.onload = function() {
+        var placeholder = albumArt.querySelector('.album-art-placeholder');
+        if (placeholder) albumArt.removeChild(placeholder);
+        var oldImg = albumArt.querySelector('img');
+        if (oldImg) albumArt.removeChild(oldImg);
+        albumArt.appendChild(img2);
+        if (albumBg) {
+          albumBg.style.backgroundImage = 'url(' + url + ')';
+          albumBg.style.backgroundSize = 'cover';
+          albumBg.style.backgroundPosition = 'center';
+        }
+      };
+    };
     img.onload = function() {
       var placeholder = albumArt.querySelector('.album-art-placeholder');
-      if (placeholder) {
-        albumArt.removeChild(placeholder);
-      }
-      // 移除旧图片
+      if (placeholder) albumArt.removeChild(placeholder);
       var oldImg = albumArt.querySelector('img');
       if (oldImg) albumArt.removeChild(oldImg);
       albumArt.appendChild(img);
@@ -126,6 +202,12 @@
         albumBg.style.backgroundImage = 'url(' + url + ')';
         albumBg.style.backgroundSize = 'cover';
         albumBg.style.backgroundPosition = 'center';
+      }
+
+      // 尝试封面取色（不覆盖用户手动选色）
+      if (!params.primary_color) {
+        var dominantHex = extractDominantColor(img);
+        if (dominantHex) applyExtractedColor(dominantHex);
       }
     };
   }

@@ -75,8 +75,13 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+  padding-bottom: 40px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 /* ── Hero card: first news item ── */
@@ -177,10 +182,10 @@ html, body {
   flex-shrink: 0;
 }
 
-/* ── List cards (2nd, 3rd, 4th) — horizontal layout with thumbnail ── */
+/* ── v2.0 纵向新闻流卡片 ── */
 .widget-news .news-card {
   border-radius: 20px;
-  height: 190px;
+  min-height: 150px;
   background: rgba(30, 41, 59, 0.5);
   padding: 24px;
   display: flex;
@@ -192,9 +197,45 @@ html, body {
   animation: card-fadeIn 0.4s ease-out both;
 }
 
+.widget-news .news-card:nth-child(1) { animation-delay: 0.04s; }
 .widget-news .news-card:nth-child(2) { animation-delay: 0.08s; }
-.widget-news .news-card:nth-child(3) { animation-delay: 0.16s; }
-.widget-news .news-card:nth-child(4) { animation-delay: 0.24s; }
+.widget-news .news-card:nth-child(3) { animation-delay: 0.12s; }
+.widget-news .news-card:nth-child(4) { animation-delay: 0.16s; }
+.widget-news .news-card:nth-child(5) { animation-delay: 0.20s; }
+.widget-news .news-card:nth-child(6) { animation-delay: 0.24s; }
+
+/* 有图模式：左图右文 */
+.widget-news .news-card-with-image {
+  flex-direction: row;
+}
+
+.widget-news .news-card-with-image .news-card-thumb {
+  width: 160px;
+  height: 120px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* 无图模式：纯文字，标题加大 */
+.widget-news .news-card-text-only {
+  flex-direction: column;
+}
+
+.widget-news .news-title-lg {
+  font-size: 34px !important;
+  line-height: 1.4 !important;
+}
+
+.widget-news .news-summary-preview {
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 /* Card text section */
 .widget-news .news-card-text {
@@ -206,39 +247,10 @@ html, body {
   min-width: 0;
 }
 
-/* Thumbnail */
-.widget-news .news-card-thumb {
-  width: 160px;
-  height: 120px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1A2535, #0F172A);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  align-self: center;
-}
-
-.widget-news .thumb-emoji {
-  font-size: 40px;
-  opacity: 0.35;
-}
-
-/* Card 2 has stroke */
-.widget-news .news-card-stroke {
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
 .widget-news .news-card:active {
   background: rgba(30, 41, 59, 0.7);
   transform: scale(0.98);
   transition: transform 0.1s ease, background 0.1s ease;
-}
-
-/* Spacer between list cards */
-.widget-news .card-spacer {
-  height: 16px;
-  flex-shrink: 0;
 }
 
 /* ── Shared text styles ── */
@@ -403,4 +415,19 @@ html, body {
   color: rgba(255, 255, 255, 0.30);
   padding-top: 36px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 示例内容角标 */
+.demo-badge {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  padding: 6px 16px;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  z-index: 10;
+  pointer-events: none;
 }

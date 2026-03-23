@@ -320,15 +320,30 @@ export class ConfigPanel {
         const reader = new FileReader();
         reader.onload = (ev) => {
           const img = new Image();
+          img.onerror = () => {
+            if (window.showToast) window.showToast('图片加载失败', 'error');
+          };
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const maxW = 800;
+            const maxW = 600;  // v2.0: 降低到 600px
             const scale = Math.min(1, maxW / img.width);
             canvas.width = img.width * scale;
             canvas.height = img.height * scale;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            this.photoDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+            // v2.0: 分级压缩，确保 DataURL 不超过 200KB
+            let quality = 0.5;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            if (dataUrl.length > 200000) {
+              dataUrl = canvas.toDataURL('image/jpeg', 0.3);
+            }
+            if (dataUrl.length > 200000) {
+              if (window.showToast) window.showToast('图片过大，请选择较小的图片', 'error');
+              return;
+            }
+
+            this.photoDataUrl = dataUrl;
             this.selectedBgImage = '';  // 清除预设选择
             // Update UI
             panel.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));

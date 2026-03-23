@@ -160,24 +160,84 @@ class WeatherService:
 
         return suggestions.get(weather_type, suggestions["sunny"]).get(level, "天气变化，注意适时增减衣物。")
 
+    # ── 城市搜索 ──
+
+    # 内置城市列表（mock fallback）
+    BUILTIN_CITIES = [
+        "北京", "上海", "广州", "深圳", "杭州", "成都", "重庆", "武汉", "南京", "天津",
+        "苏州", "西安", "长沙", "沈阳", "青岛", "郑州", "大连", "东莞", "宁波", "厦门",
+        "福州", "无锡", "合肥", "昆明", "哈尔滨", "济南", "佛山", "长春", "温州", "石家庄",
+        "南宁", "常州", "泉州", "南昌", "贵阳", "太原", "烟台", "嘉兴", "南通", "金华",
+        "珠海", "惠州", "徐州", "海口", "乌鲁木齐", "绍兴", "中山", "台州", "兰州", "张家口",
+        "拉萨", "三亚", "银川", "西宁", "呼和浩特", "洛阳", "桂林", "丽江", "大理",
+    ]
+
+    async def search_cities(self, query: str) -> list:
+        """搜索城市（GeoAPI / 内置列表 fallback）"""
+        if not query or len(query.strip()) == 0:
+            return []
+
+        query = query.strip()
+
+        # 尝试真实 GeoAPI
+        if self.client.available:
+            try:
+                import httpx
+                url = f"https://{self.client.api_host}/v2/city/lookup"
+                params = {"location": query, "key": self.client.api_key, "number": 5}
+                async with httpx.AsyncClient(timeout=10) as http:
+                    resp = await http.get(url, params=params)
+                    data = resp.json()
+                    if data.get("code") == "200" and data.get("location"):
+                        return [{"name": loc["name"], "id": loc["id"], "adm1": loc.get("adm1", ""), "adm2": loc.get("adm2", "")} for loc in data["location"][:5]]
+            except Exception:
+                pass
+
+        # Fallback: 内置城市模糊匹配
+        matches = [c for c in self.BUILTIN_CITIES if query in c]
+        return [{"name": c, "id": "", "adm1": "", "adm2": ""} for c in matches[:5]]
+
+    # ── Mock 天气数据（按城市差异化） ──
+
+    _CITY_MOCK = {
+        "北京": {"temp": 12, "desc": "多云", "icon": "⛅", "weather_type": "cloudy", "humidity": 30},
+        "上海": {"temp": 20, "desc": "阴", "icon": "☁️", "weather_type": "cloudy", "humidity": 65},
+        "广州": {"temp": 28, "desc": "晴", "icon": "☀️", "weather_type": "sunny", "humidity": 70},
+        "深圳": {"temp": 27, "desc": "多云", "icon": "⛅", "weather_type": "cloudy", "humidity": 72},
+        "杭州": {"temp": 18, "desc": "小雨", "icon": "🌧️", "weather_type": "rainy", "humidity": 80},
+        "成都": {"temp": 16, "desc": "阴", "icon": "☁️", "weather_type": "cloudy", "humidity": 75},
+        "重庆": {"temp": 22, "desc": "多云", "icon": "⛅", "weather_type": "cloudy", "humidity": 68},
+        "武汉": {"temp": 19, "desc": "晴", "icon": "☀️", "weather_type": "sunny", "humidity": 55},
+        "哈尔滨": {"temp": -5, "desc": "小雪", "icon": "❄️", "weather_type": "snowy", "humidity": 60},
+        "三亚": {"temp": 32, "desc": "晴", "icon": "☀️", "weather_type": "sunny", "humidity": 75},
+        "拉萨": {"temp": 8, "desc": "晴", "icon": "☀️", "weather_type": "sunny", "humidity": 20},
+        "张家口": {"temp": 2, "desc": "多云", "icon": "⛅", "weather_type": "cloudy", "humidity": 35},
+        "昆明": {"temp": 22, "desc": "晴", "icon": "☀️", "weather_type": "sunny", "humidity": 45},
+        "大连": {"temp": 10, "desc": "多云", "icon": "⛅", "weather_type": "cloudy", "humidity": 55},
+    }
+
     @staticmethod
     def _mock_weather(city: str) -> Dict[str, Any]:
-        """Mock 天气数据"""
+        """Mock 天气数据（按城市差异化）"""
+        base = WeatherService._CITY_MOCK.get(city, {
+            "temp": 26, "desc": "晴", "icon": "☀️", "weather_type": "sunny", "humidity": 35
+        })
+        temp = base["temp"]
         return {
-            "temp": 26,
-            "feelsLike": 28,
-            "desc": "晴",
-            "humidity": 35,
+            "temp": temp,
+            "feelsLike": temp + (2 if temp > 0 else -2),
+            "desc": base["desc"],
+            "humidity": base["humidity"],
             "wind": "3",
-            "aqi": "优",
-            "icon": "☀️",
-            "weather_type": "sunny",
+            "aqi": "优" if base["humidity"] < 50 else "良",
+            "icon": base["icon"],
+            "weather_type": base["weather_type"],
             "forecast": [
-                {"label": "明天", "icon": "⛅", "high": 28, "low": 18},
-                {"label": "后天", "icon": "☀️", "high": 30, "low": 19},
-                {"label": "周六", "icon": "🌤️", "high": 27, "low": 17},
+                {"label": "明天", "icon": "⛅", "high": temp + 2, "low": temp - 6},
+                {"label": "后天", "icon": "☀️", "high": temp + 3, "low": temp - 5},
+                {"label": "周六", "icon": "🌤️", "high": temp + 1, "low": temp - 7},
             ],
-            "suggestion": "天气晴好，适合户外活动。紫外线较强，建议涂抹防晒霜。",
+            "suggestion": WeatherService._generate_suggestion(temp, base["weather_type"]),
             "city": city,
         }
 

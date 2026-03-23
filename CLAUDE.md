@@ -1,31 +1,31 @@
-# AI小组件 · 创意工坊 — v0.2
+# AI小组件 · 创意工坊 — v2.0
 
 ## 项目概述
 
-车载 AI 小组件平台 Demo，核心目标：**跑通 AI 生成应用在车载场景下的体验，打造标杆场景**。
+车载 AI 小组件平台，核心目标：**跑通 AI 生成应用在车载场景下的体验，打造标杆场景**。
 
 **一句话**："告诉我你想要什么，AI 帮你生成一张专属的车机桌面卡片。"
 
-## 产品 Spec
+**当前阶段**：v1.0 已完成流程验证（AI 生成 → 预览 → 推送），v2.0 聚焦**数据真实性、交互完整性、设计精度**，从"能看"升级到"能用"。
 
-- 完整产品方案见 `docs/SPEC.md`
-- 技术进度与架构见 `docs/TECH_PLAN.md`
+## 文档
+
+| 文档 | 说明 |
+|------|------|
+| `docs/SPEC.md` | 产品 Spec（功能定义、交互规范） |
+| `docs/TECH_PLAN.md` | 技术架构 & 开发进度 |
+| `docs/V2_ROADMAP.md` | v2.0 迭代路线图（4 Sprint、37 项反馈、15 个迭代项） |
 
 ## 核心技术决策
 
-1. **AI 生成方案：双模式并行** — 场景卡片走精品模板（AI 输出 JSON 参数），自由输入走 AI编程（LLM 直接生成完整 HTML/CSS/JS 代码）。
-2. **车端渲染：H5 + WebView 沙箱** — 组件以 H5 运行在 Android WebView 中，通过 JSBridge 访问车机能力。
-3. **手机端：H5 Web App**（Vite + Vanilla JS）— 追求最快交付速度。
-4. **车端卡片尺寸：896×1464 逻辑像素**（行车桌面 1/3 屏）。
-5. **Design-at-896 + CSS zoom**：模板 CSS 全部按 896px 设计（=Pencil/车端尺寸），手机端通过 `html{zoom:containerWidth/896}` 等比缩小。
-6. **设计语言：Liquid Glass** — Glassmorphism 毛玻璃 + 呼吸光晕 + 粒子系统 + 数字翻牌动画 + 动态配色引擎。
-7. **组件类型（9个模板）**：
-   - 纪念日 4 主题（恋爱/宝宝/放假/暖橙）— love/baby/holiday 支持预设背景图+点击彩蛋
-   - 每日新闻 — 多领域选择+全文阅读 overlay
-   - 闹钟 — 多闹钟列表/表盘双风格+新建 overlay+localStorage
-   - 天气 — 城市切换 overlay+localStorage 记忆
-   - 音乐播放器 — 封面取色自动配色
-   - 日历日程 — 新增/删除事件 overlay+FAB+localStorage
+1. **AI 生成：双模式** — 场景卡片走精品模板（AI→JSON 参数），自由输入走 AI编程（LLM→HTML/CSS/JS）
+2. **车端渲染：H5 + WebView 沙箱** — 通过 JSBridge 访问车机能力
+3. **手机端：H5 Web App**（Vite + Vanilla JS）
+4. **车端卡片尺寸：896×1464 逻辑像素**（行车桌面 1/3 屏）
+5. **Design-at-896 + CSS zoom**：模板按 896px 设计，手机端 `zoom:containerWidth/896` 等比缩小
+6. **设计语言：Liquid Glass** — 毛玻璃 + 光晕 + 粒子 + 翻牌动画 + 动态配色引擎
+7. **数据分层**（v2.0 新增）：手机端用精品 mock 数据保障预览体验，车端用真实数据
+8. **组件类型（9 模板）**：纪念日×4（恋爱/宝宝/放假/暖橙）、新闻、闹钟、天气、音乐、日历
 
 ## 项目结构
 
@@ -34,49 +34,37 @@ ai-widget-workshop/
 ├── CLAUDE.md                          # 本文件
 ├── docs/
 │   ├── SPEC.md                        # 产品 Spec
-│   └── TECH_PLAN.md                   # 技术规划 & 开发进度
+│   ├── TECH_PLAN.md                   # 技术架构 & 进度
+│   └── V2_ROADMAP.md                  # v2.0 迭代路线图
 ├── src/
 │   ├── server/                        # 云端服务（FastAPI, port 8000）
-│   │   ├── main.py                    # API 入口（含 /api/weather, /api/calendar/today）
-│   │   ├── ai_generator/             # AI 生成 Pipeline
-│   │   │   ├── prompt.py             #   模板注册 + System Prompt（含 CODE_GEN_SYSTEM_PROMPT）
-│   │   │   ├── generator.py          #   LLM 调用 + Mock 模式 + AI编程代码生成
-│   │   │   └── validator.py          #   Quality Gate（白名单+截断）
-│   │   ├── weather_service/          # 天气服务（和风天气 API）
-│   │   │   ├── client.py             #   QWeather API 客户端
-│   │   │   └── service.py            #   缓存 + mock fallback
-│   │   ├── sync_service/             # 组件同步推送
-│   │   ├── news_service/             # 新闻聚合（RSS + AI 摘要）
-│   │   └── storage/                  # 元数据存储
+│   │   ├── main.py                    #   API 入口
+│   │   ├── ai_generator/             #   AI 生成 Pipeline（prompt/generator/validator）
+│   │   ├── weather_service/          #   天气（和风天气 API + 缓存 + mock）
+│   │   ├── news_service/             #   新闻（RSS 聚合 + AI 摘要）
+│   │   ├── sync_service/             #   组件同步推送
+│   │   └── storage/                  #   元数据存储
 │   ├── mobile-web/                    # 手机端 H5 Web App（Vite, port 3000）
-│   │   ├── src/pages/market.js       #   首页（8场景宫格 + 底部输入）
-│   │   ├── src/pages/preview.js      #   预览（AI摘要 + 卡片 + AI洞察）
-│   │   ├── src/pages/finetune.js     #   微调（缩小预览 + 配置面板）
-│   │   ├── src/components/config-panel.js #  共享配置面板组件
-│   │   ├── src/utils/render-widget.js    #  iframe渲染 + CSS zoom注入 + 生成动效 + AI代码渲染
+│   │   ├── src/pages/                #   market → preview → finetune 三页面
+│   │   ├── src/components/           #   config-panel 共享配置组件
+│   │   ├── src/utils/               #   render-widget 渲染引擎
 │   │   └── public/car-simulator.html #   车端模拟器
 │   ├── widget-templates/              # H5 组件模板（核心产物）
-│   │   ├── anniversary/              #   纪念日
-│   │   │   ├── love/                 #     恋爱（心形粒子+预设背景图+彩蛋）
-│   │   │   ├── baby/                 #     宝宝（星星粒子+预设背景图+彩蛋）
-│   │   │   ├── holiday/              #     放假倒计时（彩纸粒子+预设背景图+彩蛋）
-│   │   │   └── warm/                 #     暖橙（萤火虫粒子）
-│   │   ├── news/                     #   每日新闻（毛玻璃卡片+轮播+多领域+全文overlay）
-│   │   ├── alarm/                    #   闹钟（多闹钟列表/表盘+新建overlay+localStorage）
-│   │   ├── weather/                  #   天气（动态粒子+3日预报+城市切换overlay）
-│   │   ├── music/                    #   音乐播放器（频谱+进度条+封面取色）
-│   │   ├── calendar/                 #   日历日程（时间线+农历+新增事件overlay+FAB）
-│   │   └── shared/
-│   │       ├── tokens.css            #     Design Tokens (Liquid Glass)
-│   │       ├── color-engine.js       #     动态配色引擎（hex→完整调色板）
-│   │       ├── visual-styles.css     #     4种视觉风格宏（glass/minimal/material/pixel）
-│   │       ├── bridge.js            #     JSBridge 封装（含 MediaSession 接口）
-│   │       ├── overlay.js           #     ★ 通用弹窗 overlay 组件
-│   │       ├── overlay.css          #     ★ 弹窗样式（毛玻璃 + 动画）
-│   │       ├── storage.js           #     ★ localStorage 封装（namespace 隔离）
-│   │       ├── easter-egg.js        #     ★ 彩蛋粒子效果引擎（爱心/玩具/礼花）
-│   │       └── color-extract.js     #     ★ 背景图取色工具（纪念日毛玻璃面板）
-│   └── car-host/                     # 车端宿主（Android, 模拟器）
+│   │   ├── anniversary/              #   纪念日（love/baby/holiday/warm）
+│   │   ├── news/                     #   每日新闻
+│   │   ├── alarm/                    #   闹钟
+│   │   ├── weather/                  #   天气
+│   │   ├── music/                    #   音乐播放器
+│   │   ├── calendar/                 #   日历日程
+│   │   └── shared/                   #   公共基础设施
+│   │       ├── tokens.css            #     Design Tokens
+│   │       ├── color-engine.js       #     动态配色引擎
+│   │       ├── bridge.js            #     JSBridge（含 MediaSession）
+│   │       ├── overlay.js/css       #     通用弹窗组件
+│   │       ├── storage.js           #     localStorage 封装
+│   │       ├── easter-egg.js        #     彩蛋粒子引擎
+│   │       └── color-extract.js     #     背景图取色
+│   └── car-host/                     # 车端宿主（Android）
 └── tests/
 ```
 
@@ -85,29 +73,55 @@ ai-widget-workshop/
 | 模块 | 选型 |
 |------|------|
 | AI 生成 | LLM API (qwen-plus) + JSON Mode, Mock 模式可用 |
-| 云端框架 | Python FastAPI |
-| H5 模板 | Vanilla JS + CSS (Liquid Glass 设计语言) |
-| 手机端 | H5 Web App (Vite 构建) |
-| 天气数据 | 和风天气 QWeather API (30分钟缓存, mock fallback) |
-| 新闻数据 | RSS 聚合 + AI 摘要 (30分钟缓存) |
-| 音乐数据 | JSBridge MediaSession (车端原生桥接) |
-| 车端宿主 | Android App + WebView |
+| 云端 | Python FastAPI |
+| H5 模板 | Vanilla JS + CSS (Liquid Glass) |
+| 手机端 | Vite + Vanilla JS |
+| 天气 | 和风天气 QWeather API (30min 缓存, mock fallback) |
+| 新闻 | RSS 聚合 + AI 摘要 (30min 缓存) |
+| 音乐 | JSBridge MediaSession |
+| 车端 | Android WebView |
 | 部署 | Render (后端) + Netlify (前端) |
 
 ## 关键约束
 
-- H5 组件极度轻量：单组件总资源 ≤ 100KB（当前每模板 ≤ 36KB）
-- 禁止重型前端框架（React/Vue），H5 模板用 Vanilla JS + CSS
+- 单组件总资源 ≤ 100KB
+- 禁止重型前端框架（React/Vue），模板用 Vanilla JS + CSS
 - 暗色模式优先
-- 生成速度：用户点击"生成" → 看到预览 ≤ 5s
-- 车端 WebView 连续运行 8 小时无崩溃
+- 生成 → 预览 ≤ 5s
+- 车端 WebView 连续 8 小时无崩溃
+- HMI 标准：body text ≥24dp, touch target ≥76×76dp
+
+## Skills（自动技能）
+
+项目 `.claude/skills/` 下有以下技能，在相关场景中**必须**自动读取并遵循：
+
+### pencil-design-system
+- **触发时机**：任何涉及 `.pen` 设计文件修改、UI 设计审查、设计-代码一致性验证的操作
+- **使用方式**：先读取 `.claude/skills/pencil-design-system/SKILL.md`，然后严格按照 SCAN → PLAN → EXECUTE → VERIFY 四阶段执行
+- **Pencil MCP 工具**：已连接，可直接调用 `batch_design`、`batch_get`、`snapshot_layout`、`get_screenshot` 等
+- **设计稿路径**：`UI_pen/card.pen`
+- **关键规则**：
+  - 每次 `batch_design` 后必须 `batch_get` 验证写入成功
+  - 必须截图检查（`problemsOnly` 有盲点，不能替代视觉检查）
+  - 修改代码后如涉及 UI，用 Code Linkage 章节做设计-代码对比验证
 
 ## 快速启动
 
 ```bash
-# 后端（需配置 .env: QWEATHER_API_KEY, QWEATHER_API_HOST）
+# 后端（需 .env: QWEATHER_API_KEY, QWEATHER_API_HOST）
 cd src/server && pip install -r requirements.txt && python3 main.py
 
 # 前端
 cd src/mobile-web && npm install && npm run dev
 ```
+
+## v2.0 迭代概览
+
+详见 `docs/V2_ROADMAP.md`。4 个 Sprint：
+
+| Sprint | 主题 | 关键内容 |
+|--------|------|----------|
+| S1 | 基础架构 | 手势规范、卡片 ID 去重、数据分层、车端编辑态 |
+| S2 | 数据与功能 | 天气城市搜索、音乐 MediaSession、新闻增强、日程修复 |
+| S3 | 交互打磨 | 纪念日彩蛋优化、闹钟重做、图片压缩 |
+| S4 | 设计对齐 | Pencil 设计同步、全局 SVG icon、纪念日三卡对齐 |

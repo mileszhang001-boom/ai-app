@@ -69,6 +69,20 @@ html, body {
   -webkit-backdrop-filter: blur(32px) saturate(1.5);
 }
 
+/* Panel tag */
+.widget-holiday .panel-tag {
+  font-size: 22px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+}
+
+/* Name display */
+.widget-holiday .name-display {
+  font-size: 26px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 4px;
+}
+
 /* Tag pill */
 .widget-holiday .tag-pill {
   display: inline-flex;

@@ -17,6 +17,9 @@
     style_preset: 'business-gray'
   };
 
+  // 数据分层：preview 用 mock 数据 + 角标，live 用真实 API
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
+
   var WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
   // ── 数据层：WidgetStorage 持久化 ──
@@ -178,6 +181,11 @@
   // ── 动态日程获取 ──
 
   async function fetchEvents() {
+    // preview 模式：直接用 params 中的 seed 数据
+    if (dataMode === 'preview') {
+      return params.events || [];
+    }
+
     try {
       var resp = await fetch('/api/calendar/today');
       if (resp.ok) {
@@ -246,21 +254,51 @@
     var now = new Date();
     var nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-    events.forEach(function(event, index) {
+    // 完成的事件排到后面
+    var sortedEvents = events.slice().sort(function(a, b) {
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+      return 0;
+    });
+
+    sortedEvents.forEach(function(event, index) {
       var item = document.createElement('div');
       item.className = 'event-item';
       item.style.position = 'relative';
 
       var eventMin = getEventMinutes(event.time);
 
+      // 标记已完成事件
+      if (event.completed) {
+        item.classList.add('completed');
+      }
+
       // 标记当前事件
-      if (index === currentIdx) {
+      if (!event.completed && index === currentIdx) {
         item.classList.add('current');
       }
 
       // 标记已过去的事件
-      if (eventMin < nowMinutes && index !== currentIdx) {
+      if (!event.completed && eventMin < nowMinutes && index !== currentIdx) {
         item.classList.add('past');
+      }
+
+      // 完成按钮
+      var checkBtn = document.createElement('div');
+      checkBtn.className = 'event-check' + (event.completed ? ' checked' : '');
+      checkBtn.textContent = event.completed ? '✓' : '';
+      checkBtn.style.cssText = 'width:36px; height:36px; border-radius:50%; border:2px solid ' + (event.completed ? '#4ADE80' : 'rgba(255,255,255,0.2)') + '; display:flex; align-items:center; justify-content:center; font-size:18px; color:#4ADE80; cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent; background:' + (event.completed ? 'rgba(74,222,128,0.15)' : 'transparent') + ';';
+      if (store && event.id) {
+        (function(eid, completed) {
+          checkBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            store.update(eid, { completed: !completed });
+            var updated = loadEvents();
+            updated.sort(function(a, b) { return getEventMinutes(a.time) - getEventMinutes(b.time); });
+            renderTimeline(updated);
+            renderCountdown(updated);
+          });
+        })(event.id, !!event.completed);
       }
 
       // 时间
@@ -276,8 +314,8 @@
       dotEl.className = 'event-dot';
       // 自定义颜色
       if (event.color) {
-        dotEl.style.background = event.color;
-        dotEl.style.boxShadow = '0 0 18px ' + event.color + '55';
+        dotEl.style.background = event.completed ? 'rgba(255,255,255,0.15)' : event.color;
+        if (!event.completed) dotEl.style.boxShadow = '0 0 18px ' + event.color + '55';
       }
       lineEl.appendChild(dotEl);
 
@@ -288,14 +326,20 @@
       var titleEl = document.createElement('div');
       titleEl.className = 'event-title';
       titleEl.textContent = event.title;
+      if (event.completed) {
+        titleEl.style.textDecoration = 'line-through';
+        titleEl.style.opacity = '0.4';
+      }
 
       var locEl = document.createElement('div');
       locEl.className = 'event-location';
       locEl.textContent = event.location || '';
+      if (event.completed) locEl.style.opacity = '0.3';
 
       infoEl.appendChild(titleEl);
       infoEl.appendChild(locEl);
 
+      item.appendChild(checkBtn);
       item.appendChild(timeEl);
       item.appendChild(lineEl);
       item.appendChild(infoEl);
@@ -691,13 +735,15 @@
       var colorCircles = [];
       COLOR_OPTIONS.forEach(function(hex) {
         var circle = document.createElement('div');
-        circle.style.cssText = 'width:40px; height:40px; border-radius:50%; cursor:pointer; transition:transform 0.15s; border:3px solid transparent;';
+        circle.style.cssText = 'width:48px; height:48px; border-radius:50%; cursor:pointer; transition:transform 0.15s, border-color 0.15s; border:3px solid transparent; -webkit-tap-highlight-color:transparent;';
         circle.style.background = hex;
         if (hex === state.color) {
           circle.style.borderColor = '#fff';
           circle.style.transform = 'scale(1.15)';
         }
-        circle.addEventListener('click', function() {
+        function selectColor(e) {
+          e.preventDefault();
+          e.stopPropagation();
           state.color = hex;
           colorCircles.forEach(function(c) {
             c.style.borderColor = 'transparent';
@@ -705,7 +751,9 @@
           });
           circle.style.borderColor = '#fff';
           circle.style.transform = 'scale(1.15)';
-        });
+        }
+        circle.addEventListener('click', selectColor);
+        circle.addEventListener('touchend', selectColor);
         colorCircles.push(circle);
         colorPicker.appendChild(circle);
       });
@@ -778,6 +826,14 @@
     // ── 视觉风格宏 ──
     if (params.visual_style) {
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
+    }
+
+    // preview 模式：显示角标
+    if (dataMode === 'preview') {
+      var badge = document.createElement('div');
+      badge.className = 'demo-badge';
+      badge.textContent = '推送后显示真实日程';
+      document.querySelector('.widget-calendar').appendChild(badge);
     }
 
     // 加载事件：优先 localStorage，回退到 API / params

@@ -74,16 +74,25 @@ export class PreviewPage {
 
   _getAiInsight(data) {
     if (!data) return '';
-    if (this.isCodeMode) return '💡 此组件由AI直接编写代码生成，展示端到端AI能力';
+    if (this.isCodeMode) return '此组件由AI直接编写代码生成，展示端到端AI能力';
+
+    // 微调反馈：显示修改列表或无法修改提示
+    if (data.changes_applied && data.changes_applied.length > 0) {
+      return '已修改: ' + data.changes_applied.join('、');
+    }
+    if (data.unable_to_modify) {
+      return data.unable_to_modify;
+    }
+
     const insights = {
-      weather:     '🌤 实时天气数据，每30分钟自动更新',
-      anniversary: '💕 自动计算天数，每日零点刷新',
-      calendar:    '📅 同步今日日程，智能排序显示',
-      music:       '🎵 与车载媒体联动，实时显示播放状态',
-      alarm:       '⏰ 智能日夜感知，自动调整显示风格',
-      news:        '📰 每30分钟更新，AI智能摘要',
+      weather:     '实时天气数据，每30分钟自动更新',
+      anniversary: '自动计算天数，每日零点刷新',
+      calendar:    '同步今日日程，智能排序显示',
+      music:       '与车载媒体联动，实时显示播放状态',
+      alarm:       '智能日夜感知，自动调整显示风格',
+      news:        '每30分钟更新，AI智能摘要',
     };
-    return insights[data.component_type] || '✨ 已为你优化显示效果';
+    return insights[data.component_type] || '已为你优化显示效果';
   }
 
   async _renderWithAnimation() {
@@ -163,11 +172,17 @@ export class PreviewPage {
     btn.textContent = '正在推送…';
 
     try {
+      const params = { ...(this.currentData.params || {}) };
+      // 确保颜色/样式参数不丢失（它们可能在 currentData 顶层而非 params 内）
+      if (this.currentData.primary_color) params.primary_color = this.currentData.primary_color;
+      if (this.currentData.visual_style) params.visual_style = this.currentData.visual_style;
+      if (this.currentData.style_preset) params.style_preset = this.currentData.style_preset;
+
       const saveData = {
         user_id: 'demo_user',
         component_type: this.isCodeMode ? 'code_gen' : this.currentData.component_type,
         theme: this.isCodeMode ? 'custom' : (this.currentData.theme || ''),
-        params: this.currentData.params || {},
+        params,
         style_preset: this.currentData.style_preset || null,
       };
       if (this.isCodeMode) {
@@ -181,13 +196,15 @@ export class PreviewPage {
         return;
       }
 
+      const isUpdate = saved.data && saved.data.is_update;
+
       const response = await this.api.syncToCar({
         widget_id: saved.widget_id,
         device_id: 'demo_device',
       });
 
       if (response.success) {
-        this._showSyncSuccess();
+        this._showSyncSuccess(isUpdate);
       } else {
         showToast('同步失败: ' + response.error, 'error');
       }
@@ -200,7 +217,9 @@ export class PreviewPage {
     }
   }
 
-  _showSyncSuccess() {
+  _showSyncSuccess(isUpdate = false) {
+    const title = isUpdate ? '已更新车机卡片' : '已推送到车机';
+    const subtitle = isUpdate ? '车端卡片将自动刷新' : '请在车端确认接收卡片';
     const overlay = document.createElement('div');
     overlay.className = 'sync-success-overlay';
     overlay.innerHTML = `
@@ -209,8 +228,8 @@ export class PreviewPage {
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
-      <div class="sync-success-title">已推送到车机</div>
-      <div class="sync-success-subtitle">请在车端确认接收卡片</div>
+      <div class="sync-success-title">${title}</div>
+      <div class="sync-success-subtitle">${subtitle}</div>
     `;
     document.body.appendChild(overlay);
 

@@ -59,13 +59,19 @@
     if (!photoBg) return;
 
     var basePath = window.__TEMPLATE_BASE_PATH__ || './';
-    var url = basePath + 'backgrounds/' + bgImage + '.webp';
+    var url = basePath + 'backgrounds/' + bgImage + '.jpg';
 
     photoBg.classList.add('loading'); // 隐藏，显示底部渐变
 
     var img = new Image();
+    img.onerror = function() {
+      // Fallback: try .webp if .jpg fails
+      var webpUrl = basePath + 'backgrounds/' + bgImage + '.webp';
+      img.onerror = null;
+      img.src = webpUrl;
+    };
     img.onload = function() {
-      photoBg.style.backgroundImage = 'url(' + url + ')';
+      photoBg.style.backgroundImage = 'url(' + img.src + ')';
       // Auto-extract panel tint from image
       if (window.extractPanelTint) {
         try {
@@ -105,6 +111,13 @@
     var milestone = getMilestone(days);
     var sub = params.subtitle || getSubtitleForMilestone(days) || '每一天都算数';
     document.getElementById('subtitle').textContent = sub;
+
+    // v2.0: 名字显示
+    var nameEl = document.getElementById('nameDisplay');
+    if (nameEl && (params.name_a || params.name_b)) {
+      nameEl.textContent = (params.name_a || '') + ' ❤ ' + (params.name_b || '');
+      nameEl.style.display = '';
+    }
 
     // Date range
     var start = new Date(params.start_date.split('-').map(Number).reduce(function(_, v, i, a) { return i === 0 ? new Date(a[0], a[1] - 1, a[2]) : _; }, null) || params.start_date);

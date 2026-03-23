@@ -73,7 +73,7 @@ export async function renderWidgetInFrame(frameEl, data) {
   let html = await resp.text();
 
   const widgetParams = buildWidgetParams(data);
-  const paramsScript = `<script>window.__WIDGET_PARAMS__ = ${JSON.stringify(widgetParams)};<\/script>`;
+  const paramsScript = `<script>window.__WIDGET_DATA_MODE__ = "preview";window.__WIDGET_PARAMS__ = ${JSON.stringify(widgetParams)};<\/script>`;
 
   // Fix relative paths for srcdoc mode
   const ts = Date.now();

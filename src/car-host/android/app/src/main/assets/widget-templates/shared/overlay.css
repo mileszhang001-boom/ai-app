@@ -1,0 +1,259 @@
+/**
+ * Overlay — 通用弹窗样式（设计尺寸 896px）
+ * 暗色/亮色主题，毛玻璃面板，居中布局
+ */
+
+/* ── Backdrop ── */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.overlay-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Panel ── */
+.overlay-panel {
+  width: 720px;
+  max-height: 1200px;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(40px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 暗色主题（默认） */
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(60px) saturate(1.8);
+  -webkit-backdrop-filter: blur(60px) saturate(1.8);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+.overlay-backdrop.visible .overlay-panel {
+  transform: translateY(0);
+}
+
+/* ── Header ── */
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 32px;
+  flex-shrink: 0;
+}
+.overlay-header-title {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: #F5F5F0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.overlay-header-btn {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(245, 245, 240, 0.4);
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.overlay-header-btn.save {
+  color: #4A9EFF;
+  font-weight: 600;
+}
+.overlay-header-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* ── Body (scrollable) ── */
+.overlay-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.overlay-body::-webkit-scrollbar {
+  width: 4px;
+}
+.overlay-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overlay-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* ── 亮色主题 ── */
+[data-overlay-theme="light"] .overlay-panel {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2), 0 0 1px rgba(0, 0, 0, 0.08) inset;
+}
+[data-overlay-theme="light"] .overlay-header-title {
+  color: #1E293B;
+}
+[data-overlay-theme="light"] .overlay-header-btn {
+  color: #3B82F6;
+}
+[data-overlay-theme="light"] .overlay-header-btn.cancel {
+  color: #3B82F6;
+  font-weight: 400;
+}
+[data-overlay-theme="light"] .overlay-header-btn.save {
+  color: #3B82F6;
+  font-weight: 600;
+}
+[data-overlay-theme="light"] .overlay-header-divider {
+  background: #E2E8F0;
+}
+[data-overlay-theme="light"] .overlay-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ── 通用表单行 ── */
+.overlay-row {
+  display: flex;
+  align-items: center;
+  padding: 0 36px;
+  min-height: 72px;
+}
+.overlay-row-label {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #F5F5F0;
+}
+.overlay-row-value {
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(245, 245, 240, 0.4);
+  margin-left: auto;
+}
+.overlay-row-arrow {
+  font-size: 32px;
+  color: rgba(245, 245, 240, 0.25);
+  margin-left: 8px;
+}
+.overlay-divider {
+  height: 1px;
+  margin: 0 36px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.overlay-divider.full {
+  margin: 0;
+}
+
+/* 亮色行 */
+[data-overlay-theme="light"] .overlay-row-label {
+  color: #1E293B;
+}
+[data-overlay-theme="light"] .overlay-row-value {
+  color: #94A3B8;
+}
+[data-overlay-theme="light"] .overlay-row-arrow {
+  color: #CBD5E1;
+}
+[data-overlay-theme="light"] .overlay-divider {
+  background: #E2E8F0;
+}
+
+/* ── 通用输入框 ── */
+.overlay-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  color: #F5F5F0;
+  font-family: 'MiSans_VF', 'SF Pro Display', sans-serif;
+  font-size: 28px;
+  padding: 16px 24px;
+  outline: none;
+  box-sizing: border-box;
+}
+.overlay-input::placeholder {
+  color: rgba(245, 245, 240, 0.25);
+}
+.overlay-input:focus {
+  border-color: rgba(74, 158, 255, 0.4);
+}
+[data-overlay-theme="light"] .overlay-input {
+  background: #F1F5F9;
+  border-color: #E2E8F0;
+  color: #1E293B;
+}
+[data-overlay-theme="light"] .overlay-input::placeholder {
+  color: #94A3B8;
+}
+[data-overlay-theme="light"] .overlay-input:focus {
+  border-color: #3B82F6;
+}
+
+/* ── Toggle 开关 ── */
+.overlay-toggle {
+  position: relative;
+  width: 64px;
+  height: 36px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.overlay-toggle.on {
+  background: #4ADE80;
+}
+.overlay-toggle::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.overlay-toggle.on::after {
+  transform: translateX(28px);
+}
+[data-overlay-theme="light"] .overlay-toggle {
+  background: #E2E8F0;
+}
+[data-overlay-theme="light"] .overlay-toggle.on {
+  background: #3B82F6;
+}
+
+/* ── 全屏 overlay（新闻详情）── */
+.overlay-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.overlay-fullscreen.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}

@@ -129,10 +129,16 @@
     }
     document.getElementById('dayCounter').textContent = displayNumber;
 
-    // Subtitle: baby name or milestone text
-    var babyName = params.baby_name || params.subtitle || '';
+    // v2.0: 名字显示
+    var nameEl = document.getElementById('nameDisplay');
+    if (nameEl && params.baby_name) {
+      nameEl.textContent = params.baby_name + ' 的成长记录';
+      nameEl.style.display = '';
+    }
+
+    // Subtitle: milestone text
     var milestoneText = getSubtitleForMilestone(days);
-    var sub = babyName || milestoneText || '每一天都是新的奇迹';
+    var sub = params.subtitle || milestoneText || '每一天都是新的奇迹';
     document.getElementById('subtitle').textContent = sub;
 
     // Date text

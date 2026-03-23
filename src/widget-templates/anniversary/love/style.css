@@ -75,6 +75,20 @@ html, body {
   box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
 }
 
+/* Panel tag */
+.widget-love .panel-tag {
+  font-size: 22px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+}
+
+/* Name display */
+.widget-love .name-display {
+  font-size: 26px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 4px;
+}
+
 /* Emoji icon */
 .widget-love .icon-emoji {
   font-size: 32px;

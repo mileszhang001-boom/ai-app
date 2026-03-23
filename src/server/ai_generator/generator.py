@@ -320,10 +320,48 @@ class AIGenerator:
             if data.get("visual_style"):
                 result["visual_style"] = data["visual_style"]
 
+            # 微调反馈：对比 base_data 和 result，输出修改列表
+            if base_data:
+                changes = self._diff_params(base_data, result)
+                result["changes_applied"] = changes
+                if not changes:
+                    result["unable_to_modify"] = "未检测到变化，可能不支持此修改"
+
             return True, result, None
 
         except Exception as e:
             return False, None, str(e)
+
+    @staticmethod
+    def _diff_params(old_data: dict, new_data: dict) -> list:
+        """对比新旧参数，返回可读的修改列表"""
+        changes = []
+        old_params = old_data.get("params", {})
+        new_params = new_data.get("params", {})
+
+        # 对比顶层字段
+        for key in ["primary_color", "visual_style", "style_preset", "theme"]:
+            old_val = old_data.get(key)
+            new_val = new_data.get(key)
+            if old_val != new_val and new_val:
+                changes.append(f"{key}: {old_val} → {new_val}")
+
+        # 对比 params 内字段
+        all_keys = set(list(old_params.keys()) + list(new_params.keys()))
+        for key in sorted(all_keys):
+            old_val = old_params.get(key)
+            new_val = new_params.get(key)
+            if old_val != new_val:
+                if old_val is None:
+                    changes.append(f"新增 {key}: {new_val}")
+                elif new_val is None:
+                    changes.append(f"移除 {key}")
+                else:
+                    old_str = str(old_val)[:30]
+                    new_str = str(new_val)[:30]
+                    changes.append(f"{key}: {old_str} → {new_str}")
+
+        return changes
 
     def generate_code_from_nl(self, user_text: str) -> Tuple[bool, Optional[Dict[str, Any]], Optional[str]]:
         """

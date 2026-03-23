@@ -3,58 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0e1013">
-  <title>恋爱纪念日卡片</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <title>恋爱纪念日</title>
   <link rel="stylesheet" href="../../shared/tokens.css">
-  <link rel="stylesheet" href="../../shared/visual-styles.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="widget-love">
-    <!-- 粒子画布 -->
-    <canvas class="particle-canvas" id="particleCanvas"></canvas>
-
-    <!-- 主光晕：偏右上，呼吸动效 -->
-    <div class="glow-primary"></div>
-
-    <!-- 副光晕：偏左下 -->
-    <div class="glow-secondary"></div>
-
-    <!-- 第三光晕：中部漫反射 -->
-    <div class="glow-tertiary"></div>
-
-    <!-- 氛围光线：底部渐隐的微光线条 -->
-    <div class="ambient-line"></div>
-
-    <!-- 毛玻璃信息卡片 -->
-    <div class="glass-card">
-      <!-- 高光扫过效果 -->
-      <div class="glass-highlight"></div>
-
-      <!-- 核心数字 — 翻牌容器 -->
-      <div class="hero-number" id="dayCounter">
-        <span class="digit-group" id="digitGroup">0</span>
-      </div>
-
-      <!-- 英文单位：极度弱化 -->
-      <div class="unit-label">days together</div>
-
-      <!-- 分割线 -->
+    <div class="photo-area" id="photoBg"></div>
+    <div class="bottom-darken"></div>
+    <div class="glass-panel">
+      <div class="icon-emoji">❤️</div>
+      <div class="big-number" id="dayCounter">0</div>
+      <div class="label-text">天的相伴</div>
       <div class="divider"></div>
-
-      <!-- 中文副标题 -->
-      <div class="subtitle-cn"></div>
-
-      <!-- 中文辅助信息 -->
-      <div class="caption-cn">在一起 · 恋爱纪念日</div>
+      <div class="subtitle" id="subtitle"></div>
+      <div class="date-text" id="dateText"></div>
     </div>
+    <canvas class="easter-egg-canvas" id="easterEggCanvas"></canvas>
   </div>
-
   <script src="../../shared/bridge.js"></script>
   <script src="../../shared/color-engine.js"></script>
+  <script src="../../shared/easter-egg.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

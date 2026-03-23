@@ -76,6 +76,13 @@
     var tagText = params.title || params.event_name || '假期倒计时';
     document.getElementById('tagText').textContent = tagText;
 
+    // v2.0: 名字显示
+    var nameEl = document.getElementById('nameDisplay');
+    if (nameEl && (params.name_a || params.event_name)) {
+      nameEl.textContent = params.name_a || params.event_name || '';
+      nameEl.style.display = '';
+    }
+
     // Date range
     var parts = params.target_date.split('-').map(Number);
     var now = new Date();
