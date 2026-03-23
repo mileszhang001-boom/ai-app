@@ -232,6 +232,13 @@ body.scroll-locked { overflow: hidden; }
 .bottom-send-btn:not(:disabled):active {
   transform: scale(0.93);
 }
+.free-input-hint {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  margin-top: 8px;
+  opacity: 0.7;
+}
 
 
 /* ========== Config Panel (Bottom Sheet) ========== */

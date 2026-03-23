@@ -99,6 +99,7 @@ export class TemplateMarket {
               </svg>
             </button>
           </div>
+          <div class="free-input-hint">💡 使用大模型端到端生成，可能需要 10-15 秒</div>
         </div>
       </div>
     `;

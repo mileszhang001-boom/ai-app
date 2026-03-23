@@ -47,25 +47,25 @@ const ALARM_STYLES = [
 
 const BG_PRESETS = {
   love: [
-    { id: 'love_bg_01', label: '海边日落' },
-    { id: 'love_bg_02', label: '咖啡馆' },
-    { id: 'love_bg_03', label: '樱花树' },
-    { id: 'love_bg_04', label: '城市夜景' },
-    { id: 'love_bg_05', label: '星空草地' },
+    { id: 'love_bg_01', label: '海边漫步' },
+    { id: 'love_bg_02', label: '午后咖啡' },
+    { id: 'love_bg_03', label: '樱花小径' },
+    { id: 'love_bg_04', label: '霓虹夜色' },
+    { id: 'love_bg_05', label: '星空物语' },
   ],
   baby: [
-    { id: 'baby_bg_01', label: '温暖婴儿房' },
-    { id: 'baby_bg_02', label: '阳光草地' },
-    { id: 'baby_bg_03', label: '粉蓝气球' },
-    { id: 'baby_bg_04', label: '积木玩具' },
-    { id: 'baby_bg_05', label: '水彩童话' },
+    { id: 'baby_bg_01', label: '温馨小屋' },
+    { id: 'baby_bg_02', label: '阳光花园' },
+    { id: 'baby_bg_03', label: '梦幻气球' },
+    { id: 'baby_bg_04', label: '积木乐园' },
+    { id: 'baby_bg_05', label: '童话世界' },
   ],
   countdown: [
-    { id: 'holiday_bg_01', label: '烟花庆典' },
-    { id: 'holiday_bg_02', label: '海滩椰树' },
-    { id: 'holiday_bg_03', label: '雪山日出' },
-    { id: 'holiday_bg_04', label: '城市彩灯' },
-    { id: 'holiday_bg_05', label: '热气球' },
+    { id: 'holiday_bg_01', label: '璀璨烟火' },
+    { id: 'holiday_bg_02', label: '椰林海风' },
+    { id: 'holiday_bg_03', label: '雪山晨光' },
+    { id: 'holiday_bg_04', label: '灯火阑珊' },
+    { id: 'holiday_bg_05', label: '热气球之旅' },
   ],
 };
 

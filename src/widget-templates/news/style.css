@@ -105,6 +105,15 @@ html, body {
   background-position: center;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.widget-news .hero-emoji {
+  font-size: 72px;
+  opacity: 0.25;
+  z-index: 1;
+  filter: grayscale(0.3);
 }
 /* Shimmer sweep while loading */
 .widget-news .hero-image::after {
