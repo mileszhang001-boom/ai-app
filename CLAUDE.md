@@ -74,7 +74,8 @@ ai-widget-workshop/
 │   │       ├── overlay.js           #     ★ 通用弹窗 overlay 组件
 │   │       ├── overlay.css          #     ★ 弹窗样式（毛玻璃 + 动画）
 │   │       ├── storage.js           #     ★ localStorage 封装（namespace 隔离）
-│   │       └── easter-egg.js        #     ★ 彩蛋粒子效果引擎（爱心/玩具/礼花）
+│   │       ├── easter-egg.js        #     ★ 彩蛋粒子效果引擎（爱心/玩具/礼花）
+│   │       └── color-extract.js     #     ★ 背景图取色工具（纪念日毛玻璃面板）
 │   └── car-host/                     # 车端宿主（Android, 模拟器）
 └── tests/
 ```
