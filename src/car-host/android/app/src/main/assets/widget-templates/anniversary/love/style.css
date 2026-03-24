@@ -43,36 +43,45 @@ html, body {
   background-image: linear-gradient(160deg, #3D1A2E 0%, #2A1520 40%, #1E0E18 100%);
 }
 
-/* Bottom darken overlay: 896x600, positioned at y=864 */
+/* Pencil §2.6: bottom-darken 896×600, y:864, gradient 180° 7 色标 #3a1808 系 */
 .widget-love .bottom-darken {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 600px;
-  background: rgba(26, 10, 21, 0.31);
+  background: linear-gradient(180deg,
+    #3a180800 0%,
+    #3a1808c0 3%,
+    #3a1808e8 8%,
+    #3a1808f5 15%,
+    #3a1808fb 30%,
+    #3a1808fd 50%,
+    #3a1808ff 100%);
   pointer-events: none;
 }
 
-/* Glass panel: 776x532, positioned at x=60 y=884 (bottom: 1464-884-532=48) */
+/* Pencil §2.6: glass-panel 896×580, y:884, r32, padding [40,48], gap 12 */
 .widget-love .glass-panel {
   position: absolute;
-  bottom: 48px;
-  left: 60px;
-  width: 776px;
-  min-height: 532px;
-  border-radius: 28px;
+  bottom: 0;
+  left: 0;
+  width: 896px;
+  height: 580px;
+  border-radius: 32px 32px 0 0;
   padding: 40px 48px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   align-items: flex-start;
   z-index: 2;
-  background: var(--panel-tint, rgba(26,10,21,0.75));
-  backdrop-filter: blur(32px) saturate(1.5);
-  -webkit-backdrop-filter: blur(32px) saturate(1.5);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.15);
+  background: linear-gradient(180deg,
+    #5c3018d0 0%,
+    #4a2510e8 33%,
+    #3a1808f2 66%,
+    #3a1808f8 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* Panel tag */

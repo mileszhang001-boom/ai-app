@@ -9,36 +9,37 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
 
-/* ── 卡片容器 ── */
+/* ── 卡片容器 — Pencil: r24, padding 64, mesh gradient ── */
 .widget-music {
   width: 100%;
   height: 100%;
-  border-radius: 60px;
+  border-radius: 24px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 120px 84px 108px;
+  padding: 64px;
   box-sizing: border-box;
-  background: linear-gradient(155deg, #1a1510 0%, #201810 35%, #141008 100%);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background:
+    radial-gradient(ellipse at 0% 0%, #1A1028, transparent 70%),
+    radial-gradient(ellipse at 100% 0%, #2D1B3D, transparent 70%),
+    radial-gradient(ellipse at 0% 100%, #1A1028, transparent 70%),
+    radial-gradient(ellipse at 100% 100%, #0D0A14, transparent 70%);
 }
 
-/* ── 专辑封面模糊背景 ── */
+/* ── 专辑封面模糊背景 — Pencil: blur 80, opacity 0.4 ── */
 .widget-music .album-bg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #3a2820 0%, #1a1008 40%, #2a1a10 100%);
   background-size: cover;
   background-position: center;
-  filter: blur(180px) saturate(2.0);
-  opacity: 0.3;
+  filter: blur(80px);
+  opacity: 0.4;
   pointer-events: none;
   z-index: 0;
-  transform: scale(1.2);
 }
 
 /* ── 风格预设 ── */
@@ -246,21 +247,17 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 }
 
 /* ── 专辑封面 ── */
+/* Pencil: 560×560, r28, shadow blur60 #00000060 offset(0,20), shadow blur20 #8B5CF630 offset(0,4) */
 .widget-music .album-art {
   width: 560px;
   height: 560px;
-  border-radius: 48px;
+  border-radius: 28px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow:
-    0 8px 32px rgba(220, 160, 80, 0.10),
-    0 32px 80px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 20px 60px #00000060,
+    0 4px 20px #8B5CF630;
   flex-shrink: 0;
-  margin-bottom: 48px;
-  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  margin-bottom: 56px;
 }
 
 .widget-music .album-art img {
@@ -318,45 +315,39 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   animation-delay: 0.1s;
 }
 
+/* Pencil: fontSize 56, fw 600, fill #F5F5F0 */
 .widget-music .song-name {
   font-family: var(--font-cn-family);
-  font-size: 54px;
-  font-weight: var(--font-weight-medium, 500);
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 1.5px;
-  margin-bottom: 12px;
+  font-size: 56px;
+  font-weight: 600;
+  color: #F5F5F0;
+  margin-bottom: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 780px;
 }
 
+/* Pencil: fontSize 36, fill #F5F5F060 */
 .widget-music .artist {
   font-family: var(--font-cn-family);
-  font-size: 39px;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.9px;
+  font-size: 36px;
+  color: #F5F5F060;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 660px;
 }
 
-/* ── 歌词行 ── */
+/* Pencil: fontSize 32, italic, fill #F5F5F040 */
 .widget-music .lyrics-line {
   font-family: var(--font-cn-family);
   font-size: 32px;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.40);
+  color: #F5F5F040;
   text-align: center;
-  margin-bottom: 36px;
-  padding: 0 60px;
+  margin-bottom: 24px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 900px;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
   animation: stagger-fadeIn 0.5s ease-out both;
   animation-delay: 0.2s;
 }
@@ -366,25 +357,28 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 12px;
-  height: 84px;
-  margin-bottom: 36px;
+  gap: 6px;
+  height: 48px;
+  margin-bottom: 24px;
   animation: stagger-fadeIn 0.5s ease-out both;
   animation-delay: 0.25s;
 }
 
+/* Pencil: 7 bars, 6px wide, r3, #DCA050 */
 .widget-music .spectrum-bar {
-  width: 9px;
-  border-radius: 6px;
-  background: rgba(220, 160, 80, 0.50);
+  width: 6px;
+  border-radius: 3px;
+  background: #DCA050;
   animation: spectrum-bounce 0.8s ease-in-out infinite alternate;
 }
 
-.widget-music .spectrum-bar:nth-child(1) { height: 24px;  animation-delay: 0s;    animation-duration: 0.7s; }
-.widget-music .spectrum-bar:nth-child(2) { height: 48px; animation-delay: 0.15s; animation-duration: 0.9s; }
-.widget-music .spectrum-bar:nth-child(3) { height: 72px; animation-delay: 0.05s; animation-duration: 0.6s; }
-.widget-music .spectrum-bar:nth-child(4) { height: 36px; animation-delay: 0.25s; animation-duration: 0.85s; }
-.widget-music .spectrum-bar:nth-child(5) { height: 18px;  animation-delay: 0.10s; animation-duration: 0.75s; }
+.widget-music .spectrum-bar:nth-child(1) { height: 20px; animation-delay: 0s;    animation-duration: 0.7s; }
+.widget-music .spectrum-bar:nth-child(2) { height: 36px; animation-delay: 0.15s; animation-duration: 0.9s; }
+.widget-music .spectrum-bar:nth-child(3) { height: 28px; animation-delay: 0.05s; animation-duration: 0.6s; }
+.widget-music .spectrum-bar:nth-child(4) { height: 44px; animation-delay: 0.25s; animation-duration: 0.85s; }
+.widget-music .spectrum-bar:nth-child(5) { height: 32px; animation-delay: 0.10s; animation-duration: 0.75s; }
+.widget-music .spectrum-bar:nth-child(6) { height: 24px; animation-delay: 0.20s; animation-duration: 0.65s; }
+.widget-music .spectrum-bar:nth-child(7) { height: 40px; animation-delay: 0.08s; animation-duration: 0.80s; }
 
 /* Spectrum paused state */
 .widget-music .spectrum.paused .spectrum-bar {
@@ -396,13 +390,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   100% { height: 72px; }
 }
 
-/* ── 进度条 ── */
+/* Pencil: h8, r3, fill #FFFFFF0F, progress gradient #DCA050→#E8B870 */
 .widget-music .progress-bar {
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 1px;
-  margin-bottom: 24px;
+  height: 8px;
+  background: #FFFFFF0F;
+  border-radius: 3px;
+  margin-bottom: 12px;
   position: relative;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -410,11 +404,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   animation-delay: 0.3s;
 }
 
+/* Pencil: gradient #DCA050→#E8B870, r3 */
 .widget-music .progress-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, rgba(220, 160, 80, 0.55) 0%, rgba(240, 180, 100, 0.80) 100%);
-  border-radius: 1px;
+  background: linear-gradient(90deg, #DCA050, #E8B870);
+  border-radius: 3px;
   position: relative;
   transition: width 0.3s linear;
 }
@@ -450,60 +445,53 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   letter-spacing: 1.5px;
 }
 
-/* ── 毛玻璃控制栏 ── */
+/* ── Controls Panel — Pencil: r32, fill #FFFFFF08, padding [24,40], h148 ── */
 .widget-music .glass-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 60px;
-  background: rgba(220, 160, 80, 0.04);
-  backdrop-filter: blur(48px) saturate(1.6);
-  -webkit-backdrop-filter: blur(48px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 48px;
-  padding: 30px 72px;
+  gap: 56px;
+  background: #FFFFFF08;
+  border-radius: 32px;
+  padding: 24px 40px;
+  height: 148px;
   margin-top: auto;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  animation: entrance-fadeIn var(--anim-entrance-duration, 0.6s) var(--anim-entrance-easing, ease-out);
-  animation-delay: 0.35s;
-  animation-fill-mode: both;
 }
 
+/* Pencil: prev/next 56×56, fill #FFFFFFB3 */
 .widget-music .control-btn {
-  width: 144px;
-  height: 144px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 54px;
+  color: #FFFFFFB3;
+  font-size: 48px;
   cursor: pointer;
   border-radius: 50%;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  transition: transform 0.15s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
 .widget-music .control-btn:active {
   transform: scale(0.92);
-  background: rgba(255, 255, 255, 0.06);
 }
 
+/* Pencil: play 80×80, fill #FFFFFF */
 .widget-music .control-btn-play {
-  width: 168px;
-  height: 168px;
-  font-size: 66px;
-  color: rgba(255, 255, 255, 0.80);
-  background: rgba(220, 160, 80, 0.08);
-  border: 1px solid rgba(220, 160, 80, 0.15);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  width: 80px;
+  height: 80px;
+  font-size: 48px;
+  color: #FFFFFF;
+  background: none;
+  border: none;
 }
 
 .widget-music .control-btn-play:active {
   transform: scale(0.90);
-  background: rgba(220, 160, 80, 0.15);
 }
 
 /* ── 空状态 ── */

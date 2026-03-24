@@ -9,28 +9,33 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
 
-/* ── 卡片容器 ── */
+/* ── 卡片容器 — Pencil: 亮色卡片, r24, padding 64, mesh gradient ── */
 .widget-calendar {
   width: 100%;
   height: 100%;
-  border-radius: 60px;
+  border-radius: 24px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 96px 84px 84px;
+  padding: 64px;
   box-sizing: border-box;
-  background: linear-gradient(160deg, #12141a 0%, #151820 40%, #0e1015 100%);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background:
+    radial-gradient(ellipse at 0% 0%, #F0F4F8, transparent 70%),
+    radial-gradient(ellipse at 100% 0%, #E2E8F0, transparent 70%),
+    radial-gradient(ellipse at 0% 100%, #D0D8E4, transparent 70%),
+    radial-gradient(ellipse at 100% 100%, #C4CED8, transparent 70%);
 }
 
-/* ── 风格预设 ── */
-
-/* 商务灰 - 默认 */
+/* ── 风格预设 — 保留兼容 ── */
 .widget-calendar,
 [data-style="business-gray"] .widget-calendar,
 .widget-calendar[data-style="business-gray"] {
-  background: linear-gradient(160deg, #12141a 0%, #151820 40%, #0e1015 100%);
+  background:
+    radial-gradient(ellipse at 0% 0%, #F0F4F8, transparent 70%),
+    radial-gradient(ellipse at 100% 0%, #E2E8F0, transparent 70%),
+    radial-gradient(ellipse at 0% 100%, #D0D8E4, transparent 70%),
+    radial-gradient(ellipse at 100% 100%, #C4CED8, transparent 70%);
 }
 
 /* 自然绿 */
@@ -169,13 +174,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 }
 
 /* ── 顶部标题栏 ── */
+/* Pencil: h72, space_between */
 .widget-calendar .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 72px;
-  padding-bottom: 48px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  height: 72px;
+  flex-shrink: 0;
 }
 
 .widget-calendar .header-left {
@@ -200,45 +205,43 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   color: rgba(140, 160, 200, 0.55);
 }
 
+/* Pencil: §2.3 亮色卡片 — 文字色 #1E293B/#64748B/#94A3B8 */
 .widget-calendar .weekday {
   font-family: var(--font-cn-family);
-  font-size: var(--size-caption);
-  color: rgba(255, 255, 255, 0.30);
+  font-size: 36px;
+  color: #64748B;
 }
 
 /* ── 核心日期区 ── */
 .widget-calendar .date-hero {
   display: flex;
   align-items: flex-end;
-  gap: 30px;
-  margin-bottom: 24px;
-  animation: entrance-fadeIn 0.6s ease-out;
+  gap: 16px;
 }
 
+/* Pencil: fontSize 120, fw 300, ls -2, fill #1E293B */
 .widget-calendar .date-number {
-  font-family: 'Bebas Neue', var(--font-hero-family);
-  font-size: 240px;
-  font-weight: 400;
-  letter-spacing: -6px;
+  font-family: var(--font-hero-family);
+  font-size: 120px;
+  font-weight: 300;
+  letter-spacing: -2px;
   line-height: 0.85;
-  background: linear-gradient(180deg, #ffffff 20%, rgba(255, 255, 255, 0.55) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1E293B;
 }
 
 .widget-calendar .date-meta {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-bottom: 24px;
+  padding-bottom: 16px;
 }
 
+/* Pencil: fontSize 42, fw 500 */
 .widget-calendar .date-month {
   font-family: var(--font-cn-family);
   font-size: 42px;
-  font-weight: var(--font-weight-medium, 500);
-  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+  color: #1E293B;
   line-height: 1.2;
 }
 
@@ -249,13 +252,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   line-height: 1.2;
 }
 
-/* ── 农历信息 ── */
+/* Pencil: fontSize 28, fill #94A3B8 */
 .widget-calendar .lunar-info {
   font-family: var(--font-cn-family);
-  font-size: 39px;
-  color: rgba(255, 255, 255, 0.30);
-  margin-bottom: 72px;
-  letter-spacing: 0.9px;
+  font-size: 28px;
+  color: #94A3B8;
+  margin-bottom: 48px;
 }
 
 /* ── 毛玻璃时间线 ── */
@@ -291,15 +293,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 .widget-calendar .event-item:nth-child(2) { animation-delay: 0.2s; }
 .widget-calendar .event-item:nth-child(3) { animation-delay: 0.3s; }
 
-/* 事件时间 */
+/* Pencil: fontSize 36, fw 500, fill #94A3B8, w120 */
 .widget-calendar .event-time {
-  font-family: 'Bebas Neue', var(--font-en-family);
-  font-size: 48px;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 3px;
-  width: 144px;
+  font-family: var(--font-cn-family);
+  font-size: 36px;
+  font-weight: 500;
+  color: #94A3B8;
+  width: 120px;
   flex-shrink: 0;
-  padding-top: 3px;
 }
 
 /* 时间线（竖线 + 圆点） */
@@ -313,12 +314,12 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   padding-top: 12px;
 }
 
+/* Pencil: 16×16 ellipse */
 .widget-calendar .event-dot {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: rgba(140, 160, 200, 0.35);
-  box-shadow: 0 0 18px rgba(140, 160, 200, 0.20);
+  background: #3B82F6;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
@@ -338,21 +339,23 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   min-width: 0;
 }
 
+/* Pencil: fontSize 36, fw 500, fill #1E293B */
 .widget-calendar .event-title {
   font-family: var(--font-cn-family);
-  font-size: 42px;
-  font-weight: var(--font-weight-medium, 500);
-  color: rgba(255, 255, 255, 0.80);
+  font-size: 36px;
+  font-weight: 500;
+  color: #1E293B;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* Pencil: fontSize 32, fill #94A3B8 */
 .widget-calendar .event-location {
   font-family: var(--font-cn-family);
-  font-size: 36px;
-  color: rgba(255, 255, 255, 0.25);
+  font-size: 32px;
+  color: #94A3B8;
   margin-top: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -439,10 +442,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 }
 
 /* ── FAB 添加事件按钮 ── */
+/* Pencil: 96×96, r48, fill #0A84FF30, bottom 64 right 64 */
 .fab-add-event {
   position: absolute;
-  bottom: 120px;
-  right: 84px;
+  bottom: 64px;
+  right: 64px;
   width: 96px;
   height: 96px;
   border-radius: 48px;
