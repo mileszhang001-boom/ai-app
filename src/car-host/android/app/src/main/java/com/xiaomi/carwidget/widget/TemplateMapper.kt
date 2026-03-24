@@ -9,7 +9,7 @@ object TemplateMapper {
     fun getAssetPath(componentType: String, theme: String): String? {
         return when (componentType) {
             "anniversary" -> when (theme) {
-                "love", "baby", "holiday", "warm" -> "anniversary/$theme"
+                "love", "baby", "holiday" -> "anniversary/$theme"
                 else -> null
             }
             "news" -> "news"

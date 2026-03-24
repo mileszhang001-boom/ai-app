@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0e1013">
+  <meta name="viewport" content="width=896, initial-scale=1.0">
+  <meta name="theme-color" content="#0D0A14">
   <title>音乐播放器卡片</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,34 +13,40 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="widget-music">
+  <div id="widget-root" class="widget-music">
     <!-- 专辑封面模糊背景 -->
-    <div class="album-bg" id="albumBg"></div>
+    <div id="album-bg-blur"></div>
 
-    <!-- 氛围光晕 -->
-    <div class="glow-primary"></div>
-    <div class="glow-secondary"></div>
+    <!-- 暗色渐变遮罩 -->
+    <div id="dark-overlay"></div>
 
-    <!-- 氛围光线 -->
-    <div class="ambient-line"></div>
+    <!-- 紫色氛围光晕 -->
+    <div id="glow-purple" class="glow-primary"></div>
 
-    <div class="content">
+    <!-- 主内容 -->
+    <div id="content" class="content">
+      <!-- 顶部留白 -->
+      <div class="spacer-160"></div>
+
       <!-- 专辑封面 -->
-      <div class="album-art" id="albumArt">
-        <div class="album-art-placeholder"></div>
-      </div>
+      <div id="album-art"></div>
 
-      <!-- 歌曲信息 -->
-      <div class="track-info">
-        <div class="song-name" id="songName">--</div>
-        <div class="artist" id="artistName">--</div>
-      </div>
+      <!-- 歌曲名 -->
+      <div class="spacer-56"></div>
+      <div id="song-name">--</div>
 
-      <!-- 当前歌词 -->
-      <div class="lyrics-line" id="lyricsLine">--</div>
+      <!-- 艺术家 -->
+      <div id="artist">--</div>
+
+      <!-- 歌词片段 -->
+      <div class="spacer-16"></div>
+      <div id="lyrics">--</div>
 
       <!-- 频谱可视化 -->
-      <div class="spectrum">
+      <div class="spacer-24"></div>
+      <div id="spectrum">
+        <div class="spectrum-bar"></div>
+        <div class="spectrum-bar"></div>
         <div class="spectrum-bar"></div>
         <div class="spectrum-bar"></div>
         <div class="spectrum-bar"></div>
@@ -49,24 +55,31 @@
       </div>
 
       <!-- 进度条 -->
-      <div class="progress-bar" id="progressBar">
-        <div class="progress-fill" id="progressFill">
-          <div class="progress-dot"></div>
-        </div>
+      <div class="spacer-24"></div>
+      <div id="progress-bar">
+        <div id="progress-fill"></div>
       </div>
 
-      <!-- 时间 -->
-      <div class="time-row">
-        <span class="time-elapsed" id="timeElapsed">0:00</span>
-        <span class="time-total" id="timeTotal">0:00</span>
+      <!-- 时间行 -->
+      <div id="time-row">
+        <span id="time-left">0:00</span>
+        <span id="time-right">0:00</span>
       </div>
 
-      <!-- 毛玻璃控制栏 -->
-      <div class="glass-controls">
-        <button class="control-btn" id="btnPrev" aria-label="上一首">⏮</button>
-        <button class="control-btn control-btn-play" id="btnPlay" aria-label="播放">▶</button>
-        <button class="control-btn" id="btnNext" aria-label="下一首">⏭</button>
+      <!-- 控制栏 -->
+      <div class="spacer-40"></div>
+      <div id="controls" class="glass-controls">
+        <button id="btn-prev" class="control-btn" aria-label="上一首"></button>
+        <button id="btn-play" class="control-btn control-btn-play" aria-label="播放"></button>
+        <button id="btn-next" class="control-btn" aria-label="下一首"></button>
       </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="empty-state">
+      <div class="empty-icon">🎵</div>
+      <div class="empty-title">未在播放</div>
+      <div class="empty-subtitle">连接音乐应用后自动显示</div>
     </div>
   </div>
 

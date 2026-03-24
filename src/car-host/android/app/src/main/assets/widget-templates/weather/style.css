@@ -1,301 +1,234 @@
 /**
  * 天气卡片 · Liquid Glass
  *
- * 动态天气背景 + 毛玻璃详情 + 3日预报
- * 风格预设：clear-blue / twilight / warm-sun
+ * Mesh gradient sky + sun glow + glass pills + 3-day forecast + AI suggestion
+ * Design ref: Pencil Card-Weather (Node tPVm8), 896×1464
  */
 
+/* 基础重置 */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
 
-/* 卡片容器 — DESIGN.md §2.1 */
+/* ── 卡片容器 — 896×1464, cornerRadius 24, mesh gradient fill ── */
 .widget-weather {
   width: 100%;
   height: 100%;
   border-radius: 24px;
   overflow: hidden;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 64px;
-  box-sizing: border-box;
+  /* Mesh gradient simulation: base linear + overlaid radials for 2×2 mesh effect */
   background:
     radial-gradient(ellipse at 0% 0%, #87CEEB, transparent 70%),
     radial-gradient(ellipse at 100% 0%, #5BA3D9, transparent 70%),
     radial-gradient(ellipse at 0% 100%, #3A7BD5, transparent 70%),
-    radial-gradient(ellipse at 100% 100%, #2C5F8A, transparent 70%);
-  animation: widget-fadeIn 0.5s ease;
-}
-@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* Data transition: smooth fade when values update */
-.widget-weather .weather-desc,
-.widget-weather .feels-like,
-.widget-weather .detail-value,
-.widget-weather .forecast-temp {
-  transition: opacity 0.4s ease;
+    radial-gradient(ellipse at 100% 100%, #2C5F8A, transparent 70%),
+    linear-gradient(135deg, #87CEEB 0%, #3A7BD5 100%);
+  /* JS will override via inline style for weather-condition-based theming */
+  transition: background 1s ease;
 }
 
-/* ── 天气动画画布 ── */
-.widget-weather .weather-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── 风格预设 — v2.0: 预设不再覆盖背景，背景固定为 DESIGN.md mesh gradient ── */
-/* 所有预设仅影响强调色，不改变卡片背景 */
-.widget-weather[data-weather="snowy"] { background: linear-gradient(160deg, #151a22 0%, #1a2030 40%, #121820 100%); }
-
-/* ── Sun Glow — Pencil: 500×500, x:350 y:-100, radial #FFD70060→transparent, opacity 0.5 ── */
-.widget-weather .sun-glow {
+/* ── Sun glow — 500×500, positioned at x:350 y:-100, radial #FFD70060→transparent, opacity 0.5 ── */
+.sun-glow {
   position: absolute;
   width: 500px;
   height: 500px;
   left: 350px;
   top: -100px;
-  opacity: 0.5;
-  background: radial-gradient(circle, #FFD70060, #FFD70000);
   border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.376) 0%, transparent 70%);
+  opacity: 0.5;
   pointer-events: none;
+  transition: opacity 0.8s ease;
+  z-index: 1;
+}
+.sun-glow.hidden {
+  opacity: 0;
 }
 
-/* ── 内容 ── */
-.widget-weather .content {
+/* ── Content wrapper — 896×1464, vertical layout, padding 64, clip ── */
+.content {
   position: relative;
-  z-index: 1;
-  flex: 1;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 64px;
+  overflow: hidden;
 }
 
-/* ── 顶部 ── */
-/* Pencil: header h72, space_between */
-.widget-weather .header {
+/* ── Spacers ── */
+.spacer-160 { height: 160px; flex-shrink: 0; }
+.spacer-32  { height: 32px;  flex-shrink: 0; }
+.spacer-24  { height: 24px;  flex-shrink: 0; }
+
+/* ── Header — horizontal, space-between, full width ── */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 72px;
+  width: 100%;
   flex-shrink: 0;
 }
 
-/* Pencil: cityName fontSize 42, fw 500, fill #F5F5F0 */
-.widget-weather .location {
-  font-family: var(--font-cn-family);
+.city-name {
   font-size: 42px;
   font-weight: 500;
   color: #F5F5F0;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  user-select: none;
+  transition: opacity 0.2s;
 }
-.widget-weather .location-pin {
-  font-size: 28px;
-  opacity: 0.6;
+.city-name:active {
+  opacity: 0.7;
 }
 
-/* Pencil: dateText fontSize 36, fill #F5F5F0B0 */
-.widget-weather .date {
-  font-family: var(--font-cn-family);
+.date-text {
   font-size: 36px;
-  color: #F5F5F0B0;
+  font-weight: normal;
+  color: rgba(245, 245, 240, 0.69);
 }
 
-/* ── 核心温度区 ── */
-.widget-weather .hero-section {
-  text-align: center;
-  margin-top: auto;
-  margin-bottom: 60px;
+/* ── Hero — vertical, gap 16, center aligned ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   flex-shrink: 0;
 }
 
-.widget-weather .temp-display {
-  display: inline-flex;
-  align-items: flex-start;
-  animation: entrance-fadeIn 0.6s ease-out;
-}
-
-/* Pencil: fontSize 200, fw 100, ls -8, fill #F5F5F0 */
-.widget-weather .temp-number {
-  font-family: var(--font-hero-family);
-  font-size: 200px;
-  font-weight: 100;
-  letter-spacing: -8px;
-  line-height: 0.85;
-  color: #F5F5F0;
-}
-
-.widget-weather .temp-unit {
-  font-family: var(--font-hero-family);
+.sun-icon {
   font-size: 80px;
-  font-weight: 100;
-  color: #F5F5F060;
-  margin-top: 24px;
+  line-height: 1;
 }
 
-/* Pencil: fontSize 42, fill #F5F5F0CC */
-.widget-weather .weather-desc {
-  font-family: var(--font-cn-family);
+.temperature {
+  font-size: 200px;
+  font-weight: 300;
+  color: #F5F5F0;
+  letter-spacing: -8px;
+  line-height: 1;
+}
+
+.condition {
   font-size: 42px;
-  color: #F5F5F0CC;
-  margin-top: 16px;
+  font-weight: normal;
+  color: rgba(245, 245, 240, 0.8);
 }
 
-/* Pencil: fontSize 32, fw 300, fill #F5F5F060 */
-.widget-weather .feels-like {
-  font-family: var(--font-cn-family);
+.feels-like {
   font-size: 32px;
   font-weight: 300;
-  color: #F5F5F060;
-  margin-top: 12px;
+  color: rgba(245, 245, 240, 0.376);
 }
 
-/* ── Pill Row (3 pills) — Pencil: r20, fill #FFFFFF20, stroke #FFFFFF15, w230 h164 ── */
-.widget-weather .glass-details {
+/* ── Pill row — horizontal, gap 20, center ── */
+.pill-row {
   display: flex;
   gap: 20px;
   justify-content: center;
-  margin-bottom: 24px;
+  flex-shrink: 0;
 }
 
-.widget-weather .detail-item {
-  text-align: center;
+/* Each pill: 230×164, cornerRadius 20, fill #FFFFFF20, border 1px solid #FFFFFF15 */
+.pill {
   width: 230px;
   height: 164px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.125);
+  border: 1px solid rgba(255, 255, 255, 0.082);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 20px;
-  background: #FFFFFF20;
-  border: 1px solid #FFFFFF15;
   padding: 20px 24px;
 }
 
-/* Pencil: fontSize 22, fill #F5F5F090 */
-.widget-weather .detail-label {
-  font-family: var(--font-cn-family);
-  font-size: 22px;
-  color: #F5F5F090;
+.pill-icon {
+  font-size: 28px;
+  line-height: 1;
+  order: -1; /* icon on top */
 }
 
-/* Pencil: fontSize 32, fw 600, fill #F5F5F0 */
-.widget-weather .detail-value {
-  font-family: var(--font-en-family);
+.pill-label {
+  font-size: 26px;
+  font-weight: normal;
+  color: rgba(245, 245, 240, 0.6);
+}
+
+.pill-value {
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 500;
   color: #F5F5F0;
 }
 
-.widget-weather .detail-divider {
-  display: none;
-}
-
-/* ── 3日预报 ── */
-.widget-weather .forecast-row {
+/* ── Forecast row — horizontal, 3 day columns, each flex:1, height 180 ── */
+.forecast-row {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 48px;
+  gap: 0;
+  flex-shrink: 0;
 }
 
-.widget-weather .forecast-day {
-  text-align: center;
+.forecast-day {
   flex: 1;
-  animation: stagger-fadeIn 0.5s ease-out both;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
 }
 
-.widget-weather .forecast-day:nth-child(1) { animation-delay: 0.1s; }
-.widget-weather .forecast-day:nth-child(2) { animation-delay: 0.2s; }
-.widget-weather .forecast-day:nth-child(3) { animation-delay: 0.3s; }
-
-.widget-weather .forecast-label {
-  font-family: var(--font-cn-family);
-  font-size: 33px;
-  color: rgba(255, 255, 255, 0.30);
-  margin-bottom: 18px;
+/* Subtle dividers between forecast columns */
+.forecast-day + .forecast-day {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.widget-weather .forecast-icon {
-  font-size: 60px;
-  margin-bottom: 12px;
-  line-height: 1.2;
+.forecast-label {
+  font-size: 28px;
+  font-weight: normal;
+  color: rgba(245, 245, 240, 0.6);
 }
 
-.widget-weather .forecast-temp {
-  font-family: var(--font-en-family);
-  font-size: 36px;
-  color: rgba(255, 255, 255, 0.50);
+.forecast-icon {
+  font-size: 40px;
+  line-height: 1;
 }
 
-/* ── AI建议 ── */
-/* Pencil: r20, fill #FFFFFF15, padding [28,32], gap 12 */
-.widget-weather .glass-suggestion {
-  background: #FFFFFF15;
+.forecast-temp {
+  font-size: 28px;
+  font-weight: 300;
+  color: #F5F5F0;
+}
+
+/* ── AI suggestion — cornerRadius 20, fill #FFFFFF15, height 160, padding 28px 32px ── */
+.ai-suggestion {
   border-radius: 20px;
-  padding: 28px 32px;
-  margin-top: auto;
+  background: rgba(255, 255, 255, 0.094);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 160px;
+  padding: 28px 32px;
+  flex-shrink: 0;
 }
 
-/* Pencil: "✨ AI 建议" fontSize 28, fw 500, fill #FFD700 */
-.widget-weather .suggestion-label {
-  font-family: var(--font-cn-family);
+.ai-label {
   font-size: 28px;
   font-weight: 500;
   color: #FFD700;
 }
 
-/* Pencil: fontSize 26, fill #F5F5F0CC */
-.widget-weather .suggestion-text {
-  font-family: var(--font-cn-family);
+.ai-text {
   font-size: 26px;
-  color: #F5F5F0CC;
+  font-weight: normal;
+  color: rgba(245, 245, 240, 0.8);
   line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ── 动态配色（color-engine） ── */
-[data-style="dynamic"] .widget-weather {
-  background: var(--dyn-bg);
-}
-
-/* ── WebView 兼容 ── */
-@supports not (-webkit-background-clip: text) {
-  .widget-weather .temp-number { background: none; -webkit-text-fill-color: initial; color: #ffffff; }
-}
-@supports not ((-webkit-backdrop-filter: blur(16px)) or (backdrop-filter: blur(16px))) {
-  .widget-weather .glass-details,
-  .widget-weather .glass-suggestion { background: rgba(20, 30, 50, 0.80); }
-}
-
-@media (max-width: 900px) {
-  .widget-weather { width: 100%; height: 100%; }
-}
-
-/* 示例数据角标 */
-.demo-badge {
-  position: absolute;
-  top: 40px;
-  right: 40px;
-  padding: 6px 16px;
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  z-index: 10;
-  pointer-events: none;
 }

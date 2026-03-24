@@ -21,11 +21,11 @@
   /* 卡片边框 */
   --dark-card-border: rgba(255, 255, 255, 0.04);
 
-  /* 文本色 */
-  --dark-text-primary: #ffffff;
-  --dark-text-secondary: rgba(255, 255, 255, 0.55);
-  --dark-text-tertiary: rgba(255, 255, 255, 0.45);
-  --dark-text-disabled: rgba(255, 255, 255, 0.25);
+  /* 文本色 — DESIGN.md §1.4 暗色文字层级 */
+  --dark-text-primary: #F5F5F0;
+  --dark-text-secondary: rgba(245, 245, 240, 0.60);
+  --dark-text-tertiary: rgba(245, 245, 240, 0.40);
+  --dark-text-disabled: rgba(245, 245, 240, 0.25);
 
   /* 系统强调色 - 小米橙 */
   --accent-xiaomi-orange: #FF6A00;
@@ -47,11 +47,11 @@
   /* 卡片边框 */
   --light-card-border: rgba(0, 0, 0, 0.04);
 
-  /* 文本色 */
-  --light-text-primary: #1a1a2e;
-  --light-text-secondary: rgba(0, 0, 0, 0.45);
-  --light-text-tertiary: rgba(0, 0, 0, 0.25);
-  --light-text-disabled: rgba(0, 0, 0, 0.2);
+  /* 文本色 — DESIGN.md §1.4 亮色文字层级 */
+  --light-text-primary: #1E293B;
+  --light-text-secondary: #64748B;
+  --light-text-tertiary: #94A3B8;
+  --light-text-disabled: #CBD5E1;
 
   /* 系统强调色 */
   --light-accent-bg: rgba(255, 106, 0, 0.08);
@@ -172,24 +172,16 @@
   --baby-ambient: rgba(140, 180, 255, 0.25);
 }
 
-/* ── 暖橙纪念 · 琥珀 ── */
+/* ── 模板 Accent 色 Fallback（runtime 被 color-engine 覆盖）── */
 :root {
-  --warm-bg-dark: linear-gradient(150deg, #1f1510 0%, #261a12 40%, #1a1210 100%);
-  --warm-bg-light: linear-gradient(150deg, #fff7ed 0%, #ffedd5 40%, #fef3c7 100%);
-  --warm-glow: rgba(255, 140, 60, 0.08);
-  --warm-glow-alt: rgba(255, 180, 100, 0.05);
-  --warm-ambient: rgba(255, 150, 60, 0.35);
-  --warm-label-dark: rgba(255, 180, 100, 0.40);
-  --warm-label-light: rgba(194, 65, 12, 0.35);
-  --warm-line: rgba(255, 180, 100, 0.15);
-  --warm-number-gradient: linear-gradient(180deg, #ffffff 15%, rgba(255, 255, 255, 0.55) 100%);
-  --warm-number-gradient-light: linear-gradient(180deg, #7c2d12 15%, rgba(124, 45, 18, 0.55) 100%);
-}
-
-[data-theme="light"] {
-  --warm-glow: rgba(255, 140, 60, 0.11);
-  --warm-glow-alt: rgba(255, 180, 100, 0.07);
-  --warm-ambient: rgba(255, 150, 60, 0.25);
+  --accent-weather: #FFD700;
+  --accent-music-purple: #8B5CF6;
+  --accent-music-gold: #DCA050;
+  --accent-calendar: #3B82F6;
+  --accent-alarm: #4ADE80;
+  --accent-love: #FF6B8A;
+  --accent-baby: #F5C842;
+  --accent-holiday: #FF8C42;
 }
 
 /* ── 每日新闻 · 科技蓝 ── */
@@ -396,10 +388,11 @@
   --spacing-lg: 72px;
   --spacing-xl: 96px;
 
-  /* 卡片内边距 */
-  --card-padding-v: 96px;
-  --card-padding-h: 84px;
-  --card-radius: 60px;
+  /* 卡片内边距 — SCHEMA: padding 64px */
+  --card-padding: 64px;
+  --card-padding-v: 64px;
+  --card-padding-h: 64px;
+  --card-radius: 24px;
 
   /* 元素间距 */
   --gap-hero-to-unit: 18px;       /* 数字 → 英文单位：紧密 */

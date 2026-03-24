@@ -2,68 +2,59 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0e1013">
+  <meta name="viewport" content="width=896, initial-scale=1.0">
   <title>日程卡片</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/tokens.css">
-  <link rel="stylesheet" href="../shared/visual-styles.css">
   <link rel="stylesheet" href="../shared/overlay.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="widget-calendar">
-    <!-- 光晕 -->
-    <div class="glow-primary"></div>
-
-    <!-- 氛围光线 -->
-    <div class="ambient-line"></div>
-
-    <div class="content">
-      <!-- 顶部：类别标注 + 星期 -->
-      <div class="header">
-        <div class="header-left">
-          <div class="header-indicator"></div>
-          <div class="category-label">schedule</div>
-        </div>
-        <div class="weekday" id="weekdayName">--</div>
+  <div id="widget-root">
+    <div id="content">
+      <!-- calHeader: 日程 + 周几 -->
+      <div class="cal-header">
+        <span class="cal-header-title" id="titleText">日程</span>
+        <span class="cal-header-week" id="weekText">周六</span>
       </div>
 
-      <!-- 核心：日期数字 + 月/年 -->
-      <div class="date-hero">
-        <span class="date-number" id="dateNumber">--</span>
+      <!-- date-section: hero date + meta -->
+      <div class="date-section">
+        <span class="big-date" id="bigDate">22</span>
         <div class="date-meta">
-          <span class="date-month" id="dateMonth">--月</span>
-          <span class="date-year" id="dateYear">----</span>
+          <span class="date-month" id="dateMonth">3月 2026</span>
+          <span class="date-lunar" id="dateLunar">二月廿三</span>
         </div>
       </div>
 
-      <!-- 农历信息 -->
-      <div class="lunar-info" id="lunarInfo">--</div>
+      <!-- spacer -->
+      <div class="spacer-48"></div>
 
-      <!-- 毛玻璃时间线 -->
-      <div class="glass-timeline" id="timeline">
-        <div class="event-item">
-          <div class="event-time">--:--</div>
-          <div class="event-line">
-            <div class="event-dot"></div>
-          </div>
-          <div class="event-info">
-            <div class="event-title">--</div>
-            <div class="event-location">--</div>
-          </div>
-        </div>
+      <!-- divider -->
+      <div class="divider-line"></div>
+
+      <!-- spacer -->
+      <div class="spacer-40"></div>
+
+      <!-- event rows -->
+      <div class="event-list" id="eventList">
+        <!-- dynamically rendered by main.js -->
       </div>
 
-      <!-- 下一事件倒计时 -->
-      <div class="next-event-countdown" id="countdown">
-        <span class="countdown-text">--</span>
+      <!-- spacer -->
+      <div class="spacer-64"></div>
+
+      <!-- next-meeting pill -->
+      <div class="next-meeting" id="nextMeeting">
+        <svg class="next-meeting-icon" width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="var(--dyn-accent, #3B82F6)" stroke-width="2"/>
+          <path d="M12 6v6l4 2" stroke="var(--dyn-accent, #3B82F6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="next-meeting-text" id="nextMeetingText">距下次会议还有 45 分钟</span>
       </div>
     </div>
 
-    <button class="fab-add-event" id="fabAddEvent">+</button>
+    <!-- FAB add button -->
+    <button class="fab-add-cal" id="fabAddCal">+</button>
   </div>
 
   <script src="../shared/bridge.js"></script>
