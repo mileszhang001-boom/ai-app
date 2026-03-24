@@ -23,13 +23,13 @@ html, body {
 .widget-warm {
   width: 100%;
   height: 100%;
-  border-radius: 60px;
+  border-radius: 24px;
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 120px 84px 120px;
+  padding: 64px;
   box-sizing: border-box;
 
   /* 深色背景 — 琥珀暗调 */

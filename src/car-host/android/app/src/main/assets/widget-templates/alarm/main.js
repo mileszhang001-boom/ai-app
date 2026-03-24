@@ -175,7 +175,7 @@
       // 左滑删除按钮（隐藏在右侧）
       var deleteBtn = document.createElement('div');
       deleteBtn.className = 'alarm-delete-reveal';
-      deleteBtn.style.cssText = 'position:absolute; right:0; top:0; bottom:0; width:120px; background:rgba(255,60,60,0.85); display:flex; align-items:center; justify-content:center; color:#fff; font-size:28px; font-weight:500; z-index:0; border-radius:0 16px 16px 0;';
+      deleteBtn.style.cssText = 'position:absolute; right:0; top:0; bottom:0; width:128px; background:#FF3B30; display:flex; align-items:center; justify-content:center; color:#fff; font-size:28px; font-weight:500; z-index:0; border-radius:0 20px 20px 0;';
       deleteBtn.textContent = '删除';
 
       swipeWrap.appendChild(deleteBtn);
@@ -193,14 +193,14 @@
           if (!swiping) return;
           currentX = e.touches[0].clientX - startX;
           if (currentX < 0) {
-            rowEl.style.transform = 'translateX(' + Math.max(currentX, -120) + 'px)';
+            rowEl.style.transform = 'translateX(' + Math.max(currentX, -128) + 'px)';
           }
         }, { passive: true });
         rowEl.addEventListener('touchend', function() {
           swiping = false;
           rowEl.style.transition = 'transform 0.2s ease';
-          if (currentX < -60) {
-            rowEl.style.transform = 'translateX(-120px)';
+          if (currentX < -64) {
+            rowEl.style.transform = 'translateX(-128px)';
           } else {
             rowEl.style.transform = 'translateX(0)';
           }

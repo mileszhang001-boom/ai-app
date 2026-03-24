@@ -44,29 +44,27 @@ html, body {
 }
 .widget-holiday .photo-area.loading { opacity: 0; }
 
-/* Glass panel: FULL WIDTH 896px, height 598, positioned at y=866 (bottom: 1464-866-598=0) */
+/* Pencil §2.8: glass-panel 896×598, y:866, r32, padding [56,48], gap 16 */
 .widget-holiday .glass-panel {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%;
-  min-height: 598px;
-  border-radius: 28px;
+  width: 896px;
+  height: 598px;
+  border-radius: 32px 32px 0 0;
   padding: 56px 48px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   align-items: flex-start;
   z-index: 2;
-  /* Red-orange gradient background */
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(196, 37, 10, 0.44) 40%,
-    rgba(212, 56, 8, 0.60) 100%
-  );
-  backdrop-filter: blur(32px) saturate(1.5);
-  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  background: linear-gradient(180deg,
+    #6b3510d0 0%,
+    #5a2808e8 30%,
+    #4a2008f2 60%,
+    #4a2008f8 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* Panel tag */
@@ -121,7 +119,7 @@ html, body {
   font-size: 56px;
   font-weight: 300;
   letter-spacing: 4px;
-  color: rgba(245, 245, 240, 0.82);
+  color: #F5F5F0D0;
 }
 
 /* Date text */
