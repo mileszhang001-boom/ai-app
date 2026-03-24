@@ -504,7 +504,7 @@ export class ConfigPanel {
       btn.addEventListener('click', () => {
         grid.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        this.fieldValues[field.key] = btn.dataset.bg;
+        this.fieldValues[field.key] = btn.dataset.bgPath || btn.dataset.bg;
         // Clear custom photo when preset is chosen
         this.photoDataUrl = null;
         const thumb = panel.querySelector(`#bgUploadThumb_${field.key}`);

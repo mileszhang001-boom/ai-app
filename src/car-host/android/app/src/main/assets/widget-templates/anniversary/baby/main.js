@@ -6,12 +6,30 @@
 (function() {
   'use strict';
 
-  var params = window.__WIDGET_PARAMS__ || {
+  var _raw = window.__WIDGET_PARAMS__ || {};
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
+  var isPreview = dataMode === 'preview';
+
+  var MOCK = {
     birth_date: '2024-09-22',
     title: '成长',
     baby_name: '小星星',
-    description: '宝贝健康长大'
+    description: '宝贝健康长大',
+    background_image: ''
   };
+
+  function mergeParams(p) {
+    var m = isPreview ? MOCK : {};
+    return {
+      birth_date: p.birth_date || m.birth_date || '2024-01-01',
+      title: p.title || m.title || '成长',
+      baby_name: p.baby_name || m.baby_name || '',
+      description: p.description || p.subtitle || m.description || '',
+      background_image: p.background_image || p.bg_photo || m.background_image || ''
+    };
+  }
+
+  var params = mergeParams(_raw);
 
   // -- Month calculation (timezone-safe) --
   function calculateMonths(birthDate) {

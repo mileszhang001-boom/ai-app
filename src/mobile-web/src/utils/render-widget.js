@@ -106,8 +106,9 @@ export async function renderWidgetInFrame(frameEl, data) {
   // 3. 所有 /widget-templates/ 引用添加 cache busting
   html = html.replace(/(src|href)="(\/widget-templates\/[^"?]+)"/g, `$1="$2?v=${ts}"`);
 
-  if (widgetParams.style_preset) {
-    html = html.replace(/<html/, `<html data-style="${widgetParams.style_preset}"`);
+  // 只在 style_preset 非默认 glass 时覆盖 index.html 的 data-style
+  if (widgetParams.style_preset && widgetParams.style_preset !== 'glass') {
+    html = html.replace(/data-style="[^"]*"/, `data-style="${widgetParams.style_preset}"`);
   }
 
   // 注入 templateBasePath 供模板 JS 使用（解决 srcdoc 中相对路径问题）
