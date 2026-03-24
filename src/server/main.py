@@ -1,5 +1,5 @@
 """
-AI小组件云服务 - FastAPI 主应用
+AI小组件云服务 - FastAPI 主应用 (v2.0)
 
 提供以下 API：
 - POST /api/generate - AI 生成组件参数
