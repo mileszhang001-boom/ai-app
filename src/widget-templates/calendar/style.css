@@ -38,11 +38,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
     radial-gradient(ellipse at 100% 100%, #C4CED8, transparent 70%);
 }
 
-/* 自然绿 */
-[data-style="nature-green"] .widget-calendar,
-.widget-calendar[data-style="nature-green"] {
-  background: linear-gradient(160deg, #0e1a14 0%, #101e16 40%, #0a1410 100%);
-}
+/* v2.0: 预设不再覆盖背景 — 日程卡片固定为亮色 mesh gradient (DESIGN.md §2.3) */
+/* 自然绿 — 仅保留强调色 */
 [data-style="nature-green"] .widget-calendar .glow-primary,
 .widget-calendar[data-style="nature-green"] .glow-primary {
   background: radial-gradient(circle, rgba(80, 200, 130, 0.12) 0%, transparent 70%);
@@ -88,11 +85,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   color: rgba(80, 200, 130, 0.60);
 }
 
-/* 典雅白 */
-[data-style="elegant-white"] .widget-calendar,
-.widget-calendar[data-style="elegant-white"] {
-  background: linear-gradient(160deg, #1a1918 0%, #1e1d1a 40%, #161514 100%);
-}
+/* 典雅白 — 仅保留强调色 */
 [data-style="elegant-white"] .widget-calendar .glow-primary,
 .widget-calendar[data-style="elegant-white"] .glow-primary {
   background: radial-gradient(circle, rgba(240, 220, 180, 0.10) 0%, transparent 70%);

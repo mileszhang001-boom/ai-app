@@ -55,15 +55,16 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 }
 
 /* ── 内容区 ── */
+/* 内容已由卡片容器 padding:64px 提供间距，此处不再重复 */
 .alarm-content {
   position: relative;
   z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 96px 64px 84px;
+  padding: 0;
   overflow: visible;
-  min-height: 0; /* 允许 flex 子元素滚动 */
+  min-height: 0;
 }
 
 /* ── Header ── */

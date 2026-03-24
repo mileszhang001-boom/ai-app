@@ -47,73 +47,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   z-index: 0;
 }
 
-/* ── 风格预设 ── */
-
-/* 清透蓝 - 默认（mesh gradient per DESIGN.md §2.1） */
-.widget-weather,
-[data-style="clear-blue"] .widget-weather,
-.widget-weather[data-style="clear-blue"] {
-  background:
-    radial-gradient(ellipse at 0% 0%, #87CEEB, transparent 70%),
-    radial-gradient(ellipse at 100% 0%, #5BA3D9, transparent 70%),
-    radial-gradient(ellipse at 0% 100%, #3A7BD5, transparent 70%),
-    radial-gradient(ellipse at 100% 100%, #2C5F8A, transparent 70%);
-}
-
-/* 暮色紫 */
-[data-style="twilight"] .widget-weather,
-.widget-weather[data-style="twilight"] {
-  background: linear-gradient(160deg, #1a0e28 0%, #201435 40%, #150d20 100%);
-}
-[data-style="twilight"] .widget-weather .glow-primary,
-.widget-weather[data-style="twilight"] .glow-primary {
-  background: radial-gradient(circle, rgba(160, 100, 255, 0.14) 0%, transparent 70%);
-}
-[data-style="twilight"] .widget-weather .ambient-line,
-.widget-weather[data-style="twilight"] .ambient-line {
-  background: linear-gradient(90deg, rgba(160, 100, 255, 0.40) 0%, transparent 100%);
-}
-[data-style="twilight"] .widget-weather .glass-details,
-[data-style="twilight"] .widget-weather .glass-suggestion,
-.widget-weather[data-style="twilight"] .glass-details,
-.widget-weather[data-style="twilight"] .glass-suggestion {
-  background: rgba(160, 100, 255, 0.04);
-  border-color: rgba(160, 100, 255, 0.10);
-}
-[data-style="twilight"] .widget-weather .suggestion-label,
-.widget-weather[data-style="twilight"] .suggestion-label {
-  color: rgba(160, 100, 255, 0.60);
-}
-
-/* 暖阳橙 */
-[data-style="warm-sun"] .widget-weather,
-.widget-weather[data-style="warm-sun"] {
-  background: linear-gradient(160deg, #1f1510 0%, #261a12 40%, #1a1210 100%);
-}
-[data-style="warm-sun"] .widget-weather .glow-primary,
-.widget-weather[data-style="warm-sun"] .glow-primary {
-  background: radial-gradient(circle, rgba(255, 160, 60, 0.14) 0%, transparent 70%);
-}
-[data-style="warm-sun"] .widget-weather .ambient-line,
-.widget-weather[data-style="warm-sun"] .ambient-line {
-  background: linear-gradient(90deg, rgba(255, 160, 60, 0.40) 0%, transparent 100%);
-}
-[data-style="warm-sun"] .widget-weather .glass-details,
-[data-style="warm-sun"] .widget-weather .glass-suggestion,
-.widget-weather[data-style="warm-sun"] .glass-details,
-.widget-weather[data-style="warm-sun"] .glass-suggestion {
-  background: rgba(255, 160, 60, 0.04);
-  border-color: rgba(255, 160, 60, 0.10);
-}
-[data-style="warm-sun"] .widget-weather .suggestion-label,
-.widget-weather[data-style="warm-sun"] .suggestion-label {
-  color: rgba(255, 160, 60, 0.60);
-}
-
-/* ── 天气状态背景 ── */
-.widget-weather[data-weather="sunny"] { background: linear-gradient(160deg, #0d1a2e 0%, #102040 40%, #0a1525 100%); }
-.widget-weather[data-weather="cloudy"] { background: linear-gradient(160deg, #151820 0%, #1a1e28 40%, #111418 100%); }
-.widget-weather[data-weather="rainy"] { background: linear-gradient(160deg, #0d1520 0%, #0e1825 40%, #0a1018 100%); }
+/* ── 风格预设 — v2.0: 预设不再覆盖背景，背景固定为 DESIGN.md mesh gradient ── */
+/* 所有预设仅影响强调色，不改变卡片背景 */
 .widget-weather[data-weather="snowy"] { background: linear-gradient(160deg, #151a22 0%, #1a2030 40%, #121820 100%); }
 
 /* ── Sun Glow — Pencil: 500×500, x:350 y:-100, radial #FFD70060→transparent, opacity 0.5 ── */

@@ -42,25 +42,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   z-index: 0;
 }
 
-/* ── 风格预设 ── */
-
-/* dark-vinyl（默认）：深炭 + 暖琥珀 */
-.widget-music,
-[data-style="dark-vinyl"] .widget-music,
-.widget-music[data-style="dark-vinyl"] {
-  background: linear-gradient(155deg, #1a1510 0%, #201810 35%, #141008 100%);
-}
-
-[data-style="dark-vinyl"] .widget-music .album-bg,
-.widget-music[data-style="dark-vinyl"] .album-bg {
-  background: linear-gradient(135deg, #3a2820 0%, #1a1008 40%, #2a1a10 100%);
-}
-
-/* neon-purple：深紫 + 霓虹紫 */
-[data-style="neon-purple"] .widget-music,
-.widget-music[data-style="neon-purple"] {
-  background: linear-gradient(155deg, #150d28 0%, #1e1040 35%, #120a20 100%);
-}
+/* ── v2.0: 预设不再覆盖背景 — 背景固定为 DESIGN.md §2.2 mesh gradient ── */
+/* 所有预设的 background 覆盖已移除 */
 
 [data-style="neon-purple"] .widget-music .album-bg,
 .widget-music[data-style="neon-purple"] .album-bg {
@@ -124,11 +107,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   border-color: rgba(160, 80, 255, 0.20);
 }
 
-/* minimal-light：微亮暗底 + 纯白 */
-[data-style="minimal-light"] .widget-music,
-.widget-music[data-style="minimal-light"] {
-  background: linear-gradient(155deg, #1a1a22 0%, #202028 35%, #151518 100%);
-}
+/* minimal-light — 仅保留强调色 */
 
 [data-style="minimal-light"] .widget-music .album-bg,
 .widget-music[data-style="minimal-light"] .album-bg {
