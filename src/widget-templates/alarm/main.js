@@ -28,6 +28,7 @@
   var params = window.__WIDGET_PARAMS__ || {};
   var accentHex = params.accent_color || '#4ADE80';
   var defaultView = params.default_view || 'list'; // 'list' or 'clock'
+  if (params.visual_style) { document.documentElement.setAttribute('data-visual-style', params.visual_style); }
 
   // ── Storage ──
   var storage = new WidgetStorage('alarms');

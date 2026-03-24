@@ -419,6 +419,7 @@
 
   // ── Init ──
   function init() {
+    if (params.visual_style) { document.documentElement.setAttribute('data-visual-style', params.visual_style); }
     applyAccentColor();
     renderDate();
     loadEvents();

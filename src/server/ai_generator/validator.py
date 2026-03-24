@@ -19,11 +19,11 @@ from datetime import datetime
 
 VALID_TEMPLATE_IDS = {
     "anniversary_love", "anniversary_baby", "anniversary_holiday",
-    "news_daily",
+    "news_news", "news_daily",           # news_daily = legacy alias
     "alarm_clock",
-    "weather_realtime",
-    "music_player",
-    "calendar_schedule",
+    "weather_weather", "weather_realtime",  # weather_realtime = legacy alias
+    "music_music", "music_player",        # music_player = legacy alias
+    "calendar_calendar", "calendar_schedule",  # calendar_schedule = legacy alias
 }
 
 VALID_STYLE_PRESETS = {
@@ -51,11 +51,11 @@ VALID_VISUAL_STYLES = {"glass", "minimal", "material", "pixel"}
 
 VALID_THEMES = {
     "anniversary": {"love", "baby", "holiday"},
-    "news": {"daily"},
+    "news": {"news", "daily"},           # "daily" = legacy alias
     "alarm": {"clock"},
-    "weather": {"realtime"},
-    "music": {"player"},
-    "calendar": {"schedule"},
+    "weather": {"weather", "realtime"},   # "realtime" = legacy alias
+    "music": {"music", "player"},         # "player" = legacy alias
+    "calendar": {"calendar", "schedule"}, # "schedule" = legacy alias
 }
 
 
@@ -102,10 +102,9 @@ class ComponentValidator:
             # 2. component_type 白名单
             self._validate_component_type(component_type, data.get("component_type"), errors)
 
-            # 3. theme 白名单
+            # 3. theme 白名单（所有类型均校验）
             actual_type = data.get("component_type", component_type)
-            if actual_type == "anniversary":
-                self._validate_theme(theme, data.get("theme"), errors)
+            self._validate_theme_for_type(actual_type, data.get("theme", theme), errors)
 
             # 4. template_id 白名单
             self._validate_template_id(data.get("template_id"), errors)
@@ -176,18 +175,14 @@ class ComponentValidator:
         if expected and actual != expected:
             errors.append(f"component_type mismatch: expected {expected}, got {actual}")
 
-    def _validate_theme(self, expected: str, actual: str, errors: List[str]):
-        """校验主题"""
+    def _validate_theme_for_type(self, component_type: str, actual: str, errors: List[str]):
+        """校验主题（适用于所有 component_type）"""
         if not actual:
-            errors.append("theme is missing for anniversary component")
-            return
+            return  # theme 对非 anniversary 类型可选
 
-        valid_themes = VALID_THEMES.get("anniversary", set())
-        if actual not in valid_themes:
-            errors.append(f"Invalid theme: {actual}. Must be one of {sorted(valid_themes)}")
-
-        if expected and actual != expected:
-            errors.append(f"theme mismatch: expected {expected}, got {actual}")
+        valid_themes = VALID_THEMES.get(component_type, set())
+        if valid_themes and actual not in valid_themes:
+            errors.append(f"Invalid theme '{actual}' for {component_type}. Must be one of {sorted(valid_themes)}")
 
     def _validate_template_id(self, template_id: str, errors: List[str]):
         """校验 template_id 白名单（含自动修正）"""
@@ -317,50 +312,68 @@ class ComponentValidator:
                 "love": _anniversary_love,
                 "baby": _anniversary_baby,
                 "holiday": {
-                    "title": {"type": "string", "required": True, "maxLength": 8},
-                    "target_date": {"type": "datetime", "required": True},
-                    "emoji": {"type": "string", "required": False},
-                    "show_hours": {"type": "boolean", "required": False},
-                    "show_minutes": {"type": "boolean", "required": False},
-                    "background_image": {"type": "string", "required": False, "maxLength": 50},
+                    "title": {"type": "string", "required": False, "maxLength": 8},
+                    "target_date": {"type": "date", "required": True},
+                    "target_end_date": {"type": "date", "required": False},
+                    "holiday_name": {"type": "string", "required": False, "maxLength": 8},
+                    "holiday_icon": {"type": "string", "required": False},
+                    "description": {"type": "string", "required": False, "maxLength": 20},
+                    "background_image": {"type": "string", "required": False, "maxLength": 200},
+                    "primary_color": {"type": "string", "required": False},
                 },
             },
             "news": {
-                "daily": {
-                    "category": {"type": "enum", "values": ["general", "tech", "auto", "automotive", "finance", "sports", "lifestyle"], "default": "general"},
-                    "categories": {"type": "any", "required": False},
+                "news": {
+                    "topics": {"type": "any", "required": False},
+                    "display_style": {"type": "enum", "values": ["card", "list"], "default": "card"},
                     "max_items": {"type": "number", "min": 3, "max": 8, "default": 5},
                 },
+                "daily": None,  # legacy alias → resolved below
             },
             "alarm": {
                 "clock": {
+                    "default_view": {"type": "enum", "values": ["list", "clock"], "default": "list"},
+                    "accent_color": {"type": "string", "required": False},
                     "alarm_time": {"type": "string", "required": False},
                     "label": {"type": "string", "required": False, "maxLength": 15},
                     "repeat": {"type": "string", "required": False},
-                    "display_style": {"type": "enum", "values": ["list", "dial"], "default": "list"},
                 },
             },
             "weather": {
-                "realtime": {
+                "weather": {
                     "city": {"type": "string", "required": False, "maxLength": 20, "default": "北京"},
                     "weather_type": {"type": "enum", "values": ["sunny", "cloudy", "rainy", "snowy"], "default": "sunny"},
                 },
+                "realtime": None,  # legacy alias → resolved below
             },
             "music": {
-                "player": {
+                "music": {
                     "song_name": {"type": "string", "required": False, "maxLength": 30},
                     "artist": {"type": "string", "required": False, "maxLength": 20},
                     "lyrics_snippet": {"type": "string", "required": False, "maxLength": 50},
                 },
+                "player": None,  # legacy alias → resolved below
             },
             "calendar": {
-                "schedule": {
+                "calendar": {
                     "show_lunar": {"type": "boolean", "required": False, "default": True},
+                    "accent_color": {"type": "string", "required": False},
                 },
+                "schedule": None,  # legacy alias → resolved below
             },
         }
 
-        return schemas.get(component_type, {}).get(theme, {})
+        result = schemas.get(component_type, {}).get(theme, {})
+        # Resolve legacy aliases (e.g., news/daily → news/news)
+        if result is None:
+            _LEGACY_THEME_MAP = {
+                ("news", "daily"): "news", ("weather", "realtime"): "weather",
+                ("music", "player"): "music", ("calendar", "schedule"): "calendar",
+            }
+            canonical = _LEGACY_THEME_MAP.get((component_type, theme))
+            if canonical:
+                result = schemas.get(component_type, {}).get(canonical, {})
+        return result or {}
 
     def _validate_type(
         self,

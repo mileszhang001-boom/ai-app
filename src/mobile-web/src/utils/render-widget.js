@@ -69,6 +69,27 @@ export function buildWidgetParams(data) {
       p.background_image = p.bg_photo;
       delete p.bg_photo;
     }
+    // Holiday: emoji → holiday_icon
+    if (data.theme === 'holiday' && p.emoji && !p.holiday_icon) {
+      p.holiday_icon = p.emoji;
+      delete p.emoji;
+    }
+  }
+
+  // Alarm: display_style → default_view, dial → clock
+  if (data.component_type === 'alarm') {
+    if (p.display_style && !p.default_view) {
+      p.default_view = p.display_style === 'dial' ? 'clock' : p.display_style;
+      delete p.display_style;
+    }
+  }
+
+  // News: categories → topics
+  if (data.component_type === 'news') {
+    if (p.categories && !p.topics) {
+      p.topics = p.categories;
+      delete p.categories;
+    }
   }
 
   return p;

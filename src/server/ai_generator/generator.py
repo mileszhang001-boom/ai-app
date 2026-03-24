@@ -1434,26 +1434,59 @@ class AIGenerator:
 
     def _fix_llm_output(self, data: Dict[str, Any], component_type: str, theme: str) -> Dict[str, Any]:
         """自动修正 LLM 输出中的常见错误"""
-        # 修正 template_id
+        # ── Theme 归一化：旧名 → 新规范名 ──
+        _LEGACY_THEME = {
+            "daily": "news", "realtime": "weather",
+            "player": "music", "schedule": "calendar",
+        }
+        _LEGACY_TEMPLATE_ID = {
+            "news_daily": "news_news", "weather_realtime": "weather_weather",
+            "music_player": "music_music", "calendar_schedule": "calendar_calendar",
+        }
+        if data.get("theme") in _LEGACY_THEME:
+            data["theme"] = _LEGACY_THEME[data["theme"]]
+        if data.get("template_id") in _LEGACY_TEMPLATE_ID:
+            data["template_id"] = _LEGACY_TEMPLATE_ID[data["template_id"]]
+
+        # ── 修正 template_id ──
         TEMPLATE_ID_MAP = {
             "alarm": "alarm_clock",
-            "news": "news_daily",
-            "weather": "weather_realtime",
-            "music": "music_player",
-            "calendar": "calendar_schedule",
+            "news": "news_news",
+            "weather": "weather_weather",
+            "music": "music_music",
+            "calendar": "calendar_calendar",
+        }
+        VALID_IDS = {
+            "alarm_clock", "news_news", "weather_weather", "music_music", "calendar_calendar",
+            "anniversary_love", "anniversary_baby", "anniversary_holiday",
+            # legacy IDs still accepted
+            "news_daily", "weather_realtime", "music_player", "calendar_schedule",
         }
         tid = data.get("template_id", "")
-        if tid and tid not in {"alarm_clock", "news_daily", "weather_realtime", "music_player", "calendar_schedule",
-                               "anniversary_love", "anniversary_baby", "anniversary_holiday", "anniversary_warm"}:
+        if tid and tid not in VALID_IDS:
             expected = TEMPLATE_ID_MAP.get(component_type)
             if expected:
                 data["template_id"] = expected
 
-        # 修正 component_type / theme
+        # ── 修正 component_type / theme ──
         if not data.get("component_type") or data["component_type"] == "unknown":
             data["component_type"] = component_type
         if not data.get("theme") or data["theme"] == "default":
             data["theme"] = theme
+
+        # ── 字段名迁移 ──
+        params = data.get("params", {})
+        # Alarm: display_style → default_view, dial → clock
+        if data.get("component_type") == "alarm" and "display_style" in params and "default_view" not in params:
+            val = params.pop("display_style")
+            params["default_view"] = "clock" if val == "dial" else val
+        # News: categories → topics
+        if data.get("component_type") == "news" and "categories" in params and "topics" not in params:
+            params["topics"] = params.pop("categories")
+        # Holiday: emoji → holiday_icon
+        if data.get("component_type") == "anniversary" and data.get("theme") == "holiday":
+            if "emoji" in params and "holiday_icon" not in params:
+                params["holiday_icon"] = params.pop("emoji")
 
         return data
 

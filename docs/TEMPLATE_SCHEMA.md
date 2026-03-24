@@ -96,6 +96,27 @@ tokens.css 中的硬编码 fallback
 | **新闻** | 话题分类自动映射 | 不可控 | 按分类：科技蓝/汽车橙/财经绿/体育红/生活紫 | — |
 | **闹钟** | 用户选强调色 | ✅ color_picker | 绿 #4ADE80 | 薄荷绿/天空蓝/琥珀橙/石墨灰/薰衣紫/银灰 |
 
+### 0.6 纪念日三卡文案体系（v2.0 新增）
+
+**核心设计原则**：用户输入的昵称/名字是仪式感核心，必须融入卡片文案。title 字段不再由用户输入，改为 AI 自动生成。
+
+**统一结构**（三卡一致）：
+```
+  ❤️/⭐                   ← icon（固定）
+  365                     ← Hero 数字（DV，自动计算）
+  天的陪伴                 ← label（DV+AG，随机选取）
+  ──── divider ────
+  与小美相伴的每一天        ← copy（AG，融入用户昵称，每次不同）
+  2025.03.22 — 2026.03.22  ← date（DV，自动格式化）
+```
+
+**文案来源**：label 和 copy 由规则池随机选取 + AI 生成补充，**每次生成结果不同**，避免僵化重复。
+
+**用户输入字段变更（v2.0）**：
+- ~~title~~：已移除，不再由用户输入
+- nickname / baby_name / holiday_name：**仪式感核心字段**，融入 copy 文案
+- Pencil 设计稿已同步删除 Holiday 胶囊 tag（`2oXHu`），三卡结构统一
+
 ---
 
 ## 一、纪念日 · 恋爱 (anniversary/love)
@@ -116,33 +137,45 @@ tokens.css 中的硬编码 fallback
 | field | type | source | required | nullable | fallback | editable | control | constraints | nl_keywords | effect |
 |-------|------|--------|----------|----------|----------|----------|---------|-------------|-------------|--------|
 | `start_date` | date | UI | 是 | 否 | — | ✅ | date_picker | ≤今天 | "在一起/开始/日期" | 触发 hero 天数重算 |
-| `title` | string | UI | 是 | 否 | "在一起" | ✅ | text_input | ≤8字 | "标题/叫什么" | 替换标题文本节点 |
-| `nickname` | string | UI | 否 | 是 | 不显示昵称区域 | ✅ | text_input | ≤6字 | "名字/昵称/TA/对象" | 替换昵称标签 |
+| `nickname` | string | UI | 否 | 是 | — | ✅ | text_input | ≤6字 | "名字/昵称/TA/对象" | 融入 copy 文案 |
 | `background_image` | image | UI+TD | 否 | 是 | 预设 `love_bg_01` | ✅ | image_picker | ≤200KB, JPG/PNG/WebP | "照片/图片/背景/换图" | 替换背景 + 触发配色引擎重算 |
-| `description` | string | AG | — | 是 | AI 根据天数生成（如"第1000天快乐"） | ❌ | — | ≤20字 | — | 替换描述文本节点 |
 | `days_count` | number | DV | — | 否 | — | ❌ | — | 自动计算 | — | Hero 大字数字 |
+| `label` | string | DV+AG | — | 否 | "天的相伴" | ❌ | — | ≤6字 | — | Hero 数字下方的单位描述 |
+| `copy` | string | AG | — | 否 | "与你相伴的每一天" | ❌ | — | ≤15字 | — | 分隔线下方的文案（融入 nickname） |
 | `color_tint` | string | DV | — | 否 | 从 background_image 自动提取 | ❌ | — | hex color | — | Glass panel 色调、文字投影 |
 
-### 1.2 渲染映射
+### 1.2 文案拼接规则
+
+**label**（Hero 数字后的单位描述）：
+规则拼接，随机选取，避免每次相同：
+- `天的相伴` · `天的陪伴` · `天的甜蜜` · `天的守护` · `天的浪漫`
+- 里程碑变体：第100天 → `天！里程碑` ，第365天 → `天，整整一年` ，第1000天 → `天的奇迹`
+
+**copy**（分隔线下方，融入 nickname 的个性化文案）：
+AI 生成或规则拼接，**必须每次不同**：
+- 有 nickname：`与{nickname}相伴的每一天` · `{nickname}，感谢有你` · `和{nickname}的第{days}天` · `{nickname}是最好的礼物`
+- 无 nickname：`爱是最长情的告白` · `每一天都值得纪念` · `时光温柔，因为有你` · `最好的日子是有你的日子`
+
+### 1.3 渲染映射
 
 ```
 background_image ──→ 全屏背景层（object-fit:cover）
                  ──→ color-extract.js 提取主色 → color_tint
 color_tint ────────→ glass panel 背景色（tint + 0.3 alpha）
-                 ──→ 文字投影色
 start_date ────────→ days_count = daysDiff(start_date, today)
 days_count ────────→ Hero 数字（160px/300 weight）
-title ─────────────→ 标题文本（42px/600）
-nickname ──────────→ 昵称标签（28px/400，可选，空则隐藏）
-description ───────→ 描述文本（32px/400，AI 自动生成）
+label ─────────────→ 数字下方描述（42px/500，DV+AG）
+──── divider ────
+copy ──────────────→ 文案（36px/500，AG，含 nickname）
+date ──────────────→ 日期区间（28px/400）
 ```
 
-### 1.3 空字段处理
+### 1.4 空字段处理
 
 | 场景 | 处理 |
 |------|------|
 | background_image 为空 | 使用预设 love_bg_01（海边漫步） |
-| nickname 为空 | 隐藏昵称标签区域，标题上移填补空间 |
+| nickname 为空 | copy 使用无 nickname 的文案池 |
 
 ### 1.4 色彩方案
 
@@ -200,19 +233,37 @@ background_image ──→ extractPanelTint(img)
 | field | type | source | required | nullable | fallback | editable | control | constraints | nl_keywords | effect |
 |-------|------|--------|----------|----------|----------|----------|---------|-------------|-------------|--------|
 | `birth_date` | date | UI | 是 | 否 | — | ✅ | date_picker | ≤今天 | "出生/生日/日期" | 触发天/月龄重算 |
-| `title` | string | UI | 是 | 否 | "宝宝成长" | ✅ | text_input | ≤8字 | "标题/叫什么" | 替换标题文本节点 |
-| `baby_name` | string | UI | 否 | 是 | "宝宝" | ✅ | text_input | ≤6字 | "名字/宝宝名" | 替换名字文本节点 |
+| `baby_name` | string | UI | 否 | 是 | "宝宝" | ✅ | text_input | ≤6字 | "名字/宝宝名" | 融入 copy 文案 |
 | `background_image` | image | UI+TD | 否 | 是 | 预设 `baby_bg_01` | ✅ | image_picker | ≤200KB | "照片/图片/宝宝照" | 替换背景 + 触发配色引擎 |
-| `description` | string | AG | — | 是 | AI 根据月龄生成（如"小宝贝满6个月啦"） | ❌ | — | ≤20字 | — | 替换描述文本节点 |
-| `days_count` | number | DV | — | 否 | — | ❌ | — | 自动计算 | — | Hero 大字数字 |
-| `month_age` | string | DV | — | 否 | — | ❌ | — | 如"1岁6个月" | — | 副标题月龄显示 |
+| `days_count` | number | DV | — | 否 | — | ❌ | — | 自动计算 | — | Hero 大字（天数或月数） |
+| `hero_unit` | string | DV | — | 否 | — | ❌ | — | "天"或"个月" | — | 决定 Hero 显示天数还是月数 |
+| `label` | string | DV+AG | — | 否 | "天的成长" | ❌ | — | ≤6字 | — | Hero 数字下方的单位描述 |
+| `copy` | string | AG | — | 否 | "{baby_name}的成长日记" | ❌ | — | ≤15字 | — | 分隔线下方的文案（融入 baby_name） |
 | `color_tint` | string | DV | — | 否 | 从 background_image 提取 | ❌ | — | hex color | — | Glass panel 色调 |
 
-### 2.2 空字段处理
+### 2.2 文案拼接规则
+
+**Hero 数字逻辑**：
+- ≤90 天：显示天数（如 `45`），hero_unit = "天"
+- >90 天：显示月数（如 `18`），hero_unit = "个月"
+- ≥365 天且为整年月：可显示 `1岁6个月`
+
+**label**（Hero 数字后的单位描述）：
+规则拼接，随机选取：
+- 天数模式：`天的成长` · `天的陪伴` · `天的奇妙旅程`
+- 月数模式：`个月的成长` · `个月的时光` · `个月的精彩`
+- 里程碑变体：满100天 → `天！百日快乐` ，满1岁 → `岁啦！生日快乐`
+
+**copy**（分隔线下方，融入 baby_name 的个性化文案）：
+AI 生成或规则拼接，**必须每次不同**：
+- 有 baby_name：`{baby_name}的成长日记` · `{baby_name}每天都在进步` · `{baby_name}的精彩瞬间` · `记录{baby_name}的每一步`
+- 使用默认名：`宝宝的成长日记` · `小宝贝每天都在进步` · `记录每一个珍贵瞬间`
+
+### 2.3 空字段处理
 
 | 场景 | 处理 |
 |------|------|
-| baby_name 为空 | 显示默认"宝宝" |
+| baby_name 为空 | copy 使用"宝宝"作为默认名 |
 | background_image 为空 | 使用预设 baby_bg_01 |
 
 ### 2.3 色彩方案
@@ -262,17 +313,30 @@ background_image ──→ extractPanelTint(img)
 | field | type | source | required | nullable | fallback | editable | control | constraints | nl_keywords | effect |
 |-------|------|--------|----------|----------|----------|----------|---------|-------------|-------------|--------|
 | `target_date` | date | UI | 是 | 否 | — | ✅ | date_picker | ≥今天 | "日期/哪天/什么时候" | 触发倒计时重算 |
-| `holiday_name` | string | UI | 是 | 否 | "假期" | ✅ | text_input | ≤8字 | "假期名/什么假/名称" | 替换假期名称标签 |
-| `title` | string | UI | 是 | 否 | "放假倒计时" | ✅ | text_input | ≤8字 | "标题/叫什么" | 替换标题文本节点 |
+| `holiday_name` | string | UI | 是 | 否 | "假期" | ✅ | text_input | ≤8字 | "假期名/什么假/名称" | 融入 copy 文案 |
 | `background_image` | image | UI+TD | 否 | 是 | 预设 `holiday_bg_01` | ✅ | image_picker | ≤200KB | "照片/图片/背景" | 替换背景 + 配色引擎 |
-| `description` | string | AG | — | 是 | AI 根据天数生成 | ❌ | — | ≤20字 | — | 替换描述 |
 | `days_remaining` | number | DV | — | 否 | — | ❌ | — | 自动计算 | — | Hero 大字倒计时 |
+| `label` | string | DV+AG | — | 否 | "天就到啦" | ❌ | — | ≤6字 | — | Hero 数字下方的单位描述 |
+| `copy` | string | AG | — | 否 | "{holiday_name}，出发！" | ❌ | — | ≤15字 | — | 分隔线下方的文案（融入 holiday_name） |
 | `color_tint` | string | DV | — | 否 | 从 background_image 提取 | ❌ | — | hex | — | Glass panel |
 
-### 3.2 特殊逻辑
+### 3.2 文案拼接规则
 
-- 当 `days_remaining == 0` 时：Hero 显示"🎉 今天！"而非数字 0
-- 当 `target_date` 已过：自动切换为"已过 X 天"模式（正计时）
+**label**（Hero 数字后的单位描述）：
+规则拼接，随机选取：
+- `天就到啦` · `天后出发` · `天，快啦` · `天的等待`
+- 里程碑变体：≤3天 → `天！倒计时` ，当天 → 显示 `🎉 今天！`
+- 已过期：`天前结束` （自动切换正计时模式）
+
+**copy**（分隔线下方，融入 holiday_name 的个性化文案）：
+AI 生成或规则拼接，**必须每次不同**：
+- `{holiday_name}去海边冲浪吧` · `{holiday_name}，说走就走` · `期待{holiday_name}的到来` · `{holiday_name}快到碗里来`
+- 如果用户提供了更多上下文（如目的地）：`{holiday_name}去{destination}` · `{destination}我来啦`
+
+### 3.3 特殊逻辑
+
+- 当 `days_remaining == 0` 时：Hero 显示"🎉"，label 显示"今天！"
+- 当 `target_date` 已过：自动切换为"已过 X 天"模式（正计时），label 变为"天前结束"
 
 ### 3.3 色彩方案
 
@@ -298,6 +362,71 @@ background_image ──→ extractPanelTint(img)
 | holiday_bg_03 | 雪山晨光 | 冷蓝白 | 深蓝灰 panel |
 | holiday_bg_04 | 灯火阑珊 | 暖橙 | 琥珀 panel |
 | holiday_bg_05 | 热气球之旅 | 天蓝 | 深蓝 panel |
+
+---
+
+## 三·四、生日倒计时 (birthday)
+
+### 3b.0 模板概览
+
+| 属性 | 值 |
+|------|-----|
+| template_id | `anniversary_birthday` |
+| component_type | `anniversary` |
+| theme | `birthday` |
+| 卡片尺寸 | 896×1464 逻辑像素 |
+| 面板类型 | glass-panel（image-tint 动态配色）|
+| 数据模式 | 手机端 mock → 车端 live |
+
+### 3b.1 字段定义
+
+| 字段 | 类型 | 来源 | 必填 | 可编辑 | 约束 | NL 关键词 |
+|------|------|------|------|--------|------|-----------|
+| `birthday_date` | date | UI | ✅ | ✅ | date_picker，任意日期 | "生日/日期/哪天" |
+| `person_name` | string | UI | ❌ | ✅ | text_input，≤6 字 | "名字/谁/寿星" |
+| `background_image` | image | UI+TD | ❌ | ✅ | image_picker，≤200KB | "照片/图片/背景" |
+| `days_remaining` | number | DV | ❌ | ❌ | 自动计算到下次生日天数 | — |
+| `hero_unit` | string | DV | ❌ | ❌ | "天" 固定 | — |
+| `label` | string | DV+AG | ❌ | ❌ | ≤8 字 | — |
+| `copy` | string | AG | ❌ | ❌ | ≤15 字，含 person_name | — |
+| `color_tint` | string | DV | ❌ | ❌ | color-extract.js 取色 | — |
+
+**来源说明**：UI=用户输入 · DV=派生计算 · AG=AI 生成 · TD=模板默认
+
+### 3b.2 文案拼接规则
+
+**days_remaining 计算逻辑**：
+- 计算到**下一次**生日的天数（自动跨年）
+- 若今天就是生日 → `days_remaining = 0`
+- 若生日刚过 → 计算到明年生日的天数
+
+**label 随机池**（每次生成随机选取）：
+| 条件 | 候选 |
+|------|------|
+| 默认 | `天后就是TA的生日` · `天的期待` · `天后的惊喜` · `天后一起庆祝` |
+| 当天（0天） | `今天是TA的生日！` · `生日快乐！` |
+| 明天（1天） | `明天就是TA的生日啦` |
+| ≤7天 | `天！快准备礼物吧` · `天后的生日派对` |
+| 已过（负数显示365-n） | `天后又是TA的生日` |
+
+**copy 随机池**（含 person_name 插值）：
+| 条件 | 候选 |
+|------|------|
+| 有名字 | `给{name}准备一份惊喜吧` · `{name}的专属生日愿望` · `和{name}一起许个愿` · `{name}，生日快乐` · `期待{name}的生日派对` |
+| 无名字 | `准备一份特别的惊喜吧` · `许一个美好的生日愿望` · `又长大了一岁` · `生日快乐，愿一切美好` |
+| 当天+有名字 | `{name}，今天是属于你的日子` · `祝{name}生日快乐，万事如意` |
+
+### 3b.3 预设背景图
+
+**预设背景图配色倾向**：
+
+| 预设 | 名称 | 主色调 | 取色结果倾向 |
+|------|------|--------|-------------|
+| birthday_bg_01 | 烛光蛋糕 | 紫金 | 紫色 panel |
+| birthday_bg_02 | 彩色气球 | 暖粉 | 粉紫 panel |
+| birthday_bg_03 | 礼物盒 | 暖金 | 金棕 panel |
+| birthday_bg_04 | 烟花夜空 | 深蓝金 | 深蓝 panel |
+| birthday_bg_05 | 花束祝福 | 粉紫 | 薰衣草 panel |
 
 ---
 
@@ -536,7 +665,7 @@ accent_color ──→ computePalette(hex, 'clean')
 | field | type | source | required | nullable | fallback | editable | control | constraints | nl_keywords | effect |
 |-------|------|--------|----------|----------|----------|----------|---------|-------------|-------------|--------|
 | `topics` | list(enum) | UI | 否 | 否 | ["tech","society"] | ✅ | multi_select | 最多3个 | "关注/领域/话题/类别" | 决定后端 RSS 源 + 新闻筛选 |
-| `display_style` | enum | UI | 否 | 否 | "digest" | ✅ | segment | headline/digest | "模式/简洁/详细" | headline=仅标题列表, digest=摘要卡片 |
+| `display_style` | enum | UI | 否 | 否 | "card" | ✅ | segment | card/list | "模式/卡片/列表" | card=摘要卡片, list=仅标题列表 |
 | `items` | list | CA | — | 是 | mock 5 条新闻 | ❌ | — | 5~8条 | — | 新闻列表渲染 |
 | `items[].title` | string | CA | — | 否 | — | ❌ | — | — | — | 新闻标题 |
 | `items[].summary` | string | CA+AG | — | 是 | — | ❌ | — | ≤150字 | — | AI 生成摘要 |
@@ -708,7 +837,7 @@ AI 提取 JSON 时遵循以下规则：
 规则 5：用户的模糊描述 → 映射到最近的约束值
          "暖色调" → 从 color_picker 预设中选暖色
          "去年夏天" → 追问具体日期
-         "简洁一点" → display_style: "headline"（新闻）
+         "简洁一点" → display_style: "list"（新闻）
 规则 6：用户的值超出约束 → 截断 or 追问
          标题 > 8字 → 截断到 8 字 + 提示
          日期在未来（但模板要求 ≤ 今天）→ 追问

@@ -95,6 +95,7 @@
 
   // ⑨ Startup
   var data = mergeParams(params);
+  if (params.visual_style) { document.documentElement.setAttribute('data-visual-style', params.visual_style); }
   render(data);
   bindInteractions();
 })();

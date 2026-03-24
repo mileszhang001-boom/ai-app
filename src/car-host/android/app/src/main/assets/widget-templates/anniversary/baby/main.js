@@ -30,6 +30,7 @@
   }
 
   var params = mergeParams(_raw);
+  if (_raw.visual_style) { document.documentElement.setAttribute('data-visual-style', _raw.visual_style); }
 
   // -- Month calculation (timezone-safe) --
   function calculateMonths(birthDate) {

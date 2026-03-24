@@ -42,6 +42,16 @@ const TEMPLATE_CONFIGS = {
       { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'holiday' },
     ],
   },
+  birthday: {
+    component_type: 'anniversary', theme: 'birthday',
+    title: '生日倒计时', subtitle: '期待TA的生日',
+    defaultColor: '#8B5CF6',
+    fields: [
+      { key: 'birthday_date', type: 'date_picker', label: '生日日期', constraints: {}, required: true },
+      { key: 'person_name', type: 'text_input', label: '寿星名字', placeholder: '妈妈、闺蜜、自己...', constraints: { maxLength: 6 }, hint: '会出现在卡片文案中哦' },
+      { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'birthday' },
+    ],
+  },
   weather: {
     component_type: 'weather', theme: 'weather',
     title: '天气', subtitle: '实时天气信息',
@@ -127,6 +137,13 @@ const BG_PRESETS = {
     '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_03.jpg',
     '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_04.jpg',
     '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_05.jpg',
+  ],
+  birthday: [
+    '/widget-templates/anniversary/birthday/backgrounds/birthday_bg_01.jpg',
+    '/widget-templates/anniversary/birthday/backgrounds/birthday_bg_02.jpg',
+    '/widget-templates/anniversary/birthday/backgrounds/birthday_bg_03.jpg',
+    '/widget-templates/anniversary/birthday/backgrounds/birthday_bg_04.jpg',
+    '/widget-templates/anniversary/birthday/backgrounds/birthday_bg_05.jpg',
   ],
 };
 
@@ -667,6 +684,38 @@ export class ConfigPanel {
     return data;
   }
 
+  // ─── AI Response Merge (用户优先策略) ─────────────────────────────────────
+
+  /**
+   * 合并 AI 响应与用户 config-panel 选择。
+   * 策略：用户已设的非空字段优先保留，AI 只填补空缺 + 生成文案。
+   */
+  _mergeAiResponse(baseData, aiData) {
+    const merged = { ...baseData };
+    // AI 可覆盖的顶层风格字段
+    if (aiData.style_preset) merged.style_preset = aiData.style_preset;
+    if (aiData.visual_style) merged.visual_style = aiData.visual_style;
+    // primary_color：仅当用户未通过 color_picker 设置时才用 AI 值
+    if (aiData.primary_color && merged.primary_color === this.config.defaultColor) {
+      merged.primary_color = aiData.primary_color;
+    }
+    // ai_generated 始终来自 AI
+    if (aiData.ai_generated) merged.ai_generated = aiData.ai_generated;
+    if (aiData.description) merged.description = aiData.description;
+    // params 深合并：用户已设非空值优先，AI 只补充空缺
+    merged.params = { ...baseData.params };
+    if (aiData.params) {
+      for (const [k, v] of Object.entries(aiData.params)) {
+        const userVal = merged.params[k];
+        const userEmpty = userVal == null || userVal === '' || (Array.isArray(userVal) && userVal.length === 0);
+        if (v != null && v !== '' && userEmpty) {
+          merged.params[k] = v;
+        }
+      }
+    }
+    return merged;
+  }
+
   // ─── Generate Handler ────────────────────────────────────────────────────
 
   async _handleGenerate() {
@@ -686,8 +735,7 @@ export class ConfigPanel {
       try {
         const response = await this.api.chatGenerate(prompt, baseData);
         if (response.success) {
-          const merged = { ...response.data };
-          // 保留 AI 返回的 style_preset/visual_style，不覆盖用户选择
+          const merged = this._mergeAiResponse(baseData, response.data);
           if (this.onGenerate) this.onGenerate(merged);
         } else {
           if (this.onGenerate) this.onGenerate(baseData);
