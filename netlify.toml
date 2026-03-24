@@ -2,6 +2,8 @@
   base = "src/mobile-web"
   command = "npm install && npm run build"
   publish = "dist"
+  # 禁用 base-dir 变更检测，因为 widget-templates 在 base 外但会被 cp 到 dist
+  ignore = "/bin/false"
 
 # Proxy API requests to Render backend
 [[redirects]]
