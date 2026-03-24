@@ -45,6 +45,23 @@ class WidgetCache(context: Context) {
         prefs.edit().putStringSet("known_widget_ids", ids).apply()
     }
 
+    fun deleteWidget(widgetId: String) {
+        val widgets = loadAllWidgets().toMutableList()
+        widgets.removeAll { it.widgetId == widgetId }
+        saveWidgetList(widgets)
+
+        val knownIds = getKnownWidgetIds().toMutableSet()
+        knownIds.remove(widgetId)
+        saveKnownWidgetIds(knownIds)
+    }
+
+    fun reorderWidgets(orderedIds: List<String>) {
+        val widgets = loadAllWidgets().toMutableList()
+        val idToWidget = widgets.associateBy { it.widgetId }
+        val reordered = orderedIds.mapNotNull { idToWidget[it] }
+        saveWidgetList(reordered)
+    }
+
     var lastViewedIndex: Int
         get() = prefs.getInt("last_viewed_index", 0)
         set(value) { prefs.edit().putInt("last_viewed_index", value).apply() }

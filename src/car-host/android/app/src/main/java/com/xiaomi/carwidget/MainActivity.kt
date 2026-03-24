@@ -1,6 +1,7 @@
 package com.xiaomi.carwidget
 
 import android.animation.ObjectAnimator
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.webkit.WebView
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +27,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toastView: TextView
     private lateinit var emptyState: LinearLayout
 
+    private lateinit var editOverlay: FrameLayout
+    private lateinit var editDeleteBtn: View
+    private lateinit var editDoneBtn: View
+
     private lateinit var cache: WidgetCache
     private lateinit var widgetWebView: WidgetWebView
     private lateinit var jsBridge: WidgetJsBridge
@@ -32,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var syncManager: WidgetSyncManager
 
     private val widgets = mutableListOf<WidgetDetail>()
+    private var isEditMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +76,12 @@ class MainActivity : AppCompatActivity() {
         dotIndicator = findViewById(R.id.dotIndicator)
         toastView = findViewById(R.id.toastView)
         emptyState = findViewById(R.id.emptyState)
+        editOverlay = findViewById(R.id.editOverlay)
+        editDeleteBtn = findViewById(R.id.editDeleteBtn)
+        editDoneBtn = findViewById(R.id.editDoneBtn)
+
+        editDeleteBtn.setOnClickListener { confirmDeleteCurrentWidget() }
+        editDoneBtn.setOnClickListener { exitEditMode() }
     }
 
     private fun setupWebView() {
@@ -84,6 +97,7 @@ class MainActivity : AppCompatActivity() {
                 cache.lastViewedIndex = index
             }
         }
+        cardSwitcher.onLongPress = { enterEditMode() }
     }
 
     private fun loadCachedWidgets() {
@@ -127,6 +141,69 @@ class MainActivity : AppCompatActivity() {
         showToast(getString(R.string.new_widget_toast))
     }
 
+    // ── 编辑态 ──
+
+    private fun enterEditMode() {
+        if (isEditMode || widgets.isEmpty()) return
+        isEditMode = true
+        cardSwitcher.isEditMode = true
+
+        editOverlay.visibility = View.VISIBLE
+        dotIndicator.visibility = View.GONE
+
+        // 缩放 WebView 到 80%
+        webView.animate()
+            .scaleX(0.8f).scaleY(0.8f)
+            .setDuration(300)
+            .start()
+    }
+
+    private fun exitEditMode() {
+        isEditMode = false
+        cardSwitcher.isEditMode = false
+
+        editOverlay.visibility = View.GONE
+        cardSwitcher.setCount(widgets.size) // 恢复 dot indicator
+
+        // 恢复 WebView 缩放
+        webView.animate()
+            .scaleX(1f).scaleY(1f)
+            .setDuration(300)
+            .start()
+    }
+
+    private fun confirmDeleteCurrentWidget() {
+        val index = cardSwitcher.currentIndex
+        if (index !in widgets.indices) return
+        val widget = widgets[index]
+        val label = "${widget.componentType}/${widget.theme}"
+
+        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setTitle("删除卡片")
+            .setMessage("确定删除「$label」？")
+            .setPositiveButton("删除") { _, _ -> deleteWidget(index) }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun deleteWidget(index: Int) {
+        if (index !in widgets.indices) return
+        val widget = widgets.removeAt(index)
+        cache.deleteWidget(widget.widgetId)
+
+        if (widgets.isEmpty()) {
+            exitEditMode()
+            emptyState.visibility = View.VISIBLE
+            webView.visibility = View.GONE
+            return
+        }
+
+        val newIndex = if (index >= widgets.size) widgets.size - 1 else index
+        cardSwitcher.setCount(widgets.size)
+        cardSwitcher.switchTo(newIndex, animate = false)
+        showToast("已删除卡片")
+    }
+
     private fun showToast(message: String) {
         toastView.text = message
         toastView.visibility = View.VISIBLE
@@ -152,11 +229,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        // Let CardSwitcher detect horizontal flings
+        // 编辑态下点击 WebView 区域退出编辑
+        if (isEditMode && ev.action == MotionEvent.ACTION_UP) {
+            val overlayRect = IntArray(2)
+            editOverlay.getLocationOnScreen(overlayRect)
+            // 如果不在删除/完成按钮上，检查是否点击了卡片区域
+            if (!isViewTouched(editDeleteBtn, ev) && !isViewTouched(editDoneBtn, ev)) {
+                exitEditMode()
+                return true
+            }
+        }
+
+        // Let CardSwitcher detect horizontal flings + long-press
         if (cardSwitcher.onTouchEvent(ev)) {
             return true
         }
         return super.dispatchTouchEvent(ev)
+    }
+
+    private fun isViewTouched(view: View, ev: MotionEvent): Boolean {
+        val loc = IntArray(2)
+        view.getLocationOnScreen(loc)
+        val x = ev.rawX
+        val y = ev.rawY
+        return x >= loc[0] && x <= loc[0] + view.width && y >= loc[1] && y <= loc[1] + view.height
     }
 
     override fun onResume() {

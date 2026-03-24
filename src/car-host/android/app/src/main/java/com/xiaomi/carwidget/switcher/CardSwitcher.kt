@@ -24,6 +24,12 @@ class CardSwitcher(
     var totalCount = 0
         private set
 
+    /** 编辑态标志 — 编辑态下禁用 fling 切换 */
+    var isEditMode = false
+
+    /** 长按回调 */
+    var onLongPress: (() -> Unit)? = null
+
     private val dp = { value: Float ->
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, context.resources.displayMetrics)
     }
@@ -35,6 +41,7 @@ class CardSwitcher(
             velocityX: Float,
             velocityY: Float
         ): Boolean {
+            if (isEditMode) return false  // 编辑态下禁用 fling
             if (e1 == null) return false
             val dx = e2.x - e1.x
             val minDistance = dp(100f)
@@ -42,16 +49,20 @@ class CardSwitcher(
 
             if (Math.abs(dx) > minDistance && Math.abs(velocityX) > minVelocity) {
                 if (dx < 0 && currentIndex < totalCount - 1) {
-                    // Swipe left → next
                     switchTo(currentIndex + 1, direction = 1)
                     return true
                 } else if (dx > 0 && currentIndex > 0) {
-                    // Swipe right → prev
                     switchTo(currentIndex - 1, direction = -1)
                     return true
                 }
             }
             return false
+        }
+
+        override fun onLongPress(e: MotionEvent) {
+            if (!isEditMode) {
+                onLongPress?.invoke()
+            }
         }
     })
 
