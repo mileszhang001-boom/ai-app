@@ -158,7 +158,7 @@ class ComponentValidator:
 
     def _validate_basic_fields(self, data: Dict[str, Any], errors: List[str]):
         """校验基础字段"""
-        required_fields = ["component_type", "template_id", "style_preset", "params"]
+        required_fields = ["component_type", "template_id", "params"]
         for field in required_fields:
             if field not in data:
                 errors.append(f"Missing required field: {field}")
@@ -221,8 +221,7 @@ class ComponentValidator:
     ):
         """校验 style_preset 白名单（基于 component_type/theme 的可用风格）"""
         if not style_preset:
-            errors.append("style_preset is missing")
-            return
+            return  # style_preset is optional after SCHEMA v2
 
         # "dynamic" 总是合法的（由 color-engine 驱动）
         if style_preset == "dynamic":
