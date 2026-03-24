@@ -42,3 +42,8 @@ src/server/__pycache__/
 src/widget-templates/dist/
 *.zip
 quality_reports/
+
+# Android build artifacts
+.gradle/
+*.apk
+local.properties
