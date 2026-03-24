@@ -12,7 +12,7 @@
     album_cover_url: '',
     lyrics_snippet: '',
     duration: '4:29',
-    style_preset: 'dark-vinyl'
+    style_preset: ''
   };
 
   // 数据分层：preview 用 mock 播放状态 + 角标，live 用真实 MediaSession
@@ -317,8 +317,9 @@
   function init() {
     applyTheme();
 
-    var style = params.style_preset || 'dark-vinyl';
-    document.documentElement.setAttribute('data-style', style);
+    if (params.style_preset) {
+      document.documentElement.setAttribute('data-style', params.style_preset);
+    }
 
     // ── 动态配色引擎 ──
     if (params.primary_color && window.computePalette) {

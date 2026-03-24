@@ -14,7 +14,7 @@
       { time: '16:30', title: '周报总结', location: '工位' }
     ],
     show_lunar: true,
-    style_preset: 'business-gray'
+    style_preset: ''
   };
 
   // 数据分层：preview 用 mock 数据 + 角标，live 用真实 API
@@ -796,12 +796,15 @@
   // ── 主题 ──
 
   function applyTheme() {
+    // 日程卡片是亮色设计（DESIGN.md §2.3），默认 light 主题
     if (window.AIWidgetBridge) {
       window.AIWidgetBridge.getTheme().then(function(theme) {
         document.documentElement.setAttribute('data-theme', theme.mode);
       }).catch(function() {
-        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-theme', 'light');
       });
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   }
 
