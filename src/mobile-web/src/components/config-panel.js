@@ -18,8 +18,7 @@ const TEMPLATE_CONFIGS = {
     defaultColor: '#FF6B8A',
     fields: [
       { key: 'start_date', type: 'date_picker', label: '在一起的日期', constraints: { max: 'today' }, required: true },
-      { key: 'title', type: 'text_input', label: '标题', placeholder: '在一起', constraints: { maxLength: 8 }, fallback: '在一起' },
-      { key: 'nickname', type: 'text_input', label: '对方昵称', placeholder: '小美', constraints: { maxLength: 6 } },
+      { key: 'nickname', type: 'text_input', label: 'TA的昵称', placeholder: '小美、宝贝、老公...', constraints: { maxLength: 6 }, hint: '会出现在卡片文案中哦' },
       { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'love' },
     ],
   },
@@ -29,8 +28,7 @@ const TEMPLATE_CONFIGS = {
     defaultColor: '#F5C842',
     fields: [
       { key: 'birth_date', type: 'date_picker', label: '出生日期', constraints: { max: 'today' }, required: true },
-      { key: 'title', type: 'text_input', label: '标题', placeholder: '成长', constraints: { maxLength: 8 }, fallback: '成长' },
-      { key: 'baby_name', type: 'text_input', label: '宝宝昵称', placeholder: '小宝', constraints: { maxLength: 6 } },
+      { key: 'baby_name', type: 'text_input', label: '宝宝的名字', placeholder: '星星、小豆子...', constraints: { maxLength: 6 }, hint: '会出现在卡片文案中哦' },
       { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'baby' },
     ],
   },
@@ -40,8 +38,7 @@ const TEMPLATE_CONFIGS = {
     defaultColor: '#FF8C42',
     fields: [
       { key: 'target_date', type: 'date_picker', label: '目标日期', constraints: { min: 'today' }, required: true },
-      { key: 'holiday_name', type: 'text_input', label: '假期名称', placeholder: '五一假期', constraints: { maxLength: 8 }, required: true },
-      { key: 'title', type: 'text_input', label: '标题', placeholder: '出发！', constraints: { maxLength: 8 }, fallback: '出发！' },
+      { key: 'holiday_name', type: 'text_input', label: '假期名称', placeholder: '五一、国庆、春节...', constraints: { maxLength: 8 }, required: true, hint: '会出现在卡片文案中哦' },
       { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'holiday' },
     ],
   },
@@ -342,6 +339,7 @@ export class ConfigPanel {
         <div class="config-section-label">${field.label}</div>
         <input type="text" class="config-text-input" data-field="${field.key}"
                placeholder="${placeholder}" value="${value}"${maxLen}>
+        ${field.hint ? `<div class="config-hint" style="font-size:11px;color:#999;margin-top:4px;">✨ ${field.hint}</div>` : ''}
       </div>
     `;
   }
@@ -621,8 +619,6 @@ export class ConfigPanel {
     const data = {
       component_type: cfg.component_type,
       theme: cfg.theme,
-      style_preset: 'glass',
-      visual_style: 'glass',
       primary_color: cfg.defaultColor,
       params: {},
       description: cfg.title,
@@ -691,8 +687,7 @@ export class ConfigPanel {
         const response = await this.api.chatGenerate(prompt, baseData);
         if (response.success) {
           const merged = { ...response.data };
-          merged.style_preset = 'glass';
-          merged.visual_style = 'glass';
+          // 保留 AI 返回的 style_preset/visual_style，不覆盖用户选择
           if (this.onGenerate) this.onGenerate(merged);
         } else {
           if (this.onGenerate) this.onGenerate(baseData);

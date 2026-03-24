@@ -36,10 +36,10 @@ export function buildWidgetParams(data) {
   if (!data || !data.params) return {};
   const p = { ...data.params };
 
-  // Top-level fields → params
-  if (data.style_preset) p.style_preset = data.style_preset;
-  if (data.primary_color) p.primary_color = data.primary_color;
-  if (data.visual_style) p.visual_style = data.visual_style;
+  // Top-level fields → params (only if not already set in params)
+  if (data.style_preset && !p.style_preset) p.style_preset = data.style_preset;
+  if (data.primary_color && !p.primary_color) p.primary_color = data.primary_color;
+  if (data.visual_style && !p.visual_style) p.visual_style = data.visual_style;
 
   // AI generated fields → params
   if (data.ai_generated) {
