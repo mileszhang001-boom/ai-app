@@ -1,82 +1,166 @@
 /**
- * ConfigPanel — shared configuration bottom-sheet component
+ * ConfigPanel — schema-driven configuration bottom-sheet component
  *
  * Used in:
  *  - market.js (mode='create', inside overlay)
  *  - finetune.js (mode='finetune', embedded)
+ *
+ * All template-specific logic is driven by TEMPLATE_CONFIGS.
+ * No hardcoded scene branching — fields are rendered generically by type.
  */
 
-const SCENE_MAP = {
-  weather:   { component_type: 'weather',     theme: 'realtime', title: '实时天气',     subtitle: '天气信息卡片' },
-  love:      { component_type: 'anniversary', theme: 'love',     title: '恋爱纪念',     subtitle: '记录甜蜜时光' },
-  calendar:  { component_type: 'calendar',    theme: 'schedule', title: '日程安排',     subtitle: '今日日程一览' },
-  music:     { component_type: 'music',       theme: 'player',   title: '音乐播放',     subtitle: '车载音乐控制' },
-  countdown: { component_type: 'anniversary', theme: 'holiday',  title: '放假倒计时',   subtitle: '期待美好假期' },
-  baby:      { component_type: 'anniversary', theme: 'baby',     title: '宝宝相册',     subtitle: '记录成长瞬间' },
-  alarm:     { component_type: 'alarm',       theme: 'clock',    title: '闹钟',         subtitle: '智能提醒助手' },
-  news:      { component_type: 'news',        theme: 'daily',    title: '每日新闻',     subtitle: '今日要闻速览' },
+// ─── Template Configuration Schema ──────────────────────────────────────────
+
+const TEMPLATE_CONFIGS = {
+  love: {
+    component_type: 'anniversary', theme: 'love',
+    title: '恋爱纪念', subtitle: '记录爱情时光',
+    defaultColor: '#FF6B8A',
+    fields: [
+      { key: 'start_date', type: 'date_picker', label: '在一起的日期', constraints: { max: 'today' }, required: true },
+      { key: 'title', type: 'text_input', label: '标题', placeholder: '在一起', constraints: { maxLength: 8 }, fallback: '在一起' },
+      { key: 'nickname', type: 'text_input', label: '对方昵称', placeholder: '小美', constraints: { maxLength: 6 } },
+      { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'love' },
+    ],
+  },
+  baby: {
+    component_type: 'anniversary', theme: 'baby',
+    title: '宝宝成长', subtitle: '记录成长点滴',
+    defaultColor: '#F5C842',
+    fields: [
+      { key: 'birth_date', type: 'date_picker', label: '出生日期', constraints: { max: 'today' }, required: true },
+      { key: 'title', type: 'text_input', label: '标题', placeholder: '成长', constraints: { maxLength: 8 }, fallback: '成长' },
+      { key: 'baby_name', type: 'text_input', label: '宝宝昵称', placeholder: '小宝', constraints: { maxLength: 6 } },
+      { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'baby' },
+    ],
+  },
+  countdown: {
+    component_type: 'anniversary', theme: 'holiday',
+    title: '放假倒计时', subtitle: '期待美好假期',
+    defaultColor: '#FF8C42',
+    fields: [
+      { key: 'target_date', type: 'date_picker', label: '目标日期', constraints: { min: 'today' }, required: true },
+      { key: 'holiday_name', type: 'text_input', label: '假期名称', placeholder: '五一假期', constraints: { maxLength: 8 }, required: true },
+      { key: 'title', type: 'text_input', label: '标题', placeholder: '出发！', constraints: { maxLength: 8 }, fallback: '出发！' },
+      { key: 'background_image', type: 'image_picker', label: '背景图', presets: 'holiday' },
+    ],
+  },
+  weather: {
+    component_type: 'weather', theme: 'weather',
+    title: '天气', subtitle: '实时天气信息',
+    defaultColor: '#FFD700',
+    fields: [
+      { key: 'city', type: 'text_input', label: '城市', placeholder: '输入城市名搜索', constraints: { maxLength: 10 } },
+    ],
+  },
+  music: {
+    component_type: 'music', theme: 'music',
+    title: '音乐播放器', subtitle: '沉浸音乐体验',
+    defaultColor: '#8B5CF6',
+    fields: [
+      { key: 'visual_style', type: 'enum_select', label: '视觉风格', options: [
+        { value: 'glass', label: '毛玻璃' },
+        { value: 'minimal', label: '极简' },
+        { value: 'material', label: '质感' },
+        { value: 'pixel', label: '像素' },
+      ], fallback: 'glass' },
+    ],
+  },
+  calendar: {
+    component_type: 'calendar', theme: 'calendar',
+    title: '日历日程', subtitle: '高效管理时间',
+    defaultColor: '#3B82F6',
+    fields: [
+      { key: 'accent_color', type: 'color_picker', label: '主题色', colors: ['#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#EF4444'] },
+    ],
+  },
+  news: {
+    component_type: 'news', theme: 'news',
+    title: '每日新闻', subtitle: '精选资讯速览',
+    defaultColor: '#4A90E2',
+    fields: [
+      { key: 'topics', type: 'multi_select', label: '关注话题', options: [
+        { value: 'tech', label: '科技' },
+        { value: 'auto', label: '汽车' },
+        { value: 'finance', label: '财经' },
+        { value: 'sports', label: '体育' },
+        { value: 'entertainment', label: '娱乐' },
+        { value: 'health', label: '健康' },
+      ], fallback: ['tech', 'auto'] },
+      { key: 'display_style', type: 'enum_select', label: '展示样式', options: [
+        { value: 'card', label: '卡片' },
+        { value: 'list', label: '列表' },
+      ], fallback: 'card' },
+    ],
+  },
+  alarm: {
+    component_type: 'alarm', theme: 'clock',
+    title: '闹钟', subtitle: '智能提醒助手',
+    defaultColor: '#4ADE80',
+    fields: [
+      { key: 'default_view', type: 'segment', label: '默认视图', options: [
+        { value: 'list', label: '列表' },
+        { value: 'clock', label: '表盘' },
+      ], fallback: 'list' },
+      { key: 'accent_color', type: 'color_picker', label: '主题色', colors: ['#4ADE80', '#3B82F6', '#F59E0B', '#EC4899', '#8B5CF6', '#EF4444'] },
+    ],
+  },
 };
 
-// 场景化 6 色推荐（广色域 + 场景属性匹配）
-const SCENE_COLOR_MAP = {
-  weather:   ['#4A90E2', '#48D1CC', '#F8C557', '#27AE60', '#AF7AC5', '#FF6B6B'],  // 亮色、清新、自然感
-  news:      ['#5B6CF7', '#FF6B6B', '#27AE60', '#F59E0B', '#0891B2', '#7B5CFA'],  // 沉稳、信息感、分类对应
-  music:     ['#E84393', '#7B5CFA', '#FF6B6B', '#F59E0B', '#4A90E2', '#48D1CC'],  // 情绪感强、浓烈、个性化
-  calendar:  ['#3B82F6', '#64748B', '#10B981', '#F59E0B', '#8B5CF6', '#334155'],  // 白底简洁：蓝/灰/绿/橙/紫/深灰
-  alarm:     ['#4ADE80', '#3B82F6', '#F59E0B', '#64748B', '#8B5CF6', '#94A3B8'],  // 黑底简洁：绿/蓝/橙/灰/紫/浅灰
-};
-
-const SCENE_DEFAULT_COLORS = {
-  weather:   '#4A90E2',
-  love:      '#E84393',
-  calendar:  '#3B82F6',
-  music:     '#E84393',
-  countdown: '#F59E0B',
-  baby:      '#48D1CC',
-  alarm:     '#4ADE80',
-  news:      '#5B6CF7',
-};
-
-const CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都'];
-
-const NEWS_CATEGORIES = [
-  { id: 'tech', label: '科技' },
-  { id: 'automotive', label: '汽车' },
-  { id: 'finance', label: '财经' },
-  { id: 'sports', label: '体育' },
-  { id: 'lifestyle', label: '生活' },
-];
-
-const ALARM_STYLES = [
-  { id: 'list', label: '列表', icon: '☰' },
-  { id: 'dial', label: '表盘', icon: '🕐' },
-];
+// ─── Background Image Presets ────────────────────────────────────────────────
 
 const BG_PRESETS = {
   love: [
-    { id: 'love_bg_01', label: '海边漫步' },
-    { id: 'love_bg_02', label: '午后咖啡' },
-    { id: 'love_bg_03', label: '樱花小径' },
-    { id: 'love_bg_04', label: '霓虹夜色' },
-    { id: 'love_bg_05', label: '星空物语' },
+    '/widget-templates/anniversary/love/backgrounds/love_bg_01.jpg',
+    '/widget-templates/anniversary/love/backgrounds/love_bg_02.jpg',
+    '/widget-templates/anniversary/love/backgrounds/love_bg_03.jpg',
+    '/widget-templates/anniversary/love/backgrounds/love_bg_04.jpg',
+    '/widget-templates/anniversary/love/backgrounds/love_bg_05.jpg',
   ],
   baby: [
-    { id: 'baby_bg_01', label: '温馨小屋' },
-    { id: 'baby_bg_02', label: '阳光花园' },
-    { id: 'baby_bg_03', label: '梦幻气球' },
-    { id: 'baby_bg_04', label: '积木乐园' },
-    { id: 'baby_bg_05', label: '童话世界' },
+    '/widget-templates/anniversary/baby/backgrounds/baby_bg_01.jpg',
+    '/widget-templates/anniversary/baby/backgrounds/baby_bg_02.jpg',
+    '/widget-templates/anniversary/baby/backgrounds/baby_bg_03.jpg',
+    '/widget-templates/anniversary/baby/backgrounds/baby_bg_04.jpg',
+    '/widget-templates/anniversary/baby/backgrounds/baby_bg_05.jpg',
   ],
-  countdown: [
-    { id: 'holiday_bg_01', label: '璀璨烟火' },
-    { id: 'holiday_bg_02', label: '椰林海风' },
-    { id: 'holiday_bg_03', label: '雪山晨光' },
-    { id: 'holiday_bg_04', label: '灯火阑珊' },
-    { id: 'holiday_bg_05', label: '热气球之旅' },
+  holiday: [
+    '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_01.jpg',
+    '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_02.jpg',
+    '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_03.jpg',
+    '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_04.jpg',
+    '/widget-templates/anniversary/holiday/backgrounds/holiday_bg_05.jpg',
   ],
 };
 
-export { SCENE_MAP };
+// ─── Build SCENE_MAP from TEMPLATE_CONFIGS (for backward compat export) ──────
+
+const SCENE_MAP = {};
+for (const [id, cfg] of Object.entries(TEMPLATE_CONFIGS)) {
+  SCENE_MAP[id] = {
+    component_type: cfg.component_type,
+    theme: cfg.theme,
+    title: cfg.title,
+    subtitle: cfg.subtitle,
+  };
+}
+
+export { SCENE_MAP, TEMPLATE_CONFIGS };
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Get today's date string in YYYY-MM-DD format */
+function _todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Extract a file name stem from a preset path, e.g. "love_bg_01" */
+function _presetId(path) {
+  return path.split('/').pop().replace(/\.\w+$/, '');
+}
+
+// ─── ConfigPanel Class ───────────────────────────────────────────────────────
 
 export class ConfigPanel {
   /**
@@ -93,22 +177,64 @@ export class ConfigPanel {
     this.container = container;
     this.mode = mode;
     this.sceneId = sceneId;
-    this.scene = SCENE_MAP[sceneId] || SCENE_MAP.weather;
+    this.config = TEMPLATE_CONFIGS[sceneId] || TEMPLATE_CONFIGS.weather;
     this.currentData = currentData;
     this.api = api;
     this.onGenerate = onGenerate;
     this.onDismiss = onDismiss;
 
-    // State
-    this.selectedColor = currentData?.primary_color || SCENE_DEFAULT_COLORS[sceneId] || COLOR_PRESETS[0];
-    this.selectedCity = currentData?.params?.city || '北京';
-    this.photoDataUrl = currentData?.params?.bg_photo || null;
-    this.selectedCategories = currentData?.params?.categories || ['tech', 'automotive'];
-    this.selectedAlarmStyle = currentData?.params?.display_style || 'list';
-    this.selectedBgImage = currentData?.params?.background_image || '';
+    // Dynamic state for field values (keyed by field.key)
+    this.fieldValues = {};
+    this._initFieldValues();
+
+    // Custom photo upload state (for image_picker fields)
+    this.photoDataUrl = currentData?.params?.background_image || currentData?.params?.bg_photo || null;
 
     this.render();
   }
+
+  /** Initialize field values from currentData or fallbacks */
+  _initFieldValues() {
+    const params = this.currentData?.params || {};
+
+    for (const field of this.config.fields) {
+      const existing = params[field.key];
+
+      switch (field.type) {
+        case 'date_picker':
+          this.fieldValues[field.key] = existing || '';
+          break;
+
+        case 'text_input':
+          this.fieldValues[field.key] = existing || '';
+          break;
+
+        case 'image_picker': {
+          // Might be stored as a preset ID or empty
+          this.fieldValues[field.key] = existing || '';
+          break;
+        }
+
+        case 'color_picker':
+          this.fieldValues[field.key] = existing || (field.colors ? field.colors[0] : '');
+          break;
+
+        case 'segment':
+        case 'enum_select':
+          this.fieldValues[field.key] = existing || field.fallback || '';
+          break;
+
+        case 'multi_select':
+          this.fieldValues[field.key] = existing || (field.fallback ? [...field.fallback] : []);
+          break;
+
+        default:
+          this.fieldValues[field.key] = existing || '';
+      }
+    }
+  }
+
+  // ─── Render ──────────────────────────────────────────────────────────────
 
   render() {
     const isFinetune = this.mode === 'finetune';
@@ -118,28 +244,14 @@ export class ConfigPanel {
         ${!isFinetune ? '<div class="config-handle"></div>' : ''}
 
         <div class="config-header">
-          <div class="config-title">${this.scene.title}</div>
-          <div class="config-subtitle">${this.scene.subtitle}</div>
+          <div class="config-title">${this.config.title}</div>
+          <div class="config-subtitle">${this.config.subtitle}</div>
         </div>
 
         ${isFinetune ? this._renderAiSuggestion() : ''}
 
         <div class="config-body">
-          ${this._renderSceneFields()}
-
-          <!-- Color picker -->
-          ${this._shouldShowColorPicker() ? `
-          <div class="config-section">
-            <div class="config-section-label">${this._getColorPickerLabel()}</div>
-            <div class="color-circles">
-              ${(SCENE_COLOR_MAP[this.sceneId] || SCENE_COLOR_MAP.weather).map(c => `
-                <button class="color-circle${c === this.selectedColor ? ' selected' : ''}"
-                        data-color="${c}"
-                        style="background:${c}"></button>
-              `).join('')}
-            </div>
-          </div>
-          ` : ''}
+          ${this._renderSceneFields(this.sceneId)}
 
           <!-- Free input -->
           <div class="config-section">
@@ -159,15 +271,6 @@ export class ConfigPanel {
     `;
 
     this._bindEvents();
-  }
-
-  _shouldShowColorPicker() {
-    return !['love', 'baby', 'countdown'].includes(this.sceneId);
-  }
-
-  _getColorPickerLabel() {
-    if (['calendar', 'alarm'].includes(this.sceneId)) return '强调色';
-    return '主题配色';
   }
 
   _renderAiSuggestion() {
@@ -190,131 +293,232 @@ export class ConfigPanel {
     `;
   }
 
-  _renderSceneFields() {
-    // weather: 城市在卡片内切换，config 不需要城市选择
-    if (this.sceneId === 'weather') {
-      return '';
-    }
+  // ─── Generic Field Rendering ─────────────────────────────────────────────
 
-    if (['love', 'baby', 'countdown'].includes(this.sceneId)) {
-      const labels = {
-        love:      { date: '在一起日期', name: '对方昵称',   ph: 'TA的昵称' },
-        baby:      { date: '宝宝生日',   name: '宝宝名字',   ph: '宝宝的名字' },
-        countdown: { date: '目标日期',   name: '事件名称',   ph: '如：国庆节' },
-      };
-      const l = labels[this.sceneId];
-      const dateVal = this.currentData?.params?.start_date || this.currentData?.params?.target_date || this.currentData?.params?.date || '';
-      const nameVal = this.currentData?.params?.nickname || this.currentData?.params?.event_name || this.currentData?.params?.title || '';
+  /**
+   * Look up TEMPLATE_CONFIGS[sceneId] and render all fields generically.
+   */
+  _renderSceneFields(sceneId) {
+    const cfg = TEMPLATE_CONFIGS[sceneId];
+    if (!cfg || !cfg.fields || cfg.fields.length === 0) return '';
 
-      // 统一背景选择器：5 预设缩略图 + 1 上传入口
-      const bgPresets = BG_PRESETS[this.sceneId] || [];
-      const themeDirMap = { love: 'love', baby: 'baby', countdown: 'holiday' };
-      const themeDir = themeDirMap[this.sceneId] || this.sceneId;
-      const bgSection = bgPresets.length ? `
-        <div class="config-section">
-          <div class="config-section-label">背景</div>
-          <div class="bg-grid">
-            ${bgPresets.map(bg => {
-              const bgUrl = '/widget-templates/anniversary/' + themeDir + '/backgrounds/' + bg.id + '.jpg';
-              return `
-              <button class="bg-grid-item${bg.id === this.selectedBgImage ? ' selected' : ''}" data-bg="${bg.id}">
-                <div class="bg-grid-thumb" style="background-image:url('${bgUrl}');background-size:cover;background-position:center;"></div>
-                <div class="bg-grid-label">${bg.label}</div>
-              </button>`;
-            }).join('')}
-            <label class="bg-grid-item bg-upload-slot${this.photoDataUrl ? ' selected' : ''}" id="bgUploadSlot" for="configPhotoInput">
-              <input type="file" accept="image/*" id="configPhotoInput" style="display:none;">
-              <div class="bg-grid-thumb bg-upload-thumb" id="bgUploadThumb">
-                ${this.photoDataUrl ? `<img src="${this.photoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : '<span class="bg-upload-icon">+📷</span>'}
-              </div>
-              <div class="bg-grid-label">自定义</div>
-            </label>
-          </div>
-        </div>
-      ` : '';
-
-      return `
-        <div class="config-section">
-          <div class="config-section-label">${l.date}</div>
-          <input type="date" class="config-date-input" id="configDate" value="${dateVal}">
-        </div>
-        <div class="config-section">
-          <div class="config-section-label">${l.name}</div>
-          <input type="text" class="config-text-input" id="configName" placeholder="${l.ph}" value="${nameVal}">
-        </div>
-        ${bgSection}
-      `;
-    }
-
-    if (this.sceneId === 'news') {
-      return `
-        <div class="config-section">
-          <div class="config-section-label">关注领域</div>
-          <div class="category-pills">
-            ${NEWS_CATEGORIES.map(c => `
-              <button class="category-pill${this.selectedCategories.includes(c.id) ? ' selected' : ''}" data-cat="${c.id}">${c.label}</button>
-            `).join('')}
-          </div>
-          <div class="config-hint" style="font-size:11px;color:#999;margin-top:4px;">至少选1个，最多5个</div>
-        </div>
-      `;
-    }
-
-    if (this.sceneId === 'alarm') {
-      return `
-        <div class="config-section">
-          <div class="config-section-label">显示风格</div>
-          <div class="alarm-style-picker">
-            ${ALARM_STYLES.map(s => `
-              <button class="alarm-style-btn${s.id === this.selectedAlarmStyle ? ' selected' : ''}" data-style="${s.id}">
-                <span class="alarm-style-icon">${s.icon}</span>
-                <span class="alarm-style-label">${s.label}</span>
-              </button>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    // music, calendar — no extra fields
-    return '';
+    return cfg.fields.map(field => this._renderField(field)).join('');
   }
+
+  /** Dispatch to the correct renderer by field.type */
+  _renderField(field) {
+    switch (field.type) {
+      case 'date_picker':    return this._renderDatePicker(field);
+      case 'text_input':     return this._renderTextInput(field);
+      case 'image_picker':   return this._renderImagePicker(field);
+      case 'color_picker':   return this._renderColorPicker(field);
+      case 'segment':        return this._renderSegment(field);
+      case 'enum_select':    return this._renderEnumSelect(field);
+      case 'multi_select':   return this._renderMultiSelect(field);
+      default:               return '';
+    }
+  }
+
+  _renderDatePicker(field) {
+    const value = this.fieldValues[field.key] || '';
+    const today = _todayStr();
+    let attrs = '';
+    if (field.constraints?.max === 'today') attrs += ` max="${today}"`;
+    if (field.constraints?.min === 'today') attrs += ` min="${today}"`;
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <input type="date" class="config-date-input" data-field="${field.key}" value="${value}"${attrs}>
+      </div>
+    `;
+  }
+
+  _renderTextInput(field) {
+    const value = this.fieldValues[field.key] || '';
+    const maxLen = field.constraints?.maxLength ? ` maxlength="${field.constraints.maxLength}"` : '';
+    const placeholder = field.placeholder || '';
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <input type="text" class="config-text-input" data-field="${field.key}"
+               placeholder="${placeholder}" value="${value}"${maxLen}>
+      </div>
+    `;
+  }
+
+  _renderImagePicker(field) {
+    const presetKey = field.presets;
+    const presetPaths = presetKey ? (BG_PRESETS[presetKey] || []) : [];
+    if (presetPaths.length === 0) return '';
+
+    const currentBg = this.fieldValues[field.key] || '';
+
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <div class="bg-grid" data-field="${field.key}">
+          ${presetPaths.map(path => {
+            const id = _presetId(path);
+            const isSelected = id === currentBg;
+            return `
+              <button class="bg-grid-item${isSelected ? ' selected' : ''}" data-bg="${id}" data-bg-path="${path}">
+                <div class="bg-grid-thumb" style="background-image:url('${path}');background-size:cover;background-position:center;"></div>
+              </button>`;
+          }).join('')}
+          <label class="bg-grid-item bg-upload-slot${this.photoDataUrl ? ' selected' : ''}" id="bgUploadSlot_${field.key}" for="configPhotoInput_${field.key}">
+            <input type="file" accept="image/*" id="configPhotoInput_${field.key}" data-field="${field.key}" style="display:none;">
+            <div class="bg-grid-thumb bg-upload-thumb" id="bgUploadThumb_${field.key}">
+              ${this.photoDataUrl ? `<img src="${this.photoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">` : '<span class="bg-upload-icon">+📷</span>'}
+            </div>
+            <div class="bg-grid-label">自定义</div>
+          </label>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderColorPicker(field) {
+    const colors = field.colors || [];
+    const selected = this.fieldValues[field.key] || colors[0] || '';
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <div class="color-circles" data-field="${field.key}">
+          ${colors.map(c => `
+            <button class="color-circle${c === selected ? ' selected' : ''}"
+                    data-color="${c}"
+                    style="background:${c}${c === selected ? `;box-shadow:0 0 0 2px #fff, 0 0 0 4px ${c}` : ''}"></button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderSegment(field) {
+    const options = field.options || [];
+    const selected = this.fieldValues[field.key] || field.fallback || '';
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <div class="alarm-style-picker" data-field="${field.key}">
+          ${options.map(opt => `
+            <button class="alarm-style-btn${opt.value === selected ? ' selected' : ''}" data-value="${opt.value}">
+              <span class="alarm-style-label">${opt.label}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderEnumSelect(field) {
+    const options = field.options || [];
+    const selected = this.fieldValues[field.key] || field.fallback || '';
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <div class="alarm-style-picker" data-field="${field.key}">
+          ${options.map(opt => `
+            <button class="alarm-style-btn${opt.value === selected ? ' selected' : ''}" data-value="${opt.value}">
+              <span class="alarm-style-label">${opt.label}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderMultiSelect(field) {
+    const options = field.options || [];
+    const selected = this.fieldValues[field.key] || field.fallback || [];
+    return `
+      <div class="config-section">
+        <div class="config-section-label">${field.label}</div>
+        <div class="category-pills" data-field="${field.key}">
+          ${options.map(opt => `
+            <button class="category-pill${selected.includes(opt.value) ? ' selected' : ''}" data-value="${opt.value}">${opt.label}</button>
+          `).join('')}
+        </div>
+        <div class="config-hint" style="font-size:11px;color:#999;margin-top:4px;">至少选1个</div>
+      </div>
+    `;
+  }
+
+  // ─── Event Binding ───────────────────────────────────────────────────────
 
   _bindEvents() {
     const panel = this.container;
 
-    // Color circles
-    panel.querySelectorAll('.color-circle').forEach(circle => {
-      circle.addEventListener('click', () => {
-        panel.querySelectorAll('.color-circle').forEach(c => {
-          c.classList.remove('selected');
-          c.style.boxShadow = '';
-        });
-        circle.classList.add('selected');
-        circle.style.boxShadow = `0 0 0 2px #fff, 0 0 0 4px ${circle.dataset.color}`;
-        this.selectedColor = circle.dataset.color;
-      });
-    });
-    // Apply initial selected ring
-    const initialSelected = panel.querySelector('.color-circle.selected');
-    if (initialSelected) {
-      initialSelected.style.boxShadow = `0 0 0 2px #fff, 0 0 0 4px ${initialSelected.dataset.color}`;
+    // Bind all fields generically
+    for (const field of this.config.fields) {
+      switch (field.type) {
+        case 'date_picker':
+          this._bindDatePicker(panel, field);
+          break;
+        case 'text_input':
+          this._bindTextInput(panel, field);
+          break;
+        case 'image_picker':
+          this._bindImagePicker(panel, field);
+          break;
+        case 'color_picker':
+          this._bindColorPicker(panel, field);
+          break;
+        case 'segment':
+        case 'enum_select':
+          this._bindSegmentOrEnum(panel, field);
+          break;
+        case 'multi_select':
+          this._bindMultiSelect(panel, field);
+          break;
+      }
     }
 
-    // City pills
-    panel.querySelectorAll('.city-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        panel.querySelectorAll('.city-pill').forEach(p => p.classList.remove('selected'));
-        pill.classList.add('selected');
-        this.selectedCity = pill.dataset.city;
+    // Generate button
+    const genBtn = panel.querySelector('#configGenerateBtn');
+    if (genBtn) {
+      genBtn.addEventListener('click', () => this._handleGenerate());
+    }
+  }
+
+  _bindDatePicker(panel, field) {
+    const input = panel.querySelector(`input[data-field="${field.key}"]`);
+    if (!input) return;
+    input.addEventListener('change', () => {
+      this.fieldValues[field.key] = input.value;
+    });
+  }
+
+  _bindTextInput(panel, field) {
+    const input = panel.querySelector(`input[data-field="${field.key}"]`);
+    if (!input) return;
+    input.addEventListener('input', () => {
+      this.fieldValues[field.key] = input.value;
+    });
+  }
+
+  _bindImagePicker(panel, field) {
+    const grid = panel.querySelector(`.bg-grid[data-field="${field.key}"]`);
+    if (!grid) return;
+
+    // Preset items
+    grid.querySelectorAll('.bg-grid-item:not(.bg-upload-slot)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        grid.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this.fieldValues[field.key] = btn.dataset.bg;
+        // Clear custom photo when preset is chosen
+        this.photoDataUrl = null;
+        const thumb = panel.querySelector(`#bgUploadThumb_${field.key}`);
+        if (thumb) thumb.innerHTML = '<span class="bg-upload-icon">+📷</span>';
       });
     });
 
-    // Unified background: upload slot uses <label for="configPhotoInput"> (most reliable on mobile)
-    const bgPhotoInput = panel.querySelector('#configPhotoInput');
-    const bgUploadSlot = panel.querySelector('#bgUploadSlot');
-    if (bgPhotoInput) {
-      bgPhotoInput.addEventListener('change', (e) => {
+    // Upload slot
+    const fileInput = panel.querySelector(`#configPhotoInput_${field.key}`);
+    const uploadSlot = panel.querySelector(`#bgUploadSlot_${field.key}`);
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -325,14 +529,14 @@ export class ConfigPanel {
           };
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const maxW = 600;  // v2.0: 降低到 600px
+            const maxW = 600;
             const scale = Math.min(1, maxW / img.width);
             canvas.width = img.width * scale;
             canvas.height = img.height * scale;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            // v2.0: 分级压缩，确保 DataURL 不超过 200KB
+            // Tiered compression: JPEG quality 0.5 → 0.3 → reject
             let quality = 0.5;
             let dataUrl = canvas.toDataURL('image/jpeg', quality);
             if (dataUrl.length > 200000) {
@@ -344,11 +548,11 @@ export class ConfigPanel {
             }
 
             this.photoDataUrl = dataUrl;
-            this.selectedBgImage = '';  // 清除预设选择
+            this.fieldValues[field.key] = '';  // Clear preset selection
             // Update UI
-            panel.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
-            bgUploadSlot.classList.add('selected');
-            const thumb = panel.querySelector('#bgUploadThumb');
+            grid.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
+            if (uploadSlot) uploadSlot.classList.add('selected');
+            const thumb = panel.querySelector(`#bgUploadThumb_${field.key}`);
             if (thumb) thumb.innerHTML = `<img src="${this.photoDataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
           };
           img.src = ev.target.result;
@@ -356,102 +560,118 @@ export class ConfigPanel {
         reader.readAsDataURL(file);
       });
     }
+  }
 
-    // News category multi-select pills
-    panel.querySelectorAll('.category-pill').forEach(pill => {
+  _bindColorPicker(panel, field) {
+    const wrapper = panel.querySelector(`.color-circles[data-field="${field.key}"]`);
+    if (!wrapper) return;
+    wrapper.querySelectorAll('.color-circle').forEach(circle => {
+      circle.addEventListener('click', () => {
+        wrapper.querySelectorAll('.color-circle').forEach(c => {
+          c.classList.remove('selected');
+          c.style.boxShadow = '';
+        });
+        circle.classList.add('selected');
+        circle.style.boxShadow = `0 0 0 2px #fff, 0 0 0 4px ${circle.dataset.color}`;
+        this.fieldValues[field.key] = circle.dataset.color;
+      });
+    });
+  }
+
+  _bindSegmentOrEnum(panel, field) {
+    const wrapper = panel.querySelector(`.alarm-style-picker[data-field="${field.key}"]`);
+    if (!wrapper) return;
+    wrapper.querySelectorAll('.alarm-style-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        wrapper.querySelectorAll('.alarm-style-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this.fieldValues[field.key] = btn.dataset.value;
+      });
+    });
+  }
+
+  _bindMultiSelect(panel, field) {
+    const wrapper = panel.querySelector(`.category-pills[data-field="${field.key}"]`);
+    if (!wrapper) return;
+    wrapper.querySelectorAll('.category-pill').forEach(pill => {
       pill.addEventListener('click', () => {
-        const cat = pill.dataset.cat;
+        const val = pill.dataset.value;
+        const arr = this.fieldValues[field.key];
         if (pill.classList.contains('selected')) {
-          // Deselect — but must keep at least 1
-          if (this.selectedCategories.length > 1) {
-            this.selectedCategories = this.selectedCategories.filter(c => c !== cat);
+          // Deselect — but keep at least 1
+          if (arr.length > 1) {
+            this.fieldValues[field.key] = arr.filter(v => v !== val);
             pill.classList.remove('selected');
           }
         } else {
-          this.selectedCategories.push(cat);
+          arr.push(val);
           pill.classList.add('selected');
         }
       });
     });
-
-    // Alarm style picker
-    panel.querySelectorAll('.alarm-style-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        panel.querySelectorAll('.alarm-style-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        this.selectedAlarmStyle = btn.dataset.style;
-      });
-    });
-
-    // Background preset grid (exclude upload slot which has its own handler)
-    panel.querySelectorAll('.bg-grid-item:not(.bg-upload-slot)').forEach(btn => {
-      btn.addEventListener('click', () => {
-        panel.querySelectorAll('.bg-grid-item').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        this.selectedBgImage = btn.dataset.bg;
-        // Deselect custom photo when preset is chosen
-        this.photoDataUrl = null;
-        const thumb = panel.querySelector('#bgUploadThumb');
-        if (thumb) thumb.innerHTML = '<span class="bg-upload-icon">+📷</span>';
-      });
-    });
-
-    // Generate button
-    const genBtn = panel.querySelector('#configGenerateBtn');
-    if (genBtn) {
-      genBtn.addEventListener('click', () => this._handleGenerate());
-    }
   }
 
+  // ─── Data Collection ─────────────────────────────────────────────────────
+
+  /**
+   * Collect values from all rendered fields generically using the config.
+   */
   _collectData() {
+    const cfg = this.config;
     const data = {
-      component_type: this.scene.component_type,
-      theme: this.scene.theme,
+      component_type: cfg.component_type,
+      theme: cfg.theme,
       style_preset: 'glass',
       visual_style: 'glass',
-      primary_color: this.selectedColor,
+      primary_color: cfg.defaultColor,
       params: {},
-      description: this.scene.title,
+      description: cfg.title,
     };
 
-    if (this.photoDataUrl && ['love', 'baby'].includes(this.sceneId)) {
-      data.params.bg_photo = this.photoDataUrl;
-    }
+    for (const field of cfg.fields) {
+      const val = this.fieldValues[field.key];
 
-    if (this.selectedBgImage && ['love', 'baby', 'countdown'].includes(this.sceneId)) {
-      data.params.background_image = this.selectedBgImage;
-    }
+      switch (field.type) {
+        case 'date_picker':
+          data.params[field.key] = val || '';
+          break;
 
-    // weather 城市在卡片内切换，不从 config 传
+        case 'text_input':
+          data.params[field.key] = val || field.fallback || '';
+          break;
 
-    if (this.sceneId === 'news') {
-      data.params.categories = this.selectedCategories;
-    }
+        case 'image_picker':
+          // Preset bg ID
+          if (val) {
+            data.params[field.key] = val;
+          }
+          // Custom photo upload
+          if (this.photoDataUrl) {
+            data.params.background_image = this.photoDataUrl;
+          }
+          break;
 
-    if (this.sceneId === 'alarm') {
-      data.params.display_style = this.selectedAlarmStyle;
-    }
+        case 'color_picker':
+          // Color pickers update the component's primary color
+          data.primary_color = val || cfg.defaultColor;
+          data.params[field.key] = val || cfg.defaultColor;
+          break;
 
-    if (['love', 'baby', 'countdown'].includes(this.sceneId)) {
-      const dateInput = this.container.querySelector('#configDate');
-      const nameInput = this.container.querySelector('#configName');
-      if (this.sceneId === 'countdown') {
-        data.params.target_date = dateInput?.value || '';
-        data.params.event_name = nameInput?.value || '放假倒计时';
-        data.params.title = nameInput?.value || '放假倒计时';
-      } else if (this.sceneId === 'baby') {
-        data.params.start_date = dateInput?.value || '';
-        data.params.nickname = nameInput?.value || '宝宝';
-        data.params.title = nameInput?.value || '宝宝';
-      } else {
-        data.params.start_date = dateInput?.value || '';
-        data.params.nickname = nameInput?.value || '';
-        data.params.title = nameInput?.value || '我们的纪念日';
+        case 'segment':
+        case 'enum_select':
+          data.params[field.key] = val || field.fallback || '';
+          break;
+
+        case 'multi_select':
+          data.params[field.key] = (val && val.length > 0) ? val : (field.fallback || []);
+          break;
       }
     }
 
     return data;
   }
+
+  // ─── Generate Handler ────────────────────────────────────────────────────
 
   async _handleGenerate() {
     const freeText = this.container.querySelector('#configFreeInput')?.value?.trim();
@@ -459,21 +679,20 @@ export class ConfigPanel {
     const genBtn = this.container.querySelector('#configGenerateBtn');
 
     if (freeText) {
-      // Show loading state on button during API call
+      // Show loading state
       if (genBtn) {
         genBtn.disabled = true;
         genBtn._origText = genBtn.textContent;
         genBtn.textContent = '生成中...';
       }
 
-      const prompt = `${this.scene.title}：${freeText}`;
+      const prompt = `${this.config.title}：${freeText}`;
       try {
         const response = await this.api.chatGenerate(prompt, baseData);
         if (response.success) {
           const merged = { ...response.data };
           merged.style_preset = 'glass';
           merged.visual_style = 'glass';
-          merged.primary_color = this.selectedColor;
           if (this.onGenerate) this.onGenerate(merged);
         } else {
           if (this.onGenerate) this.onGenerate(baseData);
@@ -489,6 +708,16 @@ export class ConfigPanel {
     } else {
       if (this.onGenerate) this.onGenerate(baseData);
     }
+  }
+
+  // ─── Public API ──────────────────────────────────────────────────────────
+
+  show() {
+    this.container.style.display = '';
+  }
+
+  hide() {
+    this.container.style.display = 'none';
   }
 
   destroy() {

@@ -1,70 +1,53 @@
 /**
- * 日程卡片 · Liquid Glass
- *
- * 毛玻璃时间线 + 大日期数字 + 农历 + 倒计时
- * 风格预设：business-gray / nature-green / elegant-white
+ * Calendar Widget — Light Theme Style
+ * Card: 896x1464, r24, light mesh gradient
+ * Color system: CLEAN mode (accent only, background fixed)
  */
 
-/* 基础重置 */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+/* ── Reset ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-/* ── 卡片容器 — Pencil: 亮色卡片, r24, padding 64, mesh gradient ── */
-.widget-calendar {
-  width: 100%;
-  height: 100%;
+html, body {
+  width: 896px;
+  height: 1464px;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Widget Root ── */
+#widget-root {
+  position: relative;
+  width: 896px;
+  height: 1464px;
   border-radius: 24px;
   overflow: hidden;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding: 64px;
-  box-sizing: border-box;
+  /* Light mesh gradient: 4-corner radial simulation */
   background:
     radial-gradient(ellipse at 0% 0%, #F0F4F8, transparent 70%),
     radial-gradient(ellipse at 100% 0%, #E2E8F0, transparent 70%),
     radial-gradient(ellipse at 0% 100%, #D0D8E4, transparent 70%),
-    radial-gradient(ellipse at 100% 100%, #C4CED8, transparent 70%);
+    radial-gradient(ellipse at 100% 100%, #C4CED8, transparent 70%),
+    linear-gradient(135deg, #F0F4F8 0%, #D0D8E4 100%);
 }
 
-/* ── 光晕 ── */
-.widget-calendar .glow-primary {
-  position: absolute;
-  top: 5%;
-  right: -10%;
-  width: 720px;
-  height: 720px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(140, 160, 200, 0.10) 0%, transparent 70%);
-  filter: blur(150px);
-  pointer-events: none;
-  animation: breathing-glow 5s ease-in-out infinite;
-}
-
-/* ── 氛围光线 ── */
-.widget-calendar .ambient-line {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 42%;
-  height: 6px;
-  background: linear-gradient(90deg, rgba(140, 160, 200, 0.30) 0%, transparent 100%);
-  border-radius: 1px;
-  pointer-events: none;
-}
-
-/* ── 内容 ── */
-.widget-calendar .content {
+/* ── Content ── */
+#content {
   position: relative;
-  z-index: 1;
-  flex: 1;
+  width: 100%;
+  height: 100%;
+  padding: 64px;
   display: flex;
   flex-direction: column;
 }
 
-/* ── 顶部标题栏 ── */
-/* Pencil: h72, space_between */
-.widget-calendar .header {
+/* ── calHeader ── */
+.cal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -72,327 +55,235 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   flex-shrink: 0;
 }
 
-.widget-calendar .header-left {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+.cal-header-title {
+  font-size: 42px;
+  font-weight: 500;
+  color: #1A1A1A;
+  line-height: 1;
 }
 
-.widget-calendar .header-indicator {
-  width: 9px;
-  height: 42px;
-  background: rgba(140, 160, 200, 0.85);
-  border-radius: 6px;
+.cal-header-week {
+  font-size: 42px;
+  font-weight: 400;
+  color: #888888;
+  line-height: 1;
 }
 
-.widget-calendar .category-label {
-  font-family: var(--font-en-family);
-  font-size: var(--size-category);
-  font-weight: var(--font-weight-medium, 500);
-  letter-spacing: var(--letter-spacing-category, 2px);
-  text-transform: uppercase;
-  color: rgba(140, 160, 200, 0.55);
-}
-
-/* Pencil: §2.3 亮色卡片 — 文字色 #1E293B/#64748B/#94A3B8 */
-.widget-calendar .weekday {
-  font-family: var(--font-cn-family);
-  font-size: 36px;
-  color: #64748B;
-}
-
-/* ── 核心日期区 ── */
-.widget-calendar .date-hero {
+/* ── Date Section ── */
+.date-section {
   display: flex;
   align-items: flex-end;
   gap: 16px;
+  flex-shrink: 0;
 }
 
-/* Pencil: fontSize 120, fw 300, ls -2, fill #1E293B */
-.widget-calendar .date-number {
-  font-family: var(--font-hero-family);
-  font-size: 120px;
+.big-date {
+  font-size: 200px;
   font-weight: 300;
-  letter-spacing: -2px;
-  line-height: 0.85;
   color: #1E293B;
+  letter-spacing: -8px;
+  line-height: 0.85;
 }
 
-.widget-calendar .date-meta {
+.date-meta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding-bottom: 16px;
+  gap: 4px;
+  padding-bottom: 24px;
 }
 
-/* Pencil: fontSize 42, fw 500 */
-.widget-calendar .date-month {
-  font-family: var(--font-cn-family);
-  font-size: 42px;
-  font-weight: 500;
-  color: #1E293B;
-  line-height: 1.2;
-}
-
-.widget-calendar .date-year {
-  font-family: var(--font-en-family);
+.date-month {
   font-size: 36px;
-  color: rgba(255, 255, 255, 0.25);
+  font-weight: 400;
+  color: #64748B;
   line-height: 1.2;
 }
 
-/* Pencil: fontSize 28, fill #94A3B8 */
-.widget-calendar .lunar-info {
-  font-family: var(--font-cn-family);
-  font-size: 28px;
+.date-lunar {
+  font-size: 32px;
+  font-weight: 400;
   color: #94A3B8;
-  margin-bottom: 48px;
+  line-height: 1.2;
 }
 
-/* ── 毛玻璃时间线 ── */
-.widget-calendar .glass-timeline {
-  background: rgba(140, 160, 200, 0.04);
-  backdrop-filter: blur(48px) saturate(1.6);
-  -webkit-backdrop-filter: blur(48px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 36px;
-  padding: 48px 54px;
-  margin-bottom: 48px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+/* ── Spacers ── */
+.spacer-48 { height: 48px; flex-shrink: 0; }
+.spacer-40 { height: 40px; flex-shrink: 0; }
+.spacer-64 { height: 64px; flex-shrink: 0; }
+
+/* ── Divider ── */
+.divider-line {
+  height: 1px;
+  background: #CBD5E1;
+  flex-shrink: 0;
+}
+
+/* ── Event List ── */
+.event-list {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-height: 600px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
-.widget-calendar .glass-timeline::-webkit-scrollbar { width: 0; display: none; }
 
-/* ── 事件项 ── */
-.widget-calendar .event-item {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 30px 0;
+/* ── Event Row ── */
+.event-row {
   position: relative;
-  animation: stagger-fadeIn 0.5s ease-out both;
+  height: 150px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.widget-calendar .event-item:nth-child(1) { animation-delay: 0.1s; }
-.widget-calendar .event-item:nth-child(2) { animation-delay: 0.2s; }
-.widget-calendar .event-item:nth-child(3) { animation-delay: 0.3s; }
+.event-row-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.25s ease-out;
+  will-change: transform;
+}
 
-/* Pencil: fontSize 36, fw 500, fill #94A3B8, w120 */
-.widget-calendar .event-time {
-  font-family: var(--font-cn-family);
+/* Time */
+.event-time {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 120px;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 12px;
   font-size: 36px;
   font-weight: 500;
   color: #94A3B8;
-  width: 120px;
-  flex-shrink: 0;
+  line-height: 1;
 }
 
-/* 时间线（竖线 + 圆点） */
-.widget-calendar .event-line {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-  width: 36px;
-  position: relative;
-  padding-top: 12px;
-}
-
-/* Pencil: 16×16 ellipse */
-.widget-calendar .event-dot {
+/* Dot */
+.event-dot {
+  position: absolute;
+  left: 136px;
+  top: 20px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #3B82F6;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
 }
 
-/* 竖线连接器（通过伪元素在事件之间绘制） */
-.widget-calendar .event-connector {
-  width: 4.5px;
-  background: rgba(140, 160, 200, 0.10);
-  margin: 0 auto;
-  flex-shrink: 0;
+/* Info */
+.event-info {
+  position: absolute;
+  left: 184px;
+  top: 0;
+  width: 584px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 6px;
 }
 
-/* 事件信息 */
-.widget-calendar .event-info {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Pencil: fontSize 36, fw 500, fill #1E293B */
-.widget-calendar .event-title {
-  font-family: var(--font-cn-family);
+.event-title {
   font-size: 36px;
   font-weight: 500;
   color: #1E293B;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
 }
 
-/* Pencil: fontSize 32, fill #94A3B8 */
-.widget-calendar .event-location {
-  font-family: var(--font-cn-family);
-  font-size: 32px;
+.event-location {
+  font-size: 28px;
+  font-weight: 400;
   color: #94A3B8;
-  margin-top: 6px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
 }
 
-/* ── 当前/高亮事件 ── */
-.widget-calendar .event-item.current .event-dot {
-  background: rgba(140, 160, 200, 0.85);
-  box-shadow: 0 0 24px rgba(140, 160, 200, 0.40);
-}
-
-.widget-calendar .event-item.current .event-time {
-  color: rgba(255, 255, 255, 0.70);
-}
-
-.widget-calendar .event-item.current .event-title {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-.widget-calendar .event-item.current .event-location {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-/* ── 下一事件倒计时 ── */
-.widget-calendar .next-event-countdown {
-  background: rgba(140, 160, 200, 0.04);
-  backdrop-filter: blur(36px) saturate(1.4);
-  -webkit-backdrop-filter: blur(36px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 30px;
-  padding: 36px 48px;
-  margin-top: auto;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  text-align: center;
-}
-
-.widget-calendar .countdown-text {
-  font-family: var(--font-cn-family);
-  font-size: 39px;
-  color: rgba(140, 160, 200, 0.55);
-  letter-spacing: 0.9px;
-}
-
-/* ── 已过去的事件 ── */
-.widget-calendar .event-item.past {
-  opacity: 0.4;
-}
-
-.widget-calendar .event-item.past .event-dot {
-  background: rgba(140, 160, 200, 0.15);
-  box-shadow: none;
-}
-
-/* 已完成事件 */
-.widget-calendar .event-item.completed {
-  opacity: 0.35;
-}
-
-.widget-calendar .event-item.completed .event-dot {
-  background: rgba(140, 160, 200, 0.1) !important;
-  box-shadow: none !important;
-}
-
-/* ── 动态配色（color-engine） ── */
-[data-style="dynamic"] .widget-calendar {
-  background: var(--dyn-bg);
-}
-
-/* ── WebView 兼容 ── */
-@supports not (-webkit-background-clip: text) {
-  .widget-calendar .date-number {
-    background: none;
-    -webkit-text-fill-color: initial;
-    color: #ffffff;
-  }
-}
-
-@supports not ((-webkit-backdrop-filter: blur(16px)) or (backdrop-filter: blur(16px))) {
-  .widget-calendar .glass-timeline,
-  .widget-calendar .next-event-countdown {
-    background: rgba(20, 25, 35, 0.80);
-  }
-}
-
-/* ── FAB 添加事件按钮 ── */
-/* Pencil: 96×96, r48, fill #0A84FF30, bottom 64 right 64 */
-.fab-add-event {
+/* ── Swipe Delete Button ── */
+.event-delete-btn {
   position: absolute;
-  bottom: 64px;
-  right: 64px;
-  width: 96px;
-  height: 96px;
-  border-radius: 48px;
-  background: rgba(10, 132, 255, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  color: #60A5FA;
-  font-size: 48px;
-  font-weight: 300;
+  right: 0;
+  top: 0;
+  width: 120px;
+  height: 100%;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 28px;
+  font-weight: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
   cursor: pointer;
-  z-index: 10;
+  border-radius: 0 12px 12px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.event-row.swiped .event-delete-btn {
+  display: flex;
+}
+
+.event-row.swiped .event-row-inner {
+  transform: translateX(-120px);
+}
+
+/* ── Next Meeting Pill ── */
+.next-meeting {
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(20px);
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.2s;
-  box-shadow: 0 4px 24px rgba(59, 130, 246, 0.35), 0 0 40px rgba(59, 130, 246, 0.15);
+  gap: 12px;
+  height: 110px;
+  padding: 28px 32px;
+  border-radius: 20px;
+  background: var(--dyn-accent-bg, rgba(10, 132, 255, 0.125));
+  border: 1px solid var(--dyn-glass-border, rgba(59, 130, 246, 0.125));
+  flex-shrink: 0;
 }
-.fab-add-event:active { transform: scale(0.92); }
 
-/* ── 长按删除确认气泡 ── */
-.delete-confirm {
+.next-meeting-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.next-meeting-text {
+  font-size: 36px;
+  font-weight: 500;
+  color: var(--dyn-accent, #3B82F6);
+  line-height: 1;
+}
+
+/* ── FAB ── */
+.fab-add-cal {
   position: absolute;
-  top: -48px;
-  right: 20px;
-  background: rgba(239, 68, 68, 0.9);
-  color: #fff;
-  padding: 8px 20px;
-  border-radius: 12px;
-  font-size: 24px;
-  font-family: 'MiSans_VF', sans-serif;
-  z-index: 50;
+  right: 96px;
+  bottom: 96px;
+  width: 96px;
+  height: 96px;
+  border-radius: 48px;
+  background: var(--dyn-accent-bg, rgba(10, 132, 255, 0.19));
+  border: none;
   cursor: pointer;
-  animation: fadeIn 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-
-/* ── 响应式 ── */
-@media (max-width: 900px) {
-  .widget-calendar {
-    width: 100%;
-    height: 100%;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--dyn-accent, #3B82F6);
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease-out, background 0.15s ease-out;
 }
 
-/* 示例数据角标 */
-.demo-badge {
-  position: absolute;
-  top: 40px;
-  right: 40px;
-  padding: 6px 16px;
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  z-index: 10;
-  pointer-events: none;
+.fab-add-cal:active {
+  transform: scale(0.92);
+  background: var(--dyn-accent-bg, rgba(10, 132, 255, 0.28));
 }
+
+/* ── Entrance Animation ── */
+#content {
+  animation: entrance-fadeIn 0.6s ease-out both;
+}
+
+.event-row {
+  animation: stagger-fadeIn 0.4s ease-out both;
+}
+.event-row:nth-child(1) { animation-delay: 0.1s; }
+.event-row:nth-child(2) { animation-delay: 0.18s; }
+.event-row:nth-child(3) { animation-delay: 0.26s; }

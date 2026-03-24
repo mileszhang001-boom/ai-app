@@ -110,18 +110,16 @@
       var bg2 = hslToRgb(hsl.h, sat * 0.75, 0.23);
       var bg3 = hslToRgb(hsl.h, sat * 0.55, 0.13);
 
-      palette.bgGradient = 'linear-gradient(155deg, rgb(' + bg1.r + ',' + bg1.g + ',' + bg1.b + ') 0%, rgb(' + bg2.r + ',' + bg2.g + ',' + bg2.b + ') 35%, rgb(' + bg3.r + ',' + bg3.g + ',' + bg3.b + ') 100%)';
-      palette.glowPrimary = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.32)';
-      palette.glowSecondary = 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.20)';
-      palette.glowTertiary = 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.10)';
-      palette.ambientLine = 'rgba(' + bright.r + ',' + bright.g + ',' + bright.b + ', 0.50)';
+      palette.bgStart = 'rgb(' + bg1.r + ',' + bg1.g + ',' + bg1.b + ')';
+      palette.bgEnd = 'rgb(' + bg3.r + ',' + bg3.g + ',' + bg3.b + ')';
+      palette.bgGradient = 'linear-gradient(155deg, ' + palette.bgStart + ' 0%, rgb(' + bg2.r + ',' + bg2.g + ',' + bg2.b + ') 35%, ' + palette.bgEnd + ' 100%)';
+      palette.glow = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.32)';
       palette.glassBg = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ', 0.15)';
 
       palette.cssVars['--dyn-bg'] = palette.bgGradient;
-      palette.cssVars['--dyn-glow-primary'] = palette.glowPrimary;
-      palette.cssVars['--dyn-glow-secondary'] = palette.glowSecondary;
-      palette.cssVars['--dyn-glow-tertiary'] = palette.glowTertiary;
-      palette.cssVars['--dyn-ambient-line'] = palette.ambientLine;
+      palette.cssVars['--dyn-bg-start'] = palette.bgStart;
+      palette.cssVars['--dyn-bg-end'] = palette.bgEnd;
+      palette.cssVars['--dyn-glow'] = palette.glow;
       palette.cssVars['--dyn-glass-bg'] = palette.glassBg;
     }
 

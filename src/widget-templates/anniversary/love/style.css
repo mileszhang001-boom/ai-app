@@ -1,165 +1,148 @@
-/**
- * 恋爱纪念日 — Full-Bleed Photo + Bottom Text Overlay
- * Design at 896x1464, card.pen spec (node UyUeC)
- */
+/* ========================================
+   Anniversary / Love — style.css
+   Pencil Design Reference: Card-Love (UyUeC)
+   896×1464 · Liquid Glass · Dark
+   ======================================== */
 
 /* Reset */
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+body {
+  margin: 0;
+  padding: 0;
   background: transparent;
+  overflow: hidden;
 }
 
-/* Container: 896x1464 */
-.widget-love {
-  width: 100%;
-  height: 100%;
+/* ── Card Root (UyUeC) ── */
+#widget-root {
   position: relative;
-  overflow: hidden;
+  width: 896px;
+  height: 1464px;
   border-radius: 24px;
   background: #2A1520;
-  animation: widget-fadeIn 0.5s ease;
+  overflow: hidden;
 }
-@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* Full-bleed photo background */
-.widget-love .photo-area {
+/* ── Photo Area (b0WZN) ── */
+#photo-area {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 896px;
+  height: 1464px;
   border-radius: 32px;
+  opacity: 0.85;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.85;
-  transition: opacity 0.6s ease;
-  /* Default gradient fallback when no image is set */
-  background-image: linear-gradient(160deg, #3D1A2E 0%, #2A1520 40%, #1E0E18 100%);
 }
 
-/* Pencil §2.6: bottom-darken 896×600, y:864, gradient 180° 7 色标 #3a1808 系 */
-.widget-love .bottom-darken {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 600px;
-  background: linear-gradient(180deg,
-    #3a180800 0%,
-    #3a1808c0 3%,
-    #3a1808e8 8%,
-    #3a1808f5 15%,
-    #3a1808fb 30%,
-    #3a1808fd 50%,
-    #3a1808ff 100%);
-  pointer-events: none;
-}
-
-/* Pencil §2.6: glass-panel 896×580, y:884, r32, padding [40,48], gap 12 */
-.widget-love .glass-panel {
+/* ── Bottom Darken Gradient (wzWR5) ── */
+#bottom-darken {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 896px;
+  height: 600px;
+  background: linear-gradient(
+    to top,
+    #3a1808ff   0%,
+    #3a1808fd  50%,
+    #3a1808fb  70%,
+    #3a1808f5  85%,
+    #3a1808e8  92%,
+    #3a1808c0  97%,
+    #3a180800 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Glass Panel (4RQgB) ── */
+#glass-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   height: 580px;
   border-radius: 32px 32px 0 0;
-  padding: 40px 48px;
+  background: linear-gradient(
+    180deg,
+    #5c3018d0 0%,
+    #4b2410e0 33%,
+    #3a1808f0 66%,
+    #3a1808f8 100%
+  );
+  opacity: 0.7;
+  backdrop-filter: blur(60px) saturate(1.8);
+  -webkit-backdrop-filter: blur(60px) saturate(1.8);
   display: flex;
   flex-direction: column;
   gap: 12px;
-  align-items: flex-start;
-  z-index: 2;
-  background: linear-gradient(180deg,
-    #5c3018d0 0%,
-    #4a2510e8 33%,
-    #3a1808f2 66%,
-    #3a1808f8 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  padding: 40px 48px;
 }
 
-/* Panel tag */
-.widget-love .panel-tag {
-  font-size: 22px;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 2px;
-}
-
-/* Name display */
-.widget-love .name-display {
-  font-size: 26px;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 4px;
-}
-
-/* Emoji icon */
-.widget-love .icon-emoji {
+/* ── Heart Icon (vFO4Q) ── */
+#heartIcon {
   font-size: 32px;
-  line-height: 1.2;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
+  line-height: 1;
 }
 
-/* Big number */
-.widget-love .big-number {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Big Number (cmlYx) ── */
+#bigNum {
   font-size: 160px;
   font-weight: 300;
-  letter-spacing: -4px;
-  line-height: 1;
   color: #F5F5F0;
+  letter-spacing: -4px;
+  line-height: 0.9;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Label text */
-.widget-love .label-text {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Label (2529z) ── */
+#label {
   font-size: 42px;
   font-weight: 500;
+  color: #F5F5F0D0;
   letter-spacing: 2px;
-  color: rgba(245, 245, 240, 0.82);
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Divider */
-.widget-love .divider {
+/* ── Divider (LuLXr) ── */
+#divider {
   width: 48px;
   height: 1.5px;
-  background: rgba(255, 255, 255, 0.38);
+  background: #FFFFFF60;
   flex-shrink: 0;
 }
 
-/* Subtitle */
-.widget-love .subtitle {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Subtitle (TCbPq) ── */
+#subtitle {
   font-size: 36px;
   font-weight: 500;
   color: #F5F5F0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Date text */
-.widget-love .date-text {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Date Text (uQg5P) ── */
+#dateText {
   font-size: 28px;
-  font-weight: 400;
-  color: rgba(245, 245, 240, 0.63);
+  font-weight: normal;
+  color: #F5F5F0A0;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Photo loading state: hidden until image loads, then fades in */
-.widget-love .photo-area.loading { opacity: 0; }
-
-/* Easter egg canvas overlay */
-.widget-love .easter-egg-canvas {
+/* ── Easter Egg Canvas ── */
+#easterEggCanvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  width: 896px;
+  height: 1464px;
   pointer-events: none;
   z-index: 10;
 }

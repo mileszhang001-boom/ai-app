@@ -1,141 +1,147 @@
-/**
- * 假期倒计时 — Full-Bleed Photo + Full-Width Gradient Panel
- * Design at 896x1464, card.pen spec (node 7EC5L)
- * KEY: Full-width glass panel with red-orange gradient, tag pill, no divider
- */
+/* ========================================
+   Anniversary / Holiday — style.css
+   Pencil Design Reference: Card-Holiday (7EC5L)
+   896x1464 · Liquid Glass · Dark
+   ======================================== */
 
 /* Reset */
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+body {
+  margin: 0;
+  padding: 0;
   background: transparent;
+  overflow: hidden;
 }
 
-/* Container: 896x1464 */
-.widget-holiday {
-  width: 100%;
-  height: 100%;
+/* ── Card Root (7EC5L) ── */
+#widget-root {
   position: relative;
-  overflow: hidden;
+  width: 896px;
+  height: 1464px;
   border-radius: 24px;
   background: #0A2A2A;
-  animation: widget-fadeIn 0.5s ease;
+  overflow: hidden;
 }
-@keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* Full-bleed photo background — full opacity, no reduction */
-.widget-holiday .photo-area {
+/* ── Photo Area (oefx1) — full opacity, no separate bottom-darken ── */
+#photo-area {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 896px;
+  height: 1464px;
   border-radius: 32px;
+  opacity: 1;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: opacity 0.6s ease;
-  /* Default gradient fallback when no image is set */
-  background-image: linear-gradient(160deg, #1A4A3A 0%, #0A2A2A 40%, #0D3D2D 100%);
 }
-.widget-holiday .photo-area.loading { opacity: 0; }
 
-/* Pencil §2.8: glass-panel 896×598, y:866, r32, padding [56,48], gap 16 */
-.widget-holiday .glass-panel {
+/* ── Glass Panel (LmdCG) — 896x598, y:866, padding 48 uniform ── */
+#glass-panel {
   position: absolute;
-  bottom: 0;
   left: 0;
-  width: 896px;
+  top: 866px;
+  width: 100%;
   height: 598px;
-  border-radius: 32px 32px 0 0;
-  padding: 56px 48px;
+  border-radius: 32px;
+  background: linear-gradient(
+    180deg,
+    #6b3510d0 0%,
+    #5a2a0cdc 33%,
+    #4a2008f0 66%,
+    #4a2008f8 100%
+  );
+  opacity: 0.7;
+  backdrop-filter: blur(60px) saturate(1.8);
+  -webkit-backdrop-filter: blur(60px) saturate(1.8);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  align-items: flex-start;
-  z-index: 2;
-  background: linear-gradient(180deg,
-    #6b3510d0 0%,
-    #5a2808e8 30%,
-    #4a2008f2 60%,
-    #4a2008f8 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  gap: 12px;
+  padding: 48px;
 }
 
-/* Panel tag */
-.widget-holiday .panel-tag {
-  font-size: 22px;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 2px;
-}
-
-/* Name display */
-.widget-holiday .name-display {
-  font-size: 26px;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 4px;
-}
-
-/* Tag pill */
-.widget-holiday .tag-pill {
+/* ── Tag Pill (2oXHu) — cornerRadius 16, fill #FFFFFF20, horizontal layout ── */
+#tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.125);
   padding: 6px 14px;
+  border-radius: 16px;
+  background: #FFFFFF20;
+  align-self: flex-start;
 }
 
-.widget-holiday .tag-icon {
+/* ── Tag Icon (NpeSx) ── */
+#tagIcon {
   font-size: 28px;
   line-height: 1;
 }
 
-.widget-holiday .tag-text {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Tag Text (PyxlH) ── */
+#tagText {
   font-size: 32px;
   font-weight: 600;
   color: #F5F5F0;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
+  line-height: 1.2;
 }
 
-/* Big number */
-.widget-holiday .big-number {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Big Number (OA1qY) ── */
+#numH {
   font-size: 160px;
   font-weight: 300;
-  letter-spacing: -4px;
-  line-height: 1;
   color: #F5F5F0;
+  letter-spacing: -4px;
+  line-height: 0.9;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Label text — larger than love/baby (56px vs 42px) */
-.widget-holiday .label-text {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
-  font-size: 56px;
-  font-weight: 300;
-  letter-spacing: 4px;
+/* ── Label (k5gF7) ── */
+#labelH {
+  font-size: 42px;
+  font-weight: 500;
   color: #F5F5F0D0;
+  letter-spacing: 2px;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Date text */
-.widget-holiday .date-text {
-  font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
+/* ── Divider (rne5P) ── */
+#divider {
+  width: 48px;
+  height: 1.5px;
+  background: #FFFFFF60;
+  flex-shrink: 0;
+}
+
+/* ── Subtitle (PYzkO) ── */
+#subtitle {
+  font-size: 36px;
+  font-weight: 500;
+  color: #F5F5F0;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
+}
+
+/* ── Date (scBC0) ── */
+#dateH {
   font-size: 28px;
-  font-weight: 400;
-  color: rgba(245, 245, 240, 0.63);
+  font-weight: normal;
+  color: #F5F5F0A0;
+  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* Easter egg canvas overlay */
-.widget-holiday .easter-egg-canvas {
+/* ── Easter Egg Canvas ── */
+#easterEggCanvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  width: 896px;
+  height: 1464px;
   pointer-events: none;
   z-index: 10;
 }

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=896, initial-scale=1.0">
   <meta name="theme-color" content="#0e1013">
   <title>天气卡片</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,57 +14,60 @@
   <link rel="stylesheet" href="../shared/overlay.css">
 </head>
 <body>
-  <div class="widget-weather">
-    <!-- 天气动画画布 -->
-    <canvas class="weather-canvas" id="weatherCanvas"></canvas>
-
+  <div id="widget-root" class="widget-weather">
     <!-- Sun glow — Pencil: 500×500 ellipse, radial #FFD70060→transparent, opacity 0.5 -->
-    <div class="sun-glow"></div>
+    <div id="sun-glow" class="sun-glow"></div>
 
-    <div class="content">
+    <div id="content" class="content">
       <!-- 顶部：城市 + 日期 -->
-      <div class="header">
-        <div class="location" id="locationName">北京<span class="location-pin">📍</span></div>
-        <div class="date" id="weatherDate">--月--日</div>
+      <div id="header" class="header">
+        <div class="city-name" id="cityName">北京  ▾</div>
+        <div class="date-text" id="dateText">--月--日 周-</div>
       </div>
 
-      <!-- 核心：温度 + 天气图标 -->
-      <div class="hero-section">
-        <div class="temp-display">
-          <span class="temp-number" id="currentTemp">--</span>
-          <span class="temp-unit">°</span>
-        </div>
-        <div class="weather-desc" id="weatherDesc">--</div>
+      <!-- 占位 spacer -->
+      <div class="spacer-160"></div>
+
+      <!-- 核心：天气图标 + 温度 + 天气 + 体感 -->
+      <div id="hero" class="hero">
+        <div class="sun-icon" id="sunIcon">☀️</div>
+        <div class="temperature" id="temperature">--°</div>
+        <div class="condition" id="condition">--</div>
         <div class="feels-like" id="feelsLike">体感 --°</div>
       </div>
 
-      <!-- 毛玻璃详情卡 -->
-      <div class="glass-details">
-        <div class="detail-item">
-          <div class="detail-label">湿度</div>
-          <div class="detail-value" id="humidity">--%</div>
+      <div class="spacer-32"></div>
+
+      <!-- 毛玻璃详情卡 (3 pills) -->
+      <div id="pill-row" class="pill-row">
+        <div class="pill" id="pillHumidity">
+          <div class="pill-label">湿度</div>
+          <div class="pill-value" id="humidity">--%</div>
+          <div class="pill-icon">💧</div>
         </div>
-        <div class="detail-divider"></div>
-        <div class="detail-item">
-          <div class="detail-label">风力</div>
-          <div class="detail-value" id="wind">--级</div>
+        <div class="pill" id="pillWind">
+          <div class="pill-label">风力</div>
+          <div class="pill-value" id="wind">--级</div>
+          <div class="pill-icon">🌬️</div>
         </div>
-        <div class="detail-divider"></div>
-        <div class="detail-item">
-          <div class="detail-label">紫外线</div>
-          <div class="detail-value" id="aqi">--</div>
+        <div class="pill" id="pillUv">
+          <div class="pill-label">紫外线</div>
+          <div class="pill-value" id="uv">--</div>
+          <div class="pill-icon">☀️</div>
         </div>
       </div>
 
+      <div class="spacer-24"></div>
+
       <!-- 未来3天预报 -->
-      <div class="forecast-row">
+      <div id="forecast-row" class="forecast-row">
         <div class="forecast-day" id="forecast0">
-          <div class="forecast-label">明天</div>
+          <div class="forecast-label">--</div>
           <div class="forecast-icon">--</div>
           <div class="forecast-temp">--°/--°</div>
         </div>
         <div class="forecast-day" id="forecast1">
-          <div class="forecast-label">后天</div>
+          <div class="forecast-label">--</div>
           <div class="forecast-icon">--</div>
           <div class="forecast-temp">--°/--°</div>
         </div>
@@ -75,10 +78,12 @@
         </div>
       </div>
 
+      <div class="spacer-24"></div>
+
       <!-- AI穿衣建议 -->
-      <div class="glass-suggestion">
-        <div class="suggestion-label">AI 建议</div>
-        <div class="suggestion-text" id="suggestion">--</div>
+      <div id="ai-suggestion" class="ai-suggestion">
+        <div class="ai-label" id="aiLabel">✨ AI 建议</div>
+        <div class="ai-text" id="aiText">--</div>
       </div>
     </div>
   </div>

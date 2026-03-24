@@ -18,7 +18,8 @@ except ImportError:
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
 import json
@@ -433,6 +434,32 @@ async def chat_generate(request: ChatGenerateRequest):
         return GenerateResponse(success=False, error=str(e))
 
 
+@app.post("/api/debug-generate")
+async def debug_generate(request: ChatGenerateRequest):
+    """
+    调试模式：返回完整 pipeline 中间数据
+
+    包含各阶段详情：prompt → LLM响应 → 解析 → 修正 → 校验 → 结果
+    用于优化后台的 pipeline 可视化。
+    """
+    try:
+        if not request.text or not request.text.strip():
+            return {"success": False, "error": "请输入组件描述", "debug": {}}
+
+        config = GenerateConfig(model=request.model)
+        generator = get_generator(config)
+
+        debug_data = generator.generate_from_nl_debug(
+            request.text.strip(),
+            base_data=request.base_data
+        )
+
+        return debug_data
+
+    except Exception as e:
+        return {"success": False, "error": str(e), "debug": {}}
+
+
 @app.post("/api/render", response_class=HTMLResponse)
 async def render_component(request: RenderRequest):
     """
@@ -758,6 +785,17 @@ async def health_check():
             "sync_service": True
         }
     }
+
+
+@app.get("/debug")
+async def debug_dashboard():
+    """调试后台页面"""
+    import os
+    dashboard_path = os.path.join(os.path.dirname(__file__), "..", "debug-dashboard", "index.html")
+    dashboard_path = os.path.abspath(dashboard_path)
+    if os.path.exists(dashboard_path):
+        return FileResponse(dashboard_path, media_type="text/html")
+    return HTMLResponse("<h1>Debug dashboard not found</h1><p>Expected at: src/debug-dashboard/index.html</p>", status_code=404)
 
 
 if __name__ == "__main__":

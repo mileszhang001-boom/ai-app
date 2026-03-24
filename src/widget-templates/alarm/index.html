@@ -2,48 +2,38 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#1A1A1C">
+  <meta name="viewport" content="width=896, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a1c">
   <title>闹钟卡片</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/tokens.css">
-  <link rel="stylesheet" href="../shared/visual-styles.css">
   <link rel="stylesheet" href="../shared/overlay.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="widget-alarm">
-    <div class="glow-primary"></div>
-    <div class="ambient-line"></div>
-
-    <div class="alarm-content">
-      <!-- Header -->
+  <div id="widget-root" class="widget-alarm">
+    <div id="alarm-content" class="alarm-content">
+      <!-- Header: 标题 + 菜单 -->
       <div class="alarm-header">
         <span class="alarm-title">闹钟</span>
+        <span class="alarm-spacer"></span>
         <span class="alarm-menu">···</span>
       </div>
 
       <!-- Countdown to next alarm -->
-      <div class="countdown-text" id="countdownText">--</div>
+      <div class="alarm-countdown" id="countdownText">--</div>
 
-      <!-- List View -->
-      <div class="alarm-list-view" id="alarmListView">
-        <div id="alarmListContainer"></div>
-      </div>
+      <!-- Spacer -->
+      <div class="alarm-spacer-36"></div>
 
-      <!-- Dial View -->
-      <div class="alarm-dial-view" id="alarmDialView" style="display:none;">
-        <svg id="clockFace" class="clock-face" viewBox="0 0 400 400"></svg>
-        <div class="dial-time" id="dialTime">--:-- --</div>
-        <div class="dial-countdown" id="dialCountdown">--</div>
-        <div id="dialAlarmList" class="dial-alarm-list"></div>
-      </div>
-
-      <!-- FAB -->
-      <button class="fab-add-alarm" id="fabAddAlarm">+</button>
+      <!-- Alarm list (dynamically rendered) -->
+      <div id="alarmList" class="alarm-list"></div>
     </div>
+
+    <!-- FAB: add alarm -->
+    <button class="fab-add" id="fabAdd">+</button>
   </div>
 
   <script src="../shared/bridge.js"></script>

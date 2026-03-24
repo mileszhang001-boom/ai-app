@@ -1,7 +1,7 @@
 /**
- * 宝宝成长纪念日 — Full-Bleed Photo + Bottom Text Overlay
+ * 宝宝成长纪念日 — Full-Bleed Photo + Amber Glass Panel
  * Design at 896x1464, card.pen spec (node 3A9gr)
- * KEY: Dark text on warm/light background (opposite of Love)
+ * KEY: dark text on light amber panel (not white text like love)
  */
 
 /* Reset */
@@ -30,7 +30,7 @@ html, body {
 }
 @keyframes widget-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* Full-bleed photo background */
+/* Full-bleed photo background — Pencil vjhx9: 896x1464, r32, opacity 0.9 */
 .widget-baby .photo-area {
   position: absolute;
   inset: 0;
@@ -41,11 +41,10 @@ html, body {
   opacity: 0.9;
   transition: opacity 0.6s ease;
   /* Default gradient fallback when no image is set */
-  background-image: linear-gradient(160deg, #D4C4A8 0%, #E8D8C0 40%, #C4B498 100%);
+  background-image: linear-gradient(160deg, #3D2A15 0%, #2A2015 40%, #1E180E 100%);
 }
-.widget-baby .photo-area.loading { opacity: 0; }
 
-/* Pencil §2.7: bottom-darken #b89060 系金色渐变 */
+/* Pencil FXCWn: bottom-darken 896x600, y:864, gradient 180deg, 7 stops #b89060 */
 .widget-baby .bottom-darken {
   position: absolute;
   bottom: 0;
@@ -63,7 +62,8 @@ html, body {
   pointer-events: none;
 }
 
-/* Pencil §2.7: glass-panel 896×580, y:884, gradient #c8a070e0→#b09058f8 */
+/* Pencil 5QKgO: glass-panel 896x580, y:884, r32, padding [40,48], gap 12 */
+/* fill: gradient #c8a070e0 -> #b09058f8, opacity 0.7, rotation 180 */
 .widget-baby .glass-panel {
   position: absolute;
   bottom: 0;
@@ -79,33 +79,21 @@ html, body {
   z-index: 2;
   background: linear-gradient(180deg,
     #c8a070e0 0%,
-    #bfa068ed 30%,
-    #b89860f5 60%,
+    #bca064ec 33%,
+    #b09058f2 66%,
     #b09058f8 100%);
+  opacity: 0.7;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* Pencil §2.7: 文字主色 #3D2510（深棕，非白色！）*/
-.widget-baby .panel-tag {
-  font-size: 22px;
-  color: #3D251080;
-  letter-spacing: 2px;
-}
-
-.widget-baby .name-display {
-  font-size: 26px;
-  color: #3D2510A0;
-  margin-bottom: 4px;
-}
-
-/* Emoji icon */
+/* Pencil LtBJg: icon emoji, fontSize 32 */
 .widget-baby .icon-emoji {
   font-size: 32px;
   line-height: 1.2;
 }
 
-/* Big number — dark brown text */
+/* Pencil mfsaZ: big number, fontSize 160, weight 300, fill #3D2510, letterSpacing -4px */
 .widget-baby .big-number {
   font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
   font-size: 160px;
@@ -115,7 +103,7 @@ html, body {
   color: #3D2510;
 }
 
-/* Pencil: fontSize 42, fw 500, ls 2, fill #3D2510CC */
+/* Pencil TO1eK: label text, fontSize 42, weight 500, fill #3D2510CC, letterSpacing 2px */
 .widget-baby .label-text {
   font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
   font-size: 42px;
@@ -124,7 +112,7 @@ html, body {
   color: #3D2510CC;
 }
 
-/* Pencil: 48×1.5, fill #5C3D2060 */
+/* Pencil oSjU9: divider 48x1.5, fill #5C3D2060 */
 .widget-baby .divider {
   width: 48px;
   height: 1.5px;
@@ -132,7 +120,7 @@ html, body {
   flex-shrink: 0;
 }
 
-/* Subtitle — dark brown */
+/* Pencil bBGG8: subtitle, fontSize 36, weight 500, fill #3D2510 */
 .widget-baby .subtitle {
   font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
   font-size: 36px;
@@ -144,13 +132,16 @@ html, body {
   max-width: 100%;
 }
 
-/* Date text — dark brown with opacity */
+/* Pencil R8duQ: date text, fontSize 28, weight normal, fill #3D2510A0 */
 .widget-baby .date-text {
   font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
   font-size: 28px;
   font-weight: 400;
-  color: rgba(61, 37, 16, 0.63);
+  color: #3D2510A0;
 }
+
+/* Photo loading state: hidden until image loads, then fades in */
+.widget-baby .photo-area.loading { opacity: 0; }
 
 /* Easter egg canvas overlay */
 .widget-baby .easter-egg-canvas {

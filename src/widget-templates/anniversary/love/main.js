@@ -1,197 +1,100 @@
-/**
- * 恋爱纪念日 — Full-Bleed Photo + Bottom Text Overlay
- * Features: day counter, milestone detection, easter egg, bg_photo support
- */
-
+'use strict';
 (function() {
-  'use strict';
+  // ① Read injected parameters
+  var params = window.__WIDGET_PARAMS__ || {};
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
+  var isPreview = dataMode === 'preview';
 
-  var params = window.__WIDGET_PARAMS__ || {
+  // ② Mock data (for phone preview)
+  var MOCK = {
     start_date: '2025-03-22',
-    subtitle: ''
+    title: '在一起',
+    nickname: '小美',
+    description: '与你相伴的每一天',
+    background_image: '' // use preset
   };
 
-  // -- Date calculation (timezone-safe) --
-  function calculateDays(startDate) {
-    var parts = startDate.split('-').map(Number);
-    var start = new Date(parts[0], parts[1] - 1, parts[2]);
-    var now = new Date();
-    now.setHours(0, 0, 0, 0);
-    var diff = now - start;
-    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return days >= 0 ? days : 0;
-  }
-
-  // -- Milestone detection --
-  function getMilestone(days) {
-    var milestones = [100, 200, 365, 500, 520, 700, 730, 999, 1000, 1095, 1314, 1461];
-    if (milestones.indexOf(days) !== -1) return days;
-    if (days > 0 && days % 100 === 0) return days;
-    if (days > 0 && days % 365 === 0) return days;
-    return null;
-  }
-
-  function getSubtitleForMilestone(days) {
-    var milestone = getMilestone(days);
-    if (!milestone) return null;
-    var map = {
-      100: '第一百天，我们的小小里程碑',
-      200: '两百天，日子越来越甜',
-      365: '整整一年，感谢你的陪伴',
-      500: '五百天，半千日的温柔',
-      520: '520天，我爱你',
-      700: '七百天，每一天都算数',
-      730: '两年了，时光不负有心人',
-      999: '九九九，长长久久',
-      1000: '一千天，三年的浪漫',
-      1095: '三年整，最好的时光',
-      1314: '一生一世，是你',
-      1461: '四年了，闰年的约定'
+  // ③ Merge params: user input > AI generated > mock
+  function mergeParams(p) {
+    var m = isPreview ? MOCK : {};
+    return {
+      start_date: p.start_date || m.start_date || '2024-01-01',
+      title: p.title || m.title || '在一起',
+      nickname: p.nickname || m.nickname || '',
+      description: p.description || p.subtitle || m.description || '',
+      background_image: p.background_image || p.bg_photo || m.background_image || ''
     };
-    return map[milestone] || '第' + milestone + '天，特别的日子';
   }
 
-  // -- Background image loading with fade-in transition --
-  function loadBackgroundImage() {
-    var bgImage = params.background_image;
-    if (!bgImage) return;
-    var photoBg = document.getElementById('photoBg');
-    if (!photoBg) return;
+  // ④ Color engine: extract from background image
+  function initColors(imgEl) {
+    if (window.extractPanelTint) {
+      var tint = window.extractPanelTint(imgEl);
+      if (tint) {
+        var panel = document.getElementById('glass-panel');
+        if (panel) panel.style.background = tint;
+      }
+    }
+  }
 
-    var basePath = window.__TEMPLATE_BASE_PATH__ || './';
-    var url = basePath + 'backgrounds/' + bgImage + '.jpg';
+  // ⑤ Days calculation
+  function daysDiff(dateStr) {
+    var start = new Date(dateStr);
+    var now = new Date();
+    start.setHours(0,0,0,0); now.setHours(0,0,0,0);
+    return Math.max(0, Math.floor((now - start) / 86400000));
+  }
 
-    photoBg.classList.add('loading'); // 隐藏，显示底部渐变
+  // ⑥ Format date: YYYY.MM.DD
+  function fmtDate(d) {
+    var dt = new Date(d);
+    return dt.getFullYear() + '.' + String(dt.getMonth()+1).padStart(2,'0') + '.' + String(dt.getDate()).padStart(2,'0');
+  }
+
+  // ⑦ Render
+  function render(data) {
+    var days = daysDiff(data.start_date);
+    document.getElementById('bigNum').textContent = days;
+    document.getElementById('label').textContent = '天的' + data.title;
+    document.getElementById('subtitle').textContent = data.description;
+    document.getElementById('dateText').textContent = fmtDate(data.start_date) + ' — ' + fmtDate(new Date());
+
+    // Background image
+    var basePath = window.__TEMPLATE_BASE_PATH__ || '';
+    var bgUrl = data.background_image || (basePath + 'backgrounds/love_bg_01.jpg');
+    var photoArea = document.getElementById('photo-area');
 
     var img = new Image();
-    img.onerror = function() {
-      // Fallback: try .webp if .jpg fails
-      var webpUrl = basePath + 'backgrounds/' + bgImage + '.webp';
-      img.onerror = null;
-      img.src = webpUrl;
-    };
+    img.crossOrigin = 'anonymous';
     img.onload = function() {
-      photoBg.style.backgroundImage = 'url(' + img.src + ')';
-      // Auto-extract panel tint from image
-      if (window.extractPanelTint) {
-        try {
-          var tint = window.extractPanelTint(img);
-          document.documentElement.style.setProperty('--panel-tint', tint);
-        } catch(e) {}
-      }
-      requestAnimationFrame(function() { photoBg.classList.remove('loading'); }); // 渐入
+      photoArea.style.backgroundImage = 'url(' + img.src + ')';
+      initColors(img);
     };
     img.onerror = function() {
-      var jpgUrl = basePath + 'backgrounds/' + bgImage + '.jpg';
-      var img2 = new Image();
-      img2.onload = function() {
-        photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
-        // Auto-extract panel tint from image
-        if (window.extractPanelTint) {
-          try {
-            var tint = window.extractPanelTint(img2);
-            document.documentElement.style.setProperty('--panel-tint', tint);
-          } catch(e) {}
-        }
-        requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
-      };
-      img2.onerror = function() {
-        photoBg.classList.remove('loading'); // 回退到渐变
-      };
-      img2.src = jpgUrl;
+      // Fallback to preset
+      photoArea.style.backgroundImage = 'url(' + basePath + 'backgrounds/love_bg_01.jpg)';
     };
-    img.src = url;
+    img.src = bgUrl;
   }
 
-  // -- Render --
-  function render() {
-    var days = calculateDays(params.start_date);
-    document.getElementById('dayCounter').textContent = days;
-
-    var milestone = getMilestone(days);
-    var sub = params.subtitle || getSubtitleForMilestone(days) || '每一天都算数';
-    document.getElementById('subtitle').textContent = sub;
-
-    // v2.0: 名字显示
-    var nameEl = document.getElementById('nameDisplay');
-    if (nameEl && (params.name_a || params.name_b)) {
-      nameEl.textContent = (params.name_a || '') + ' ❤ ' + (params.name_b || '');
-      nameEl.style.display = '';
-    }
-
-    // Date range
-    var start = new Date(params.start_date.split('-').map(Number).reduce(function(_, v, i, a) { return i === 0 ? new Date(a[0], a[1] - 1, a[2]) : _; }, null) || params.start_date);
-    var parts = params.start_date.split('-').map(Number);
-    start = new Date(parts[0], parts[1] - 1, parts[2]);
-    var now = new Date();
-    var fmt = function(d) {
-      return d.getFullYear() + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + ('0' + d.getDate()).slice(-2);
-    };
-    document.getElementById('dateText').textContent = fmt(start) + ' — ' + fmt(now);
-  }
-
-  // -- Easter egg --
-  function initEasterEgg() {
+  // ⑧ Easter egg
+  function bindInteractions() {
+    var panel = document.getElementById('glass-panel');
     var canvas = document.getElementById('easterEggCanvas');
-    if (!canvas) return;
-    canvas.width = 896;
-    canvas.height = 1464;
-
-    var widget = document.querySelector('.widget-love');
-    if (widget) {
-      widget.addEventListener('click', function(e) {
+    if (panel && canvas && window.triggerEasterEgg) {
+      canvas.width = 896;
+      canvas.height = 1464;
+      panel.addEventListener('click', function(e) {
         var rect = canvas.getBoundingClientRect();
-        var scaleX = canvas.width / rect.width;
-        var scaleY = canvas.height / rect.height;
-        var x = (e.clientX - rect.left) * scaleX;
-        var y = (e.clientY - rect.top) * scaleY;
-        if (window.triggerEasterEgg) window.triggerEasterEgg(canvas, x, y, 'love');
+        var x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        var y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        triggerEasterEgg(canvas, x, y, 'love');
       });
     }
   }
 
-  // -- Init --
-  function init() {
-    // Theme / color-engine
-    if (params.primary_color && window.computePalette) {
-      var palette = window.computePalette(params.primary_color);
-      Object.keys(palette.cssVars).forEach(function(k) {
-        document.documentElement.style.setProperty(k, palette.cssVars[k]);
-      });
-    }
-
-    // Photo from user upload (DataURL) — with fade-in
-    if (params.bg_photo) {
-      var photoBg = document.getElementById('photoBg');
-      if (photoBg) {
-        photoBg.classList.add('loading');
-        photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
-        // Auto-extract panel tint from user photo
-        if (window.extractPanelTint) {
-          var tintImg = new Image();
-          tintImg.onload = function() {
-            try {
-              var tint = window.extractPanelTint(tintImg);
-              document.documentElement.style.setProperty('--panel-tint', tint);
-            } catch(e) {}
-          };
-          tintImg.src = params.bg_photo;
-        }
-        requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
-      }
-    }
-
-    loadBackgroundImage();
-    render();
-    initEasterEgg();
-
-    // Check day change every 60s
-    setInterval(render, 60000);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // ⑨ Startup
+  var data = mergeParams(params);
+  render(data);
+  bindInteractions();
 })();

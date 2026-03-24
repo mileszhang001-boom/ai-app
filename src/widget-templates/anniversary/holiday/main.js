@@ -1,155 +1,219 @@
 /**
- * 假期倒计时 — Full-Bleed Photo + Full-Width Gradient Panel
- * Features: countdown, tag pill, easter egg, bg_photo support
+ * Anniversary / Holiday — main.js
+ * Pencil Design Reference: Card-Holiday (7EC5L)
+ * Countdown to target holiday date
+ * Easter egg type: 'holiday' (confetti)
  */
 
 (function() {
   'use strict';
 
+  // ── AI params / mock fallback ──
   var params = window.__WIDGET_PARAMS__ || {
-    target_date: new Date(Date.now() + 86400000 * 23).toISOString().slice(0, 10),
-    title: '',
-    event_name: '',
-    subtitle: ''
+    target_date: '2026-05-01',
+    target_end_date: '2026-05-05',
+    holiday_name: '五一小长假',
+    holiday_icon: '✈️',
+    title: '出发！',
+    description: '假期即将来临，准备出发吧',
+    background_image: '',
+    primary_color: ''
   };
 
-  // -- Countdown calculation (timezone-safe) --
-  function calculateCountdown(targetDate) {
-    var parts = targetDate.split('-').map(Number);
-    var target = new Date(parts[0], parts[1] - 1, parts[2]);
-    var now = new Date();
-    now.setHours(0, 0, 0, 0);
-    var diff = target - now;
-    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return { days: Math.max(days, 0), isOverdue: days <= 0 };
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'preview';
+
+  // ── Resolve background image base path ──
+  function getBasePath() {
+    var scripts = document.getElementsByTagName('script');
+    for (var i = 0; i < scripts.length; i++) {
+      var src = scripts[i].src || '';
+      if (src.indexOf('main.js') !== -1) {
+        return src.substring(0, src.lastIndexOf('/') + 1);
+      }
+    }
+    return './';
   }
 
-  // -- Background image loading with fade-in transition --
-  function loadBackgroundImage() {
-    var bgImage = params.background_image;
-    if (!bgImage) return;
-    var photoBg = document.getElementById('photoBg');
-    if (!photoBg) return;
+  var basePath = getBasePath();
 
-    var basePath = window.__TEMPLATE_BASE_PATH__ || './';
-    var url = basePath + 'backgrounds/' + bgImage + '.webp';
+  // ── Date helpers ──
+  function parseDate(str) {
+    if (!str) return null;
+    var parts = str.split('-');
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  }
 
-    photoBg.classList.add('loading');
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = parseDate(dateStr);
+    if (!d || isNaN(d.getTime())) return dateStr;
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '.' + m + '.' + day;
+  }
+
+  function daysDiff(fromStr, toStr) {
+    var from = parseDate(fromStr);
+    var to = parseDate(toStr);
+    if (!from || !to) return 0;
+    var diff = to.getTime() - from.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
+  function todayStr() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  // ── DOM references ──
+  var els = {};
+  function $(id) { return els[id] || (els[id] = document.getElementById(id)); }
+
+  // ── Render ──
+  function render() {
+    var targetDate = params.target_date;
+    var countdown = daysDiff(todayStr(), targetDate);
+
+    // Tag pill
+    $('tagIcon').textContent = params.holiday_icon || '✈️';
+    $('tagText').textContent = params.holiday_name || '假期';
+
+    // Countdown number + label
+    if (countdown > 0) {
+      $('numH').textContent = String(countdown);
+      $('labelH').textContent = '天';
+    } else {
+      // Holiday has arrived or passed
+      $('numH').textContent = '已到达';
+      $('numH').style.fontSize = '80px';
+      $('numH').style.fontWeight = '500';
+      $('labelH').textContent = '';
+    }
+
+    // Subtitle
+    $('subtitle').textContent = params.description || '';
+
+    // Date range
+    var startFormatted = formatDate(params.target_date);
+    var endFormatted = formatDate(params.target_end_date);
+    if (startFormatted && endFormatted && params.target_end_date !== params.target_date) {
+      $('dateH').textContent = startFormatted + ' \u2014 ' + endFormatted;
+    } else if (startFormatted) {
+      $('dateH').textContent = startFormatted;
+    }
+  }
+
+  // ── Background image loading + color extraction ──
+  function loadBackground() {
+    var src = params.background_image || (basePath + 'backgrounds/holiday_bg_01.jpg');
+
     var img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = function() {
-      photoBg.style.backgroundImage = 'url(' + url + ')';
-      // Auto-extract panel tint from image
+      $('photo-area').style.backgroundImage = 'url(' + img.src + ')';
+
+      // Extract color from image and tint the panel
       if (window.extractPanelTint) {
         try {
           var tint = window.extractPanelTint(img);
-          document.documentElement.style.setProperty('--panel-tint', tint);
-        } catch(e) {}
+          var panel = $('glass-panel');
+          if (panel && tint) {
+            panel.style.background = 'linear-gradient(180deg, ' + tint + ' 0%, ' + tint + ' 100%)';
+            panel.style.opacity = '0.85';
+          }
+        } catch (e) { /* keep CSS default */ }
       }
-      requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
     };
     img.onerror = function() {
-      var jpgUrl = basePath + 'backgrounds/' + bgImage + '.jpg';
-      var img2 = new Image();
-      img2.onload = function() {
-        photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
-        // Auto-extract panel tint from image
-        if (window.extractPanelTint) {
-          try {
-            var tint = window.extractPanelTint(img2);
-            document.documentElement.style.setProperty('--panel-tint', tint);
-          } catch(e) {}
-        }
-        requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
-      };
-      img2.onerror = function() { photoBg.classList.remove('loading'); };
-      img2.src = jpgUrl;
+      // Fallback: try numbered backgrounds
+      var fallbacks = [
+        basePath + 'backgrounds/holiday_bg_02.jpg',
+        basePath + 'backgrounds/holiday_bg_03.jpg'
+      ];
+      var idx = 0;
+      function tryNext() {
+        if (idx >= fallbacks.length) return;
+        var fb = new Image();
+        fb.crossOrigin = 'anonymous';
+        fb.onload = function() {
+          $('photo-area').style.backgroundImage = 'url(' + fb.src + ')';
+        };
+        fb.onerror = function() { idx++; tryNext(); };
+        fb.src = fallbacks[idx];
+      }
+      tryNext();
     };
-    img.src = url;
+    img.src = src;
   }
 
-  // -- Render --
-  function render() {
-    var countdown = calculateCountdown(params.target_date);
-    document.getElementById('dayCounter').textContent = countdown.days;
-
-    // Tag text from params
-    var tagText = params.title || params.event_name || '假期倒计时';
-    document.getElementById('tagText').textContent = tagText;
-
-    // v2.0: 名字显示
-    var nameEl = document.getElementById('nameDisplay');
-    if (nameEl && (params.name_a || params.event_name)) {
-      nameEl.textContent = params.name_a || params.event_name || '';
-      nameEl.style.display = '';
-    }
-
-    // Date range
-    var parts = params.target_date.split('-').map(Number);
-    var now = new Date();
-    var fmt = function(d) {
-      return d.getFullYear() + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + ('0' + d.getDate()).slice(-2);
-    };
-    var targetDate = new Date(parts[0], parts[1] - 1, parts[2]);
-    document.getElementById('dateText').textContent = fmt(now) + ' — ' + fmt(targetDate);
-  }
-
-  // -- Easter egg --
-  function initEasterEgg() {
-    var canvas = document.getElementById('easterEggCanvas');
-    if (!canvas) return;
-    canvas.width = 896;
-    canvas.height = 1464;
-
-    var widget = document.querySelector('.widget-holiday');
-    if (widget) {
-      widget.addEventListener('click', function(e) {
-        var rect = canvas.getBoundingClientRect();
-        var scaleX = canvas.width / rect.width;
-        var scaleY = canvas.height / rect.height;
-        var x = (e.clientX - rect.left) * scaleX;
-        var y = (e.clientY - rect.top) * scaleY;
-        if (window.triggerEasterEgg) window.triggerEasterEgg(canvas, x, y, 'holiday');
-      });
-    }
-  }
-
-  // -- Init --
-  function init() {
-    // Theme / color-engine
-    if (params.primary_color && window.computePalette) {
-      var palette = window.computePalette(params.primary_color);
+  // ── Dynamic color engine (when AI provides primary_color) ──
+  function applyDynamicColor() {
+    if (!params.primary_color || !window.computePalette) return;
+    var palette = window.computePalette(params.primary_color, 'mood');
+    if (palette && palette.cssVars) {
       Object.keys(palette.cssVars).forEach(function(k) {
         document.documentElement.style.setProperty(k, palette.cssVars[k]);
       });
+      document.documentElement.setAttribute('data-style', 'dynamic');
+    }
+  }
+
+  // ── Easter egg (confetti on tap) ──
+  function initEasterEgg() {
+    var canvas = $('easterEggCanvas');
+    if (!canvas || !window.triggerEasterEgg) return;
+
+    canvas.width = 896;
+    canvas.height = 1464;
+
+    var root = $('widget-root');
+    root.addEventListener('click', function(e) {
+      var rect = root.getBoundingClientRect();
+      var scaleX = 896 / rect.width;
+      var scaleY = 1464 / rect.height;
+      var x = (e.clientX - rect.left) * scaleX;
+      var y = (e.clientY - rect.top) * scaleY;
+      window.triggerEasterEgg(canvas, x, y, 'holiday');
+    });
+  }
+
+  // ── Theme ──
+  function applyTheme() {
+    if (window.AIWidgetBridge) {
+      window.AIWidgetBridge.getTheme().then(function(theme) {
+        document.documentElement.setAttribute('data-theme', theme.mode);
+      }).catch(function() {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      });
+    }
+  }
+
+  // ── Init ──
+  function init() {
+    applyTheme();
+
+    if (params.style_preset) {
+      document.documentElement.setAttribute('data-style', params.style_preset);
+    }
+    if (params.visual_style) {
+      document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
 
-    // Photo from user upload (DataURL) — with fade-in
-    if (params.bg_photo) {
-      var photoBg = document.getElementById('photoBg');
-      if (photoBg) {
-        photoBg.classList.add('loading');
-        photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
-        // Auto-extract panel tint from user photo
-        if (window.extractPanelTint) {
-          var tintImg = new Image();
-          tintImg.onload = function() {
-            try {
-              var tint = window.extractPanelTint(tintImg);
-              document.documentElement.style.setProperty('--panel-tint', tint);
-            } catch(e) {}
-          };
-          tintImg.src = params.bg_photo;
-        }
-        requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
-      }
-    }
-
-    loadBackgroundImage();
+    applyDynamicColor();
     render();
+    loadBackground();
     initEasterEgg();
 
-    // Check day change every 60s
-    setInterval(render, 60000);
+    // Listen for theme changes
+    if (window.AIWidgetBridge) {
+      window.AIWidgetBridge.onThemeChange(function(theme) {
+        document.documentElement.setAttribute('data-theme', theme.mode);
+      });
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -157,4 +221,5 @@
   } else {
     init();
   }
+
 })();

@@ -332,6 +332,142 @@ class AIGenerator:
         except Exception as e:
             return False, None, str(e)
 
+    def generate_from_nl_debug(self, user_text: str, base_data: dict = None) -> Dict[str, Any]:
+        """
+        调试模式：返回完整 pipeline 中间数据
+
+        Returns:
+            包含各阶段详情的 dict（始终返回，不抛异常）
+        """
+        debug = {
+            "input": {"user_text": user_text, "base_data": base_data, "model": self.config.model, "has_api_key": bool(self.api_key)},
+            "prompt": {},
+            "llm_response": {},
+            "parse": {},
+            "fix": {},
+            "validate": {},
+            "result": {},
+            "timeline": [],
+            "success": False,
+            "error": None,
+        }
+
+        import time as _t
+
+        try:
+            t0 = _t.time()
+
+            # ── Stage 1: Prompt construction ──
+            system_prompt = get_nl_system_prompt()
+            user_message = user_text.strip()
+            llm_message = user_message
+            if base_data:
+                import json as _json
+                llm_message += f"\n\n当前卡片参数（用户要求微调，请理解用户意图后输出修改后的完整 JSON）：\n{_json.dumps(base_data, ensure_ascii=False)}"
+
+            debug["prompt"] = {
+                "system_prompt_length": len(system_prompt),
+                "system_prompt_preview": system_prompt[:300] + "..." if len(system_prompt) > 300 else system_prompt,
+                "user_message": llm_message,
+                "mode": "mock" if not self.api_key else "api",
+                "is_finetune": bool(base_data),
+            }
+            debug["timeline"].append({"stage": "prompt_built", "elapsed_ms": int((_t.time() - t0) * 1000)})
+
+            # ── Stage 2: LLM call ──
+            t1 = _t.time()
+            response_text = self._call_llm_nl(system_prompt, user_message, base_data=base_data)
+            llm_elapsed = _t.time() - t1
+
+            debug["llm_response"] = {
+                "raw": response_text,
+                "length": len(response_text),
+                "elapsed_ms": int(llm_elapsed * 1000),
+            }
+            debug["timeline"].append({"stage": "llm_responded", "elapsed_ms": int((_t.time() - t0) * 1000)})
+
+            # ── Stage 3: Parse ──
+            t2 = _t.time()
+            data = self._parse_response(response_text)
+            debug["parse"] = {
+                "parsed_json": data,
+                "component_type": data.get("component_type"),
+                "theme": data.get("theme"),
+                "template_id": data.get("template_id"),
+                "elapsed_ms": int((_t.time() - t2) * 1000),
+            }
+            debug["timeline"].append({"stage": "parsed", "elapsed_ms": int((_t.time() - t0) * 1000)})
+
+            # ── Stage 4: Fix ──
+            t3 = _t.time()
+            component_type = data.get("component_type", "")
+            theme = data.get("theme", "")
+            pre_fix = json.dumps(data, ensure_ascii=False)
+            data = self._fix_llm_output(data, component_type, theme)
+            post_fix = json.dumps(data, ensure_ascii=False)
+            component_type = data.get("component_type", "")
+            theme = data.get("theme", "")
+
+            debug["fix"] = {
+                "changed": pre_fix != post_fix,
+                "before": json.loads(pre_fix) if pre_fix != post_fix else None,
+                "after": data if pre_fix != post_fix else None,
+                "component_type": component_type,
+                "theme": theme,
+                "elapsed_ms": int((_t.time() - t3) * 1000),
+            }
+            debug["timeline"].append({"stage": "fixed", "elapsed_ms": int((_t.time() - t0) * 1000)})
+
+            # ── Stage 5: Validate ──
+            t4 = _t.time()
+            is_valid, errors_or_warnings, cleaned = validate_component(component_type, theme, data)
+
+            debug["validate"] = {
+                "is_valid": is_valid,
+                "errors": errors_or_warnings if not is_valid else None,
+                "warnings": errors_or_warnings if is_valid else None,
+                "cleaned_params": cleaned,
+                "elapsed_ms": int((_t.time() - t4) * 1000),
+            }
+            debug["timeline"].append({"stage": "validated", "elapsed_ms": int((_t.time() - t0) * 1000)})
+
+            if not is_valid:
+                debug["error"] = f"Validation failed: {', '.join(errors_or_warnings or [])}"
+                debug["timeline"].append({"stage": "failed", "elapsed_ms": int((_t.time() - t0) * 1000)})
+                return debug
+
+            # ── Stage 6: Build result ──
+            result = {
+                "component_type": data.get("component_type"),
+                "mode": data.get("mode"),
+                "theme": data.get("theme"),
+                "template_id": data.get("template_id"),
+                "style_preset": data.get("style_preset"),
+                "params": cleaned
+            }
+            if data.get("primary_color"):
+                result["primary_color"] = data["primary_color"]
+            if data.get("visual_style"):
+                result["visual_style"] = data["visual_style"]
+
+            if base_data:
+                changes = self._diff_params(base_data, result)
+                result["changes_applied"] = changes
+
+            description = self.build_description(result)
+            result["description"] = description
+
+            debug["result"] = result
+            debug["success"] = True
+            debug["timeline"].append({"stage": "completed", "elapsed_ms": int((_t.time() - t0) * 1000)})
+
+            return debug
+
+        except Exception as e:
+            debug["error"] = str(e)
+            debug["timeline"].append({"stage": "error", "elapsed_ms": 0})
+            return debug
+
     @staticmethod
     def _diff_params(old_data: dict, new_data: dict) -> list:
         """对比新旧参数，返回可读的修改列表"""

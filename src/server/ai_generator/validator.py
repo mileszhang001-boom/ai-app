@@ -18,7 +18,7 @@ from datetime import datetime
 # ── 白名单定义（与 prompt.py TEMPLATES 保持一致） ──
 
 VALID_TEMPLATE_IDS = {
-    "anniversary_love", "anniversary_baby", "anniversary_holiday", "anniversary_warm",
+    "anniversary_love", "anniversary_baby", "anniversary_holiday",
     "news_daily",
     "alarm_clock",
     "weather_realtime",
@@ -50,7 +50,7 @@ VALID_STYLE_PRESETS = {
 VALID_VISUAL_STYLES = {"glass", "minimal", "material", "pixel"}
 
 VALID_THEMES = {
-    "anniversary": {"love", "baby", "holiday", "warm"},
+    "anniversary": {"love", "baby", "holiday"},
     "news": {"daily"},
     "alarm": {"clock"},
     "weather": {"realtime"},
@@ -203,6 +203,7 @@ class ComponentValidator:
                 "news_general": "news_daily",
                 "calendar_daily": "calendar_schedule",
                 "music_default": "music_player",
+                "anniversary_warm": "anniversary_love",
             }
             if template_id in TEMPLATE_ID_FIXES:
                 return  # 允许通过，后续会在 cleaned 中修正
@@ -296,23 +297,29 @@ class ComponentValidator:
 
     def _get_param_schema(self, component_type: str, theme: str) -> Dict[str, Any]:
         """获取参数 schema"""
-        # 通用纪念日 schema
-        _anniversary_countup = {
-            "title": {"type": "string", "required": True, "maxLength": 20},
+        # 纪念日 love schema
+        _anniversary_love = {
+            "title": {"type": "string", "required": True, "maxLength": 8},
             "start_date": {"type": "date", "required": True},
-            "subtitle": {"type": "string", "required": False, "maxLength": 30},
+            "nickname": {"type": "string", "required": False, "maxLength": 6},
+            "background_image": {"type": "string", "required": False, "maxLength": 50},
+        }
+
+        # 纪念日 baby schema
+        _anniversary_baby = {
+            "title": {"type": "string", "required": True, "maxLength": 8},
+            "birth_date": {"type": "date", "required": True},
+            "baby_name": {"type": "string", "required": False, "maxLength": 6},
             "background_image": {"type": "string", "required": False, "maxLength": 50},
         }
 
         schemas = {
             "anniversary": {
-                "love": _anniversary_countup,
-                "baby": _anniversary_countup,
-                "warm": _anniversary_countup,
+                "love": _anniversary_love,
+                "baby": _anniversary_baby,
                 "holiday": {
-                    "title": {"type": "string", "required": True, "maxLength": 20},
+                    "title": {"type": "string", "required": True, "maxLength": 8},
                     "target_date": {"type": "datetime", "required": True},
-                    "subtitle": {"type": "string", "required": False, "maxLength": 30},
                     "emoji": {"type": "string", "required": False},
                     "show_hours": {"type": "boolean", "required": False},
                     "show_minutes": {"type": "boolean", "required": False},

@@ -7,10 +7,14 @@ export const TEMPLATE_URL_MAP = {
   'anniversary-love':    '/widget-templates/anniversary/love/index.html',
   'anniversary-baby':    '/widget-templates/anniversary/baby/index.html',
   'anniversary-holiday': '/widget-templates/anniversary/holiday/index.html',
-  'anniversary-warm':    '/widget-templates/anniversary/warm/index.html',
+  'weather-weather':     '/widget-templates/weather/index.html',
+  'music-music':         '/widget-templates/music/index.html',
+  'calendar-calendar':   '/widget-templates/calendar/index.html',
+  'news-news':           '/widget-templates/news/index.html',
+  'alarm-clock':         '/widget-templates/alarm/index.html',
+  // Legacy aliases (backward compat with old AI output)
   'news-daily':          '/widget-templates/news/index.html',
   'news':                '/widget-templates/news/index.html',
-  'alarm-clock':         '/widget-templates/alarm/index.html',
   'alarm':               '/widget-templates/alarm/index.html',
   'weather-realtime':    '/widget-templates/weather/index.html',
   'weather':             '/widget-templates/weather/index.html',
@@ -32,26 +36,38 @@ export function buildWidgetParams(data) {
   if (!data || !data.params) return {};
   const p = { ...data.params };
 
+  // Top-level fields → params
   if (data.style_preset) p.style_preset = data.style_preset;
   if (data.primary_color) p.primary_color = data.primary_color;
   if (data.visual_style) p.visual_style = data.visual_style;
 
-  if (data.component_type === 'anniversary') {
-    if (p.date && !p.start_date && !p.target_date) {
-      if (data.theme === 'holiday') {
-        p.target_date = p.date;
-      } else {
-        p.start_date = p.date;
-      }
+  // AI generated fields → params
+  if (data.ai_generated) {
+    if (data.ai_generated.description && !p.description) {
+      p.description = data.ai_generated.description;
     }
-    if (p.message && !p.subtitle) {
-      p.subtitle = p.message;
+    if (data.ai_generated.ai_suggestion && !p.ai_suggestion) {
+      p.ai_suggestion = data.ai_generated.ai_suggestion;
     }
   }
 
-  if (data.component_type === 'alarm') {
-    if (p.time && !p.alarm_time) {
-      p.alarm_time = p.time;
+  // Legacy field name migration (old AI output → SCHEMA names)
+  if (data.component_type === 'anniversary') {
+    if (p.date && !p.start_date && !p.target_date) {
+      if (data.theme === 'holiday') p.target_date = p.date;
+      else p.start_date = p.date;
+      delete p.date;
+    }
+    if (p.message && !p.description) {
+      p.description = p.message;
+      delete p.message;
+    }
+    if (p.subtitle && !p.description) {
+      p.description = p.subtitle;
+    }
+    if (p.bg_photo && !p.background_image) {
+      p.background_image = p.bg_photo;
+      delete p.bg_photo;
     }
   }
 
@@ -103,6 +119,13 @@ export async function renderWidgetInFrame(frameEl, data) {
   // Use a runtime script inside iframe to self-measure — avoids timing/visibility issues
   const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw})()<\/script>`;
   html = html.replace('</head>', zoomScript + '</head>');
+
+  // DEBUG: 输出实际注入 iframe 的 data-style 和 params
+  const _dbgMatch = html.match(/data-style="([^"]*)"/);
+  const _dbgTheme = html.match(/data-theme="([^"]*)"/);
+  console.log('[render-widget] data-style:', _dbgMatch?.[1] || 'NONE');
+  console.log('[render-widget] __WIDGET_PARAMS__:', JSON.stringify(widgetParams).substring(0, 200));
+  console.log('[render-widget] template:', templateUrl);
 
   frameEl.innerHTML = '';
   const iframe = document.createElement('iframe');
@@ -175,14 +198,18 @@ export function getSceneId(data) {
   if (!data) return null;
   const key = `${data.component_type}-${data.theme}`;
   const map = {
-    'weather-realtime': 'weather',
     'anniversary-love': 'love',
-    'calendar-schedule': 'calendar',
-    'music-player': 'music',
-    'anniversary-holiday': 'countdown',
     'anniversary-baby': 'baby',
-    'alarm-clock': 'alarm',
+    'anniversary-holiday': 'countdown',
+    'weather-weather': 'weather',
+    'weather-realtime': 'weather',
+    'music-music': 'music',
+    'music-player': 'music',
+    'calendar-calendar': 'calendar',
+    'calendar-schedule': 'calendar',
+    'news-news': 'news',
     'news-daily': 'news',
+    'alarm-clock': 'alarm',
   };
   return map[key] || data.component_type;
 }

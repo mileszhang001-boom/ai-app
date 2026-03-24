@@ -2,27 +2,61 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=896, initial-scale=1.0">
   <meta name="theme-color" content="#0F172A">
   <title>每日简报</title>
+  <link rel="stylesheet" href="../shared/tokens.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="../shared/overlay.css">
 </head>
 <body>
-  <div class="widget-news">
-    <div class="content">
+  <div id="widget-root" class="widget-news">
+    <div id="content" class="content">
+      <!-- Header: briefLabel + dateLabel -->
       <div class="header">
-        <span class="header-title">每日简报</span>
-        <span class="header-date" id="currentDate">--月--日</span>
+        <span class="brief-label">每日简报</span>
+        <span class="date-label" id="dateLabel">--月--日</span>
       </div>
-      <div class="news-list" id="newsList"></div>
-    </div>
 
-    <!-- 新闻详情浮层 -->
-    <div id="newsDetail" class="news-detail-overlay"></div>
+      <div class="spacer-32"></div>
+
+      <!-- Hero news card -->
+      <div id="hero-news" class="hero-news">
+        <div class="hero-image" id="heroImage"></div>
+        <div class="hero-info">
+          <span class="hero-tag" id="heroTag">科技</span>
+          <div class="hero-title" id="heroTitle">--</div>
+          <div class="hero-summary" id="heroSummary">--</div>
+          <div class="hero-meta" id="heroMeta">-- · --</div>
+        </div>
+      </div>
+
+      <div class="spacer-24"></div>
+
+      <!-- News cards ×3 -->
+      <div id="newsCard2" class="news-card">
+        <span class="news-tag" id="tag2">--</span>
+        <div class="news-title" id="title2">--</div>
+        <div class="news-meta" id="meta2">-- · --</div>
+      </div>
+
+      <div id="newsCard3" class="news-card">
+        <span class="news-tag" id="tag3">--</span>
+        <div class="news-title" id="title3">--</div>
+        <div class="news-meta" id="meta3">-- · --</div>
+      </div>
+
+      <div id="newsCard4" class="news-card">
+        <span class="news-tag" id="tag4">--</span>
+        <div class="news-title" id="title4">--</div>
+        <div class="news-meta" id="meta4">-- · --</div>
+      </div>
+    </div>
   </div>
 
   <script src="../shared/bridge.js"></script>
+  <script src="../shared/color-engine.js"></script>
+  <script src="../shared/storage.js"></script>
   <script src="../shared/overlay.js"></script>
   <script src="main.js"></script>
 </body>

@@ -1,32 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark" data-style="glass">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>恋爱纪念日</title>
+  <meta name="viewport" content="width=896,initial-scale=1">
   <link rel="stylesheet" href="../../shared/tokens.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="widget-love">
-    <div class="photo-area" id="photoBg"></div>
-    <div class="bottom-darken"></div>
-    <div class="glass-panel">
-      <div class="panel-tag">恋爱纪念</div>
-      <div class="name-display" id="nameDisplay" style="display:none"></div>
-      <div class="icon-emoji">❤️</div>
-      <div class="big-number" id="dayCounter">0</div>
-      <div class="label-text">天的相伴</div>
-      <div class="divider"></div>
-      <div class="subtitle" id="subtitle"></div>
-      <div class="date-text" id="dateText"></div>
+  <div id="widget-root" class="widget-card">
+    <div id="photo-area"></div>
+    <div id="bottom-darken"></div>
+    <div id="glass-panel">
+      <div id="heartIcon">❤️</div>
+      <div id="bigNum">0</div>
+      <div id="label">天的相伴</div>
+      <div id="divider"></div>
+      <div id="subtitle"></div>
+      <div id="dateText"></div>
     </div>
-    <canvas class="easter-egg-canvas" id="easterEggCanvas"></canvas>
+    <canvas id="easterEggCanvas"></canvas>
   </div>
-  <script src="../../shared/bridge.js"></script>
   <script src="../../shared/color-engine.js"></script>
-  <script src="../../shared/easter-egg.js"></script>
   <script src="../../shared/color-extract.js"></script>
+  <script src="../../shared/bridge.js"></script>
+  <script src="../../shared/storage.js"></script>
+  <script src="../../shared/easter-egg.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
