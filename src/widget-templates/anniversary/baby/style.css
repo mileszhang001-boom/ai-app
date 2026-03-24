@@ -45,49 +45,57 @@ html, body {
 }
 .widget-baby .photo-area.loading { opacity: 0; }
 
-/* Bottom darken overlay: warm tone, 896x600 */
+/* Pencil §2.7: bottom-darken #b89060 系金色渐变 */
 .widget-baby .bottom-darken {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 600px;
-  background: rgba(245, 230, 216, 0.50);
+  background: linear-gradient(180deg,
+    #b8906000 0%,
+    #b89060c0 3%,
+    #b89060e8 8%,
+    #b89060f5 15%,
+    #b89060fb 30%,
+    #b89060fd 50%,
+    #b89060ff 100%);
   pointer-events: none;
 }
 
-/* Glass panel: 776x532, positioned at x=60 y=884 (bottom: 1464-884-532=48) */
+/* Pencil §2.7: glass-panel 896×580, y:884, gradient #c8a070e0→#b09058f8 */
 .widget-baby .glass-panel {
   position: absolute;
-  bottom: 48px;
-  left: 60px;
-  width: 776px;
-  min-height: 532px;
-  border-radius: 28px;
+  bottom: 0;
+  left: 0;
+  width: 896px;
+  height: 580px;
+  border-radius: 32px 32px 0 0;
   padding: 40px 48px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   align-items: flex-start;
   z-index: 2;
-  background: var(--panel-tint, rgba(245,230,216,0.75));
-  backdrop-filter: blur(32px) saturate(1.5);
-  -webkit-backdrop-filter: blur(32px) saturate(1.5);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.08);
+  background: linear-gradient(180deg,
+    #c8a070e0 0%,
+    #bfa068ed 30%,
+    #b89860f5 60%,
+    #b09058f8 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-/* Panel tag */
+/* Pencil §2.7: 文字主色 #3D2510（深棕，非白色！）*/
 .widget-baby .panel-tag {
   font-size: 22px;
-  color: rgba(255,255,255,0.4);
+  color: #3D251080;
   letter-spacing: 2px;
 }
 
-/* Name display */
 .widget-baby .name-display {
   font-size: 26px;
-  color: rgba(255,255,255,0.6);
+  color: #3D2510A0;
   margin-bottom: 4px;
 }
 
@@ -107,20 +115,20 @@ html, body {
   color: #3D2510;
 }
 
-/* Label text — dark brown with opacity */
+/* Pencil: fontSize 42, fw 500, ls 2, fill #3D2510CC */
 .widget-baby .label-text {
   font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;
   font-size: 42px;
   font-weight: 500;
   letter-spacing: 2px;
-  color: rgba(61, 37, 16, 0.80);
+  color: #3D2510CC;
 }
 
-/* Divider — warm dark tone */
+/* Pencil: 48×1.5, fill #5C3D2060 */
 .widget-baby .divider {
   width: 48px;
   height: 1.5px;
-  background: rgba(92, 61, 32, 0.38);
+  background: #5C3D2060;
   flex-shrink: 0;
 }
 

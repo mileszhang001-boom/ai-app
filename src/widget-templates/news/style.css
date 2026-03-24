@@ -28,14 +28,15 @@ html, body {
   display: flex;
   flex-direction: column;
   animation: widget-fadeIn 0.5s ease;
+  /* Pencil: mesh gradient base */
   background:
-    radial-gradient(ellipse at 20% 20%, #1E293B 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, #162033 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, #1E293B 0%, transparent 60%),
-    #0F172A;
+    radial-gradient(ellipse at 0% 0%, #0F172A, transparent 70%),
+    radial-gradient(ellipse at 100% 0%, #1E293B, transparent 70%),
+    radial-gradient(ellipse at 0% 100%, #0F172A, transparent 70%),
+    radial-gradient(ellipse at 100% 100%, #162033, transparent 70%);
 }
 
-/* ── Content frame: padding 64 ── */
+/* Pencil: linear overlay 170° on content */
 .widget-news .content {
   position: relative;
   z-index: 1;
@@ -44,6 +45,12 @@ html, body {
   flex-direction: column;
   padding: 64px;
   overflow: hidden;
+  background: linear-gradient(170deg,
+    #06101f 0%,
+    #0e2848 30%,
+    #163a60 55%,
+    #0c2040 80%,
+    #08162c 100%);
 }
 
 /* ── Header: flex row, space-between, align-items end ── */

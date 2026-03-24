@@ -91,9 +91,10 @@
 
   // ── 粒子生成配置 ──
 
-  var LOVE_COLORS = ['#FF6B8A', '#FF4D6D', '#FF8FA3', '#FB6F92', '#FF85A1'];
-  var BABY_COLORS = ['#A78BFA', '#60A5FA', '#34D399', '#FBBF24', '#F9A8D4'];
-  var HOLIDAY_COLORS = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF8E53', '#C77DFF'];
+  // DESIGN.md §3.3 精确颜色
+  var LOVE_COLORS = ['#FF6B8A', '#FF8FAB', '#FFB3C6'];
+  var BABY_COLORS = ['#F5C842', '#FFD700', '#FFA500'];
+  var HOLIDAY_COLORS = ['#FF8C42', '#FFD700', '#4ADE80', '#60A5FA', '#F472B6'];
 
   function randomColor(colors) {
     return colors[Math.floor(Math.random() * colors.length)];
