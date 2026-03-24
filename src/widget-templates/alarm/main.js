@@ -20,11 +20,14 @@
   var $root = document.getElementById('widget-root');
   var $countdown = document.getElementById('countdownText');
   var $list = document.getElementById('alarmList');
+  var $clockView = document.getElementById('clockView');
   var $fab = document.getElementById('fabAdd');
+  var $viewToggle = document.getElementById('viewToggle');
 
   // ── Params from host ──
   var params = window.__WIDGET_PARAMS__ || {};
   var accentHex = params.accent_color || '#4ADE80';
+  var defaultView = params.default_view || 'list'; // 'list' or 'clock'
 
   // ── Storage ──
   var storage = new WidgetStorage('alarms');
@@ -32,6 +35,8 @@
   // ── State ──
   var alarms = [];
   var swipedId = null; // currently swiped-open row id
+  var currentView = defaultView; // 'list' or 'clock'
+  var clockInterval = null;
 
   // ── Color engine: clean mode ──
   function applyAccent(hex) {
@@ -277,6 +282,115 @@
     }
   }
 
+  // ── Pad number to 2 digits ──
+  function pad(n) {
+    return n < 10 ? '0' + n : '' + n;
+  }
+
+  // ── Get next alarm time string ──
+  function getNextAlarmTime() {
+    var now = new Date();
+    var nowMinutes = now.getHours() * 60 + now.getMinutes();
+    var nearest = null;
+    var nearestDiff = Infinity;
+
+    for (var i = 0; i < alarms.length; i++) {
+      if (!alarms[i].enabled) continue;
+      var parts = alarms[i].time.split(':');
+      var alarmMinutes = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      var diff = alarmMinutes - nowMinutes;
+      if (diff <= 0) diff += 24 * 60;
+      if (diff < nearestDiff) {
+        nearestDiff = diff;
+        nearest = alarms[i];
+      }
+    }
+    return nearest ? nearest.time : null;
+  }
+
+  // ── Render clock/dial view ──
+  function renderClockView() {
+    if (!$clockView) return;
+    var now = new Date();
+    var h = now.getHours() % 12;
+    var m = now.getMinutes();
+    var s = now.getSeconds();
+    var hAngle = (h + m / 60) * 30 - 90;
+    var mAngle = (m + s / 60) * 6 - 90;
+
+    // Hour markers
+    var markers = '';
+    for (var i = 0; i < 12; i++) {
+      var angle = i * 30;
+      var rad = angle * Math.PI / 180;
+      var cx = 100 + 82 * Math.cos(rad);
+      var cy = 100 + 82 * Math.sin(rad);
+      var r = (i % 3 === 0) ? 4 : 2;
+      markers += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(245,245,240,0.3)"/>';
+    }
+
+    // Hour hand
+    var hRad = hAngle * Math.PI / 180;
+    var hx = 100 + 50 * Math.cos(hRad);
+    var hy = 100 + 50 * Math.sin(hRad);
+
+    // Minute hand
+    var mRad = mAngle * Math.PI / 180;
+    var mx = 100 + 72 * Math.cos(mRad);
+    var my = 100 + 72 * Math.sin(mRad);
+
+    var accent = 'var(--dyn-accent, #4ADE80)';
+    var nextAlarm = getNextAlarmTime();
+    var nextAlarmText = nextAlarm ? '下一闹钟 · ' + nextAlarm : '无启用的闹钟';
+
+    $clockView.innerHTML = ''
+      + '<svg viewBox="0 0 200 200">'
+      +   '<circle cx="100" cy="100" r="92" fill="none" stroke="rgba(245,245,240,0.08)" stroke-width="2"/>'
+      +   '<circle cx="100" cy="100" r="88" fill="rgba(255,255,255,0.02)"/>'
+      +   markers
+      +   '<line x1="100" y1="100" x2="' + hx + '" y2="' + hy + '" stroke="#F5F5F0" stroke-width="4" stroke-linecap="round"/>'
+      +   '<line x1="100" y1="100" x2="' + mx + '" y2="' + my + '" stroke="' + accent + '" stroke-width="2.5" stroke-linecap="round"/>'
+      +   '<circle cx="100" cy="100" r="5" fill="#F5F5F0"/>'
+      +   '<circle cx="100" cy="100" r="2.5" fill="' + accent + '"/>'
+      + '</svg>'
+      + '<div class="clock-time">' + pad(now.getHours()) + ':' + pad(m) + '</div>'
+      + '<div class="clock-next-alarm">' + nextAlarmText + '</div>';
+  }
+
+  // ── Switch between list and clock view ──
+  function switchView(view) {
+    currentView = view;
+    if (view === 'clock') {
+      $list.classList.add('hidden');
+      $clockView.classList.remove('hidden');
+      $clockView.style.display = '';
+      if ($viewToggle) $viewToggle.textContent = '\u2630'; // ☰ list icon
+      if ($viewToggle) $viewToggle.classList.add('active');
+      renderClockView();
+      // Start clock update interval
+      if (clockInterval) clearInterval(clockInterval);
+      clockInterval = setInterval(renderClockView, 60000);
+    } else {
+      $list.classList.remove('hidden');
+      $clockView.classList.add('hidden');
+      if ($viewToggle) $viewToggle.textContent = '\u23F1'; // ⏱ clock icon
+      if ($viewToggle) $viewToggle.classList.remove('active');
+      // Stop clock interval when not visible
+      if (clockInterval) {
+        clearInterval(clockInterval);
+        clockInterval = null;
+      }
+    }
+  }
+
+  // ── Setup view toggle click ──
+  function setupViewToggle() {
+    if (!$viewToggle) return;
+    $viewToggle.addEventListener('click', function () {
+      switchView(currentView === 'list' ? 'clock' : 'list');
+    });
+  }
+
   // ── FAB: add alarm stub overlay ──
   function setupFab() {
     $fab.addEventListener('click', function () {
@@ -341,7 +455,12 @@
     render();
     setupFab();
     setupOutsideTap();
+    setupViewToggle();
     startCountdownTimer();
+    // Apply initial view from params
+    if (defaultView === 'clock') {
+      switchView('clock');
+    }
   }
 
   if (document.readyState === 'loading') {

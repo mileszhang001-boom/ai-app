@@ -19,6 +19,7 @@
       <div class="alarm-header">
         <span class="alarm-title">闹钟</span>
         <span class="alarm-spacer"></span>
+        <span class="view-toggle" id="viewToggle" title="切换视图">⏱</span>
         <span class="alarm-menu">···</span>
       </div>
 
@@ -30,6 +31,9 @@
 
       <!-- Alarm list (dynamically rendered) -->
       <div id="alarmList" class="alarm-list"></div>
+
+      <!-- Clock/dial view (hidden by default) -->
+      <div id="clockView" style="display:none"></div>
     </div>
 
     <!-- FAB: add alarm -->

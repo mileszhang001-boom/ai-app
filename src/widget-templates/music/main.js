@@ -15,7 +15,7 @@
     song_name: '夜曲',
     artist: '周杰伦',
     album: '十一月的萧邦',
-    cover_url: '',
+    cover_url: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2D1B3D"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#1A1028"/></linearGradient></defs><rect width="560" height="560" fill="url(#g)"/><text x="280" y="260" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="120" font-family="system-ui">♪</text><text x="280" y="340" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="36" font-family="system-ui">夜曲</text></svg>'),
     lyrics_snippet: '\u266A 一步两步三步四步望着天 ...',
     current_time: 102,
     total_time: 275,

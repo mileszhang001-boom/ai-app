@@ -191,12 +191,36 @@
     return merged;
   }
 
-  // ── City click handler (placeholder — log for now) ──
+  // ── City click handler — opens overlay city picker ──
   function setupCityPicker() {
-    $cityName.addEventListener('click', function () {
-      console.log('[Weather] City picker tapped — placeholder, city:', params.city || MOCK.city);
-      // Future: open overlay city picker
-      // if (window.WidgetOverlay) { ... }
+    var cityEl = document.getElementById('cityName') || document.querySelector('.city-name');
+    if (!cityEl) return;
+    cityEl.style.cursor = 'pointer';
+    cityEl.addEventListener('click', function () {
+      if (!window.createOverlay) { console.warn('overlay.js not loaded'); return; }
+      var currentCity = cityEl.textContent.replace(/\s*▾\s*/, '').trim();
+      var overlay = createOverlay({
+        title: '选择城市',
+        onSave: function () { /* handled by input */ },
+        renderContent: function (contentEl) {
+          contentEl.innerHTML = '<input type="text" id="cityInput" placeholder="输入城市名..." value="' + currentCity + '" style="width:100%;padding:16px;font-size:36px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F5F5F0;outline:none;" />';
+          var input = contentEl.querySelector('#cityInput');
+          input.focus();
+          input.select();
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              var newCity = input.value.trim();
+              if (newCity) {
+                cityEl.textContent = newCity + '  ▾';
+                overlay.close();
+                // Re-fetch if live mode
+                if (typeof fetchWeatherData === 'function') fetchWeatherData(newCity);
+              }
+            }
+          });
+        }
+      });
+      overlay.show();
     });
   }
 

@@ -50,7 +50,7 @@ const TEMPLATE_CONFIGS = {
     title: '天气', subtitle: '实时天气信息',
     defaultColor: '#FFD700',
     fields: [
-      { key: 'city', type: 'text_input', label: '城市', placeholder: '输入城市名搜索', constraints: { maxLength: 10 } },
+      { key: 'city', type: 'text_input', label: '默认城市', placeholder: '输入城市名搜索', constraints: { maxLength: 10 } },
     ],
   },
   music: {

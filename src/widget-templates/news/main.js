@@ -27,6 +27,13 @@
     '健康': 'health'
   };
 
+  // ── Time helper for dynamic relative time ──
+  function timeAgo(hoursAgo) {
+    if (hoursAgo < 1) return '刚刚';
+    if (hoursAgo < 24) return Math.floor(hoursAgo) + '小时前';
+    return Math.floor(hoursAgo / 24) + '天前';
+  }
+
   // ── MOCK data for preview mode ──
   var MOCK = {
     hero: {
@@ -36,8 +43,8 @@
       title: 'Apple Vision Pro 2 发布：全新 M5 芯片，重量减轻 40%',
       summary: 'Apple 今日发布第二代空间计算设备，搭载自研 M5 芯片，续航提升至 4 小时，售价 $2999 起。',
       source: '36氪',
-      time: '1小时前',
-      image: ''
+      time: timeAgo(1),
+      image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="896" height="220"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0F172A"/><stop offset="50%" stop-color="#1E40AF"/><stop offset="100%" stop-color="#0F172A"/></linearGradient></defs><rect width="896" height="220" fill="url(#g)"/><text x="448" y="120" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-size="48" font-family="system-ui">📰 每日简报</text></svg>')
     },
     items: [
       {
@@ -46,7 +53,8 @@
         tag_color: '#F59E0B',
         title: '小米汽车 YU7 开启预订，首日订单突破 10 万',
         source: '汽车之家',
-        time: '3小时前'
+        time: timeAgo(3),
+        image: ''
       },
       {
         category: 'finance',
@@ -54,7 +62,8 @@
         tag_color: '#34D399',
         title: '央行宣布降准 0.5 个百分点，释放长期资金约 1 万亿',
         source: '第一财经',
-        time: '5小时前'
+        time: timeAgo(5),
+        image: ''
       },
       {
         category: 'sports',
@@ -62,7 +71,8 @@
         tag_color: '#FB7185',
         title: 'CBA 季后赛：北京首钢逆转广东宏远，晋级总决赛',
         source: '虎扑',
-        time: '8小时前'
+        time: timeAgo(8),
+        image: ''
       }
     ]
   };
