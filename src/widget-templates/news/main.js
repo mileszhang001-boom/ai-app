@@ -406,13 +406,7 @@
   async function init() {
     updateDate();
 
-    // preview 模式：显示"示例内容"角标
-    if (dataMode === 'preview') {
-      var badge = document.createElement('div');
-      badge.className = 'demo-badge';
-      badge.textContent = '示例内容';
-      document.querySelector('.widget-news').appendChild(badge);
-    }
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
 
     // Mock 优先：立即渲染 mock 数据
     var limit = params.max_items || 4;

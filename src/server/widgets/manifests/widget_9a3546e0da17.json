@@ -1,0 +1,28 @@
+{
+  "widget_id": "widget_9a3546e0da17",
+  "files": {
+    "html": "html/widget_9a3546e0da17.html",
+    "css": "css/widget_9a3546e0da17.css",
+    "js": "js/widget_9a3546e0da17.js"
+  },
+  "metadata": {
+    "widget_id": "widget_9a3546e0da17",
+    "user_id": "demo_user",
+    "component_type": "code_gen",
+    "theme": "custom",
+    "template_id": null,
+    "style_preset": null,
+    "params": {},
+    "created_at": "2026-03-22T07:11:52.254758",
+    "synced": false,
+    "sync_time": null,
+    "generation_mode": "code",
+    "html_content": "<html><head><style>body{margin:0;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh}.num{font-size:96px;font-weight:700}</style></head><body><div class=\"num\">42</div></body></html>"
+  },
+  "created_at": "2026-03-22T07:11:52.254758",
+  "size": {
+    "html": 227,
+    "css": 0,
+    "js": 0
+  }
+}

@@ -38,6 +38,13 @@
     var img = new Image();
     img.onload = function() {
       photoBg.style.backgroundImage = 'url(' + url + ')';
+      // Auto-extract panel tint from image
+      if (window.extractPanelTint) {
+        try {
+          var tint = window.extractPanelTint(img);
+          document.documentElement.style.setProperty('--panel-tint', tint);
+        } catch(e) {}
+      }
       requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
     };
     img.onerror = function() {
@@ -45,6 +52,13 @@
       var img2 = new Image();
       img2.onload = function() {
         photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
+        // Auto-extract panel tint from image
+        if (window.extractPanelTint) {
+          try {
+            var tint = window.extractPanelTint(img2);
+            document.documentElement.style.setProperty('--panel-tint', tint);
+          } catch(e) {}
+        }
         requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
       };
       img2.onerror = function() { photoBg.classList.remove('loading'); };
@@ -61,6 +75,13 @@
     // Tag text from params
     var tagText = params.title || params.event_name || '假期倒计时';
     document.getElementById('tagText').textContent = tagText;
+
+    // v2.0: 名字显示
+    var nameEl = document.getElementById('nameDisplay');
+    if (nameEl && (params.name_a || params.event_name)) {
+      nameEl.textContent = params.name_a || params.event_name || '';
+      nameEl.style.display = '';
+    }
 
     // Date range
     var parts = params.target_date.split('-').map(Number);
@@ -108,6 +129,17 @@
       if (photoBg) {
         photoBg.classList.add('loading');
         photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
+        // Auto-extract panel tint from user photo
+        if (window.extractPanelTint) {
+          var tintImg = new Image();
+          tintImg.onload = function() {
+            try {
+              var tint = window.extractPanelTint(tintImg);
+              document.documentElement.style.setProperty('--panel-tint', tint);
+            } catch(e) {}
+          };
+          tintImg.src = params.bg_photo;
+        }
         requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
       }
     }

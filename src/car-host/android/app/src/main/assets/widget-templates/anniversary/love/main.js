@@ -59,13 +59,26 @@
     if (!photoBg) return;
 
     var basePath = window.__TEMPLATE_BASE_PATH__ || './';
-    var url = basePath + 'backgrounds/' + bgImage + '.webp';
+    var url = basePath + 'backgrounds/' + bgImage + '.jpg';
 
     photoBg.classList.add('loading'); // 隐藏，显示底部渐变
 
     var img = new Image();
+    img.onerror = function() {
+      // Fallback: try .webp if .jpg fails
+      var webpUrl = basePath + 'backgrounds/' + bgImage + '.webp';
+      img.onerror = null;
+      img.src = webpUrl;
+    };
     img.onload = function() {
-      photoBg.style.backgroundImage = 'url(' + url + ')';
+      photoBg.style.backgroundImage = 'url(' + img.src + ')';
+      // Auto-extract panel tint from image
+      if (window.extractPanelTint) {
+        try {
+          var tint = window.extractPanelTint(img);
+          document.documentElement.style.setProperty('--panel-tint', tint);
+        } catch(e) {}
+      }
       requestAnimationFrame(function() { photoBg.classList.remove('loading'); }); // 渐入
     };
     img.onerror = function() {
@@ -73,6 +86,13 @@
       var img2 = new Image();
       img2.onload = function() {
         photoBg.style.backgroundImage = 'url(' + jpgUrl + ')';
+        // Auto-extract panel tint from image
+        if (window.extractPanelTint) {
+          try {
+            var tint = window.extractPanelTint(img2);
+            document.documentElement.style.setProperty('--panel-tint', tint);
+          } catch(e) {}
+        }
         requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
       };
       img2.onerror = function() {
@@ -91,6 +111,13 @@
     var milestone = getMilestone(days);
     var sub = params.subtitle || getSubtitleForMilestone(days) || '每一天都算数';
     document.getElementById('subtitle').textContent = sub;
+
+    // v2.0: 名字显示
+    var nameEl = document.getElementById('nameDisplay');
+    if (nameEl && (params.name_a || params.name_b)) {
+      nameEl.textContent = (params.name_a || '') + ' ❤ ' + (params.name_b || '');
+      nameEl.style.display = '';
+    }
 
     // Date range
     var start = new Date(params.start_date.split('-').map(Number).reduce(function(_, v, i, a) { return i === 0 ? new Date(a[0], a[1] - 1, a[2]) : _; }, null) || params.start_date);
@@ -139,6 +166,17 @@
       if (photoBg) {
         photoBg.classList.add('loading');
         photoBg.style.backgroundImage = 'url(' + params.bg_photo + ')';
+        // Auto-extract panel tint from user photo
+        if (window.extractPanelTint) {
+          var tintImg = new Image();
+          tintImg.onload = function() {
+            try {
+              var tint = window.extractPanelTint(tintImg);
+              document.documentElement.style.setProperty('--panel-tint', tint);
+            } catch(e) {}
+          };
+          tintImg.src = params.bg_photo;
+        }
         requestAnimationFrame(function() { photoBg.classList.remove('loading'); });
       }
     }

@@ -340,13 +340,7 @@
     // 初始为暂停状态
     if (spectrum) spectrum.classList.add('paused');
 
-    // preview 模式：显示角标
-    if (dataMode === 'preview') {
-      var badge = document.createElement('div');
-      badge.className = 'demo-badge';
-      badge.textContent = '示例状态';
-      document.querySelector('.widget-music').appendChild(badge);
-    }
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
 
     // ── 接入 MediaSession ──
     if (dataMode === 'live' && window.AIWidgetBridge && window.AIWidgetBridge.getMediaSession) {

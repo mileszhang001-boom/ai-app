@@ -10,12 +10,15 @@
   var store = window.WidgetStorage ? window.WidgetStorage('alarm') : null;
   var displayStyle = params.display_style || 'list';
 
+  // 数据分层：preview 用默认闹钟 + 角标，live 用真实数据
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
+
   // ── 默认闹钟数据 ──
 
   var defaultAlarms = [
-    { time: '08:00', period: 'AM', repeat: 'weekdays', label: '起床', enabled: true, category: '作息' },
-    { time: '12:30', period: 'PM', repeat: 'daily', label: '午休', enabled: true, category: '作息' },
-    { time: '07:00', period: 'AM', repeat: 'weekends', label: '', enabled: false, category: '其他' }
+    { time: '07:30', period: 'AM', repeat: 'weekdays', label: '起床', enabled: true },
+    { time: '12:30', period: 'PM', repeat: 'daily', label: '午休', enabled: true },
+    { time: '07:00', period: 'AM', repeat: 'weekends', label: '', enabled: false }
   ];
 
   var REPEAT_LABELS = {
@@ -42,8 +45,7 @@
           period: h >= 12 ? 'PM' : 'AM',
           repeat: params.repeat || 'daily',
           label: params.label || '',
-          enabled: true,
-          category: '作息'
+          enabled: true
         });
       }
       if (seed.length === 0) seed = defaultAlarms.slice();
@@ -139,56 +141,89 @@
     if (!container) return;
     container.innerHTML = '';
 
-    // 按分类分组
-    var groups = {};
-    var groupOrder = [];
-    for (var i = 0; i < alarms.length; i++) {
-      var cat = alarms[i].category || '其他';
-      if (!groups[cat]) {
-        groups[cat] = [];
-        groupOrder.push(cat);
-      }
-      groups[cat].push(alarms[i]);
-    }
+    // v2.0: 去掉分类，按时间排序平铺
+    var sorted = alarms.slice().sort(function(a, b) {
+      return timeToMinutes(a.time) - timeToMinutes(b.time);
+    });
 
-    for (var g = 0; g < groupOrder.length; g++) {
-      var cat = groupOrder[g];
-      var items = groups[cat];
+    for (var j = 0; j < sorted.length; j++) {
+      var alarm = sorted[j];
+      // 滑动容器
+      var swipeWrap = document.createElement('div');
+      swipeWrap.className = 'alarm-swipe-wrap';
+      swipeWrap.style.cssText = 'position:relative; overflow:hidden;';
 
-      // 分类标签
-      var label = document.createElement('div');
-      label.className = 'section-label';
-      label.textContent = cat;
-      container.appendChild(label);
+      var row = document.createElement('div');
+      row.className = 'alarm-row' + (alarm.enabled ? '' : ' disabled');
+      row.style.cssText = 'position:relative; transition:transform 0.2s ease; z-index:1;';
 
-      // 各闹钟行
-      for (var j = 0; j < items.length; j++) {
-        var alarm = items[j];
-        var row = document.createElement('div');
-        row.className = 'alarm-row' + (alarm.enabled ? '' : ' disabled');
+      var display12 = get12HourDisplay(alarm.time, alarm.period);
 
-        // 时间显示（转12小时制用于显示）
-        var display12 = get12HourDisplay(alarm.time, alarm.period);
+      row.innerHTML =
+        '<div class="alarm-row-left">' +
+          '<span class="alarm-time">' + display12.time + '</span>' +
+          '<span class="alarm-period">' + display12.period + '</span>' +
+        '</div>' +
+        '<div class="alarm-detail">' +
+          '<span class="alarm-repeat">' + getRepeatText(alarm) + '</span>' +
+          (alarm.label ? '<span class="alarm-label">' + alarm.label + '</span>' : '') +
+        '</div>' +
+        '<div class="alarm-toggle ' + (alarm.enabled ? 'on' : '') + '" data-id="' + alarm.id + '">' +
+          '<div class="toggle-knob"></div>' +
+        '</div>';
 
-        row.innerHTML =
-          '<div class="alarm-row-left">' +
-            '<span class="alarm-time">' + display12.time + '</span>' +
-            '<span class="alarm-period">' + display12.period + '</span>' +
-          '</div>' +
-          '<div class="alarm-detail">' +
-            '<span class="alarm-repeat">' + getRepeatText(alarm) + '</span>' +
-            (alarm.label ? '<span class="alarm-label">' + alarm.label + '</span>' : '') +
-          '</div>' +
-          '<div class="alarm-toggle ' + (alarm.enabled ? 'on' : '') + '" data-id="' + alarm.id + '">' +
-            '<div class="toggle-knob"></div>' +
-          '</div>';
+      // 左滑删除按钮（隐藏在右侧）
+      var deleteBtn = document.createElement('div');
+      deleteBtn.className = 'alarm-delete-reveal';
+      deleteBtn.style.cssText = 'position:absolute; right:0; top:0; bottom:0; width:120px; background:rgba(255,60,60,0.85); display:flex; align-items:center; justify-content:center; color:#fff; font-size:28px; font-weight:500; z-index:0; border-radius:0 16px 16px 0;';
+      deleteBtn.textContent = '删除';
 
-        container.appendChild(row);
-      }
+      swipeWrap.appendChild(deleteBtn);
+      swipeWrap.appendChild(row);
+
+      // 左滑手势
+      (function(wrap, rowEl, delBtn, alarmId) {
+        var startX = 0, currentX = 0, swiping = false;
+        rowEl.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          swiping = true;
+          rowEl.style.transition = 'none';
+        }, { passive: true });
+        rowEl.addEventListener('touchmove', function(e) {
+          if (!swiping) return;
+          currentX = e.touches[0].clientX - startX;
+          if (currentX < 0) {
+            rowEl.style.transform = 'translateX(' + Math.max(currentX, -120) + 'px)';
+          }
+        }, { passive: true });
+        rowEl.addEventListener('touchend', function() {
+          swiping = false;
+          rowEl.style.transition = 'transform 0.2s ease';
+          if (currentX < -60) {
+            rowEl.style.transform = 'translateX(-120px)';
+          } else {
+            rowEl.style.transform = 'translateX(0)';
+          }
+          currentX = 0;
+        }, { passive: true });
+        delBtn.addEventListener('click', function() {
+          if (store && alarmId) {
+            store.remove(alarmId);
+            refreshAll();
+          }
+        });
+      })(swipeWrap, row, deleteBtn, alarm.id);
+
+      container.appendChild(swipeWrap);
     }
 
     // 绑定开关事件
     bindToggles();
+  }
+
+  function timeToMinutes(t) {
+    var parts = t.split(':');
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1] || '0', 10);
   }
 
   function get12HourDisplay(time, period) {
@@ -830,7 +865,7 @@
 
     // 动态配色引擎
     if (params.primary_color && window.computePalette) {
-      var palette = window.computePalette(params.primary_color);
+      var palette = window.computePalette(params.primary_color, 'clean');
       Object.keys(palette.cssVars).forEach(function(k) {
         document.documentElement.style.setProperty(k, palette.cssVars[k]);
       });
@@ -841,6 +876,8 @@
     if (params.visual_style) {
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
+
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
 
     // 初始化视图切换
     initStyleSwitch();

@@ -15,6 +15,9 @@
     style_preset: 'dark-vinyl'
   };
 
+  // 数据分层：preview 用 mock 播放状态 + 角标，live 用真实 MediaSession
+  var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
+
   // ── 状态 ──
   var isPlaying = false;
   var currentSeconds = 0;
@@ -67,7 +70,7 @@
     if (timeElapsed) timeElapsed.textContent = '0:00';
     if (progressFill) progressFill.style.width = '0%';
     if (spectrum) spectrum.classList.add('paused');
-    if (btnPlay) btnPlay.textContent = '▶';
+    if (btnPlay) btnPlay.innerHTML = window.WidgetIcons ? window.WidgetIcons.get('play', 48) : '▶';
 
     // 显示空状态图标
     var placeholder = albumArt ? albumArt.querySelector('.album-art-placeholder') : null;
@@ -224,7 +227,7 @@
   function startPlayback() {
     if (playbackTimer) clearInterval(playbackTimer);
     isPlaying = true;
-    if (btnPlay) btnPlay.textContent = '⏸';
+    if (btnPlay) btnPlay.innerHTML = window.WidgetIcons ? window.WidgetIcons.get('pause', 48) : '⏸';
     if (spectrum) spectrum.classList.remove('paused');
 
     // 本地模拟进度推进（MediaSession 会周期同步覆盖）
@@ -243,7 +246,7 @@
       clearInterval(playbackTimer);
       playbackTimer = null;
     }
-    if (btnPlay) btnPlay.textContent = '▶';
+    if (btnPlay) btnPlay.innerHTML = window.WidgetIcons ? window.WidgetIcons.get('play', 48) : '▶';
     if (spectrum) spectrum.classList.add('paused');
   }
 
@@ -337,8 +340,10 @@
     // 初始为暂停状态
     if (spectrum) spectrum.classList.add('paused');
 
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
+
     // ── 接入 MediaSession ──
-    if (window.AIWidgetBridge && window.AIWidgetBridge.getMediaSession) {
+    if (dataMode === 'live' && window.AIWidgetBridge && window.AIWidgetBridge.getMediaSession) {
       window.AIWidgetBridge.getMediaSession().then(function(session) {
         if (session && session.song_name) {
           hasMediaSession = true;

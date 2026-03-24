@@ -65,6 +65,22 @@ html, body {
     rgba(196, 37, 10, 0.44) 40%,
     rgba(212, 56, 8, 0.60) 100%
   );
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+}
+
+/* Panel tag */
+.widget-holiday .panel-tag {
+  font-size: 22px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+}
+
+/* Name display */
+.widget-holiday .name-display {
+  font-size: 26px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 4px;
 }
 
 /* Tag pill */

@@ -452,13 +452,7 @@
     initCitySwitcher();
     updateDate();
 
-    // preview 模式：显示"示例数据"角标
-    if (dataMode === 'preview') {
-      var badge = document.createElement('div');
-      badge.className = 'demo-badge';
-      badge.textContent = '示例数据';
-      document.querySelector('.widget-weather').appendChild(badge);
-    }
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
 
     // Mock 优先：立即渲染 mock 数据，后台异步拉 API
     var type = params.weather_type || 'sunny';

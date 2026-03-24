@@ -15,6 +15,7 @@
 | `docs/SPEC.md` | 产品 Spec（功能定义、交互规范） |
 | `docs/TECH_PLAN.md` | 技术架构 & 开发进度 |
 | `docs/V2_ROADMAP.md` | v2.0 迭代路线图（4 Sprint、37 项反馈、15 个迭代项） |
+| `docs/DESIGN.md` | **设计规范**（唯一设计真相源，所有 UI Token、交互态、Pencil Node ID）|
 
 ## 核心技术决策
 

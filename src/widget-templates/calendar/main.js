@@ -828,13 +828,7 @@
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
 
-    // preview 模式：显示角标
-    if (dataMode === 'preview') {
-      var badge = document.createElement('div');
-      badge.className = 'demo-badge';
-      badge.textContent = '推送后显示真实日程';
-      document.querySelector('.widget-calendar').appendChild(badge);
-    }
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
 
     // 加载事件：优先 localStorage，回退到 API / params
     var events;

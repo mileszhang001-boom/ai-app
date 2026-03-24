@@ -146,6 +146,20 @@ html, body {
   pointer-events: none;
 }
 
+/* ── v2.0: 统一标签 + 名字 ── */
+.widget-warm .panel-tag {
+  font-size: 22px;
+  color: rgba(255, 200, 120, 0.4);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.widget-warm .name-display {
+  font-size: 26px;
+  color: rgba(255, 200, 120, 0.6);
+  margin-bottom: 4px;
+}
+
 /* ── 核心数字 ── */
 .widget-warm .hero-number {
   font-family: var(--font-hero-family);

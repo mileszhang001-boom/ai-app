@@ -877,13 +877,7 @@
       document.documentElement.setAttribute('data-visual-style', params.visual_style);
     }
 
-    // preview 模式：显示角标
-    if (dataMode === 'preview') {
-      var badge = document.createElement('div');
-      badge.className = 'demo-badge';
-      badge.textContent = '示例闹钟';
-      document.querySelector('.widget-alarm').appendChild(badge);
-    }
+    // preview 模式：示例提醒在预览页外部显示（DESIGN.md §4.1）
 
     // 初始化视图切换
     initStyleSwitch();

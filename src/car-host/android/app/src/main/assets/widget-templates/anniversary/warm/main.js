@@ -69,6 +69,13 @@
     if (captionEl) {
       captionEl.textContent = '纪念日 · 温暖回忆';
     }
+
+    // v2.0: 名字显示
+    var nameEl = document.getElementById('nameDisplay');
+    if (nameEl && (params.name_a || params.name_b)) {
+      nameEl.textContent = (params.name_a || '') + ' & ' + (params.name_b || '');
+      nameEl.style.display = '';
+    }
   }
 
   // ── 数字翻牌动画 ──
