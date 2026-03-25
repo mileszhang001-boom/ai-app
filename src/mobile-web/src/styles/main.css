@@ -357,6 +357,11 @@ body.scroll-locked { overflow: hidden; }
   display: flex;
   gap: 12px;
 }
+.alarm-style-picker.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
 .alarm-style-btn {
   flex: 1;
   display: flex;

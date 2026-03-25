@@ -447,10 +447,11 @@ export class ConfigPanel {
   _renderEnumSelect(field) {
     const options = field.options || [];
     const selected = this.fieldValues[field.key] || field.fallback || '';
+    const useGrid = options.length > 4;
     return `
       <div class="config-section">
         <div class="config-section-label">${field.label}</div>
-        <div class="alarm-style-picker" data-field="${field.key}">
+        <div class="alarm-style-picker${useGrid ? ' grid-layout' : ''}" data-field="${field.key}">
           ${options.map(opt => `
             <button class="alarm-style-btn${opt.value === selected ? ' selected' : ''}" data-value="${opt.value}">
               <span class="alarm-style-label">${opt.label}</span>
