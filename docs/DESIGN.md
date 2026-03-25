@@ -684,16 +684,18 @@ linear-gradient 160°：
 3. **glass-panel**: 896×580, y:884, r32, padding [40,48], gap 12
    背景 gradient 180° opacity 0.7: `#5c3018d0 → #4a2510e8 → #3a1808f2 → #3a1808f8`
 
-**面板内容**：
+**面板内容（v2.0 统一结构）**：
 
-| 元素 | 属性 |
-|------|------|
-| ❤️ emoji | fontSize 32 |
-| 天数大数字 | fontSize 160, fw 300, fill `#F5F5F0`, ls -4 |
-| "天的相伴" | fontSize 42, fw 500, fill `#F5F5F0D0`, ls 2 |
-| 分隔线 | 48×1.5, fill `#FFFFFF60` |
-| 副标题 | fontSize 36, fw 500, fill `#F5F5F0` |
-| 日期区间 | fontSize 28, fill `#F5F5F0A0` |
+| 元素 | Node | 属性 | 数据来源 |
+|------|------|------|----------|
+| ❤️ emoji | `vFO4Q` | fontSize 32 | 固定 |
+| 天数大数字 | `cmlYx` | fontSize 160, fw 300, fill `#F5F5F0`, ls -4 | DV: daysDiff(start_date, today) |
+| label "天的相伴" | `2529z` | fontSize 42, fw 500, fill `#F5F5F0D0`, ls 2 | AG: 随机选取文案池 |
+| 分隔线 | `LuLXr` | 48×1.5, fill `#FFFFFF60` | 固定 |
+| copy "与小美相伴的每一天" | `TCbPq` | fontSize 36, fw 500, fill `#F5F5F0` | AG: 融入 nickname |
+| 日期区间 | `uQg5P` | fontSize 28, fill `#F5F5F0A0` | DV: 自动格式化 |
+
+> **v2.0 变更**：删除 `title` 字段（用户不再输入标题），`nickname` 融入 copy 文案，label/copy 由 AI 生成（每次不同）。详见 `TEMPLATE_SCHEMA.md §0.6`。
 
 ---
 
@@ -701,7 +703,7 @@ linear-gradient 160°：
 
 **Pencil Node**: `3A9gr`
 
-布局与恋爱卡完全相同，以下是**差异项**：
+面板内容结构与恋爱卡**完全统一**，以下是**差异项**：
 
 | 属性 | 恋爱卡 | 宝宝卡 |
 |------|--------|--------|
@@ -714,6 +716,7 @@ linear-gradient 160°：
 | 文字日期 | `#F5F5F0A0` | `#3D2510A0` |
 | 分隔线 | `#FFFFFF60` | `#5C3D2060` |
 | emoji | ❤️ | ⭐ |
+| copy 示例 | "与小美相伴的每一天" | **"星星的成长日记"**（融入 baby_name）|
 
 ---
 
@@ -721,20 +724,169 @@ linear-gradient 160°：
 
 **Pencil Node**: `7EC5L`
 
-布局与恋爱/宝宝卡类似，差异：
+**v2.0 变更**：删除了 tag 胶囊组件（~~`2oXHu`~~），三卡结构统一为 hero+label+divider+copy+date。
+
+布局与恋爱/宝宝卡**统一**，差异：
 
 | 属性 | 假日卡特有值 |
 |------|-------------|
 | 背景色 | `#0A2A2A` |
 | 面板尺寸 | 896×598, y:866 |
 | 面板 gradient | `#6b3510d0 → #5a2808e8 → #4a2008f2 → #4a2008f8` |
-| 面板 padding | [56, 48]（top 更大）|
-| 面板 gap | 16（vs 恋爱/宝宝 12）|
-| 标题组件 | tag（r16, fill `#FFFFFF20`, padding [6,14]）替代 emoji |
-| "天" | fontSize 56, fw 300, ls 4（vs 恋爱卡 42/500/2）|
-| 无分隔线 | — |
-| 无副标题 | — |
+| 面板 padding | 48 |
+| label 示例 | "天就到啦"（vs 恋爱 "天的相伴"） |
+| copy 示例 | "五一去海边冲浪吧"（融入 holiday_name） |
 | 文字色系 | `#F5F5F0` 白色（同恋爱卡）|
+
+---
+
+### 2.9 生日倒计时 (birthday) — `Card-Birthday`
+
+**Pencil Node ID**: `2LUjp`
+
+**整体结构**（与纪念日三卡统一）：
+```
+Card-Birthday (2LUjp) — 896×1464, cornerRadius:24, fill:#1A2030
+├── photo-area (OVlau) — 896×1464, opacity:0.85, clip, 背景图
+├── bottom-darken (pzwXL) — 896×600, y:864, 底部渐暗遮罩
+└── glass-panel (jrxeq) — 896×580, y:884, 毛玻璃面板
+    ├── numBd (3YvV9) — hero 数字, 160px/300
+    ├── labelBd (CBe2T) — label, 42px/500
+    ├── divider (jdgL9) — 48×1.5, #FFFFFF60
+    ├── copyBd (jxKai) — 文案, 36px/500
+    └── dateBd (KESBL) — 日期, 28px/normal
+```
+
+**Glass Panel 内容层**：
+
+| 元素 | Node ID | 字号/字重 | 颜色 | 数据来源 | 示例 |
+|------|---------|-----------|------|----------|------|
+| hero 数字 | `3YvV9` | 160/300 | `#F5F5F0` | DV: days_remaining | `15` |
+| label | `CBe2T` | 42/500 | `#F5F5F0D0` | DV+AG: 随机池 | `天后就是TA的生日` |
+| 分割线 | `jdgL9` | — | `#FFFFFF60` | — | — |
+| copy | `jxKai` | 36/500 | `#F5F5F0` | AG: 含 person_name | `给妈妈准备一份惊喜吧` |
+| 日期 | `KESBL` | 28/normal | `#F5F5F0A0` | DV: 格式化日期 | `2026.04.09` |
+
+**配色方案**：
+
+| 属性 | 生日卡值 |
+|------|---------|
+| 背景色 | `#1A2030`（深蓝紫）|
+| 面板尺寸 | 896×580, y:884 |
+| 面板 gradient | `#8b5cf6d0 → #7c3aede8 → #6d28d9f2 → #5b21b6f8`（紫罗兰系）|
+| 面板 padding | 48 |
+| label 示例 | "天后就是TA的生日" |
+| copy 示例 | "给妈妈准备一份惊喜吧"（融入 person_name） |
+| 文字色系 | `#F5F5F0` 白色（同恋爱卡/假期卡）|
+
+> **v2.0 变更**: 新增模板，纪念日系列扩展为四卡（恋爱/宝宝/假期/生日），共享统一的 glass-panel 结构。
+
+**预设背景图**：5 张（Asset-BirthdayBg-01~05），配色覆盖紫金、暖粉、暖金、深蓝金、粉紫五种倾向，详见 TEMPLATE_SCHEMA.md §3b.3。
+
+---
+
+### 2.10 三方媒体中心 (Card-MediaHub)
+
+**定义**：三方播放内容聚合卡片，将 QQ音乐、小宇宙、B站、喜马拉雅等第三方媒体 App 的核心播控能力集成到车载桌面卡片中。
+
+**Pencil 文件引用**：
+- 单 App 满屏：Node ID `G7eeX`
+- 双 App 分屏：Node ID `Nka42`
+
+#### 2.10.1 布局模式
+
+| 模式 | 选择 App 数 | 尺寸 | 说明 |
+|------|------------|------|------|
+| 单 App | 1 | 896×1464 | 完整播控 + 播放列表 |
+| 双 App | 2 | 896×732 × 2 | 上下分区，各自独立播控 + 紧凑列表 |
+
+#### 2.10.2 支持的三方 App
+
+| App | 品牌色 | 内容类型 | icon 圆角 |
+|-----|--------|---------|----------|
+| QQ音乐 | #1DB954 (绿) | 音乐 | 14px |
+| 小宇宙 | #EE802C (橙) | 播客 | 14px |
+| B站 | #FB7299 (粉) | 视频/音频 | 14px |
+| 喜马拉雅 | #F5222D (红) | 有声书/播客 | 14px |
+
+**品牌色用途**：App icon 背景、播放按钮 fill、进度条 fill、"正在播放"标签色。其余 UI 保持统一暗色。
+
+#### 2.10.3 单 App 满屏结构（896×1464）
+
+**背景**：统一暗色 + App 品牌色微调光晕
+- 基底：linear-gradient 170° `#0C1A12` → `#06100C`（以 QQ音乐为例）
+- 光晕：radial-gradient 品牌色 40% opacity → transparent，ellipse 500×500，右上方
+- 原则：不同 App 只改 gradient 色相，不改结构
+
+**内容结构**（padding 64，vertical layout）
+
+1. **Header**（h72）
+   - App Icon：56×56，cornerRadius 14，fill 品牌色
+   - App Name：fontSize 36，fontWeight 600，fill #F5F5F0
+   - 副标题"正在播放/正在收听"：fontSize 24，fill #F5F5F060
+
+2. **Spacer**：h80
+
+3. **Now Playing（正在播放区）**
+   - 布局：horizontal，gap 32
+   - **封面**：280×280，cornerRadius 20，shadow blur 40 #00000050
+   - **信息区**（vertical，gap 8）：
+     - 曲名/集名：fontSize 44，fontWeight 600，fill #F5F5F0
+     - 歌手/播客名：fontSize 28，fill #F5F5F060
+     - 专辑名：fontSize 24，fill #F5F5F040
+     - 进度条：h6，cornerRadius 3，bg #FFFFFF15，fill 品牌色
+     - 时间行：fontSize 22，fill #F5F5F060，space_between
+
+4. **Controls Panel**
+   - 高度：80，cornerRadius 20，fill #FFFFFF08
+   - 上一曲：56×56，fill #FFFFFFB3
+   - 播放：64×64，cornerRadius 32，fill 品牌色
+   - 下一曲：56×56，fill #FFFFFFB3
+   - 播客特殊：上一曲 → "↺30s"，下一曲 → "30s↻"
+
+5. **Divider**：h1，fill #FFFFFF10
+
+6. **播放列表 / 最近收听**
+   - 标签：fontSize 28，fontWeight 500，fill #F5F5F080
+   - 每条：h88，cornerRadius 16，fill #FFFFFF06，horizontal layout
+     - 缩略图：64×64，cornerRadius 10
+     - 曲名/集名：fontSize 30，fontWeight 500，fill #F5F5F0
+     - 歌手/时长：fontSize 22，fill #F5F5F050
+   - 最多显示 3 条
+
+#### 2.10.4 双 App 分屏结构（896×1464 = 732 + 2 + 730）
+
+**分区规则**
+- 上半区 732px + 分割线 2px + 下半区 730px
+- 分割线：fill #FFFFFF10
+- 每个区域独立 gradient 背景色（品牌色微调）
+
+**每半区内容结构**（padding 48，紧凑版）
+
+1. **Header**（紧凑）
+   - App Icon：44×44，cornerRadius 11
+   - App Name：fontSize 30，fontWeight 600
+   - 状态标签"正在播放"：fontSize 20，fill 品牌色
+
+2. **Now Playing（紧凑版）**
+   - 封面：200×200，cornerRadius 16
+   - 曲名：fontSize 36（缩小）
+   - 歌手：fontSize 24
+   - 进度条：h4，cornerRadius 2
+   - Mini Controls：play btn 48×48
+
+3. **列表**（紧凑版）
+   - 每条 h56，cornerRadius 10，fill #FFFFFF06
+   - 缩略图 40×40，cornerRadius 8
+   - 单行信息："曲名 · 歌手"，fontSize 22
+   - 最多 2 条
+
+#### 2.10.5 配置面板字段
+
+| 字段 | 控件 | 说明 |
+|------|------|------|
+| apps | multi_select (max 2) | 选择 1-2 个三方 App |
+| （per app）视觉无额外配置 | — | 品牌色自动应用，无需用户选色 |
 
 ---
 
@@ -787,6 +939,7 @@ Pencil 规格页：`4Vqo5`
 | 恋爱 | ❤️ | 5-8 | 24-48px | `#FF6B8A` / `#FF8FAB` / `#FFB3C6` | 上飘+左右摆→渐隐 | 1.2s ease-out |
 | 宝宝 | ⭐🧸(3:1) | 5-8 | 20-40px | `#F5C842` / `#FFD700` / `#FFA500` | 四散+旋转→渐隐 | 1.5s ease-out |
 | 假日 | 🎉🎊+纸屑 | 8-12 | 8-40px | `#FF8C42`/`#FFD700`/`#4ADE80`/`#60A5FA`/`#F472B6` | 抛物线+旋转→渐隐 | 2.0s |
+| 生日 | 🎂🎁🎈(2:1:2) | 6-10 | 20-44px | `#8B5CF6`/`#A78BFA`/`#FFD700`/`#FF6B8A`/`#60A5FA` | 上弹+摇摆旋转→渐隐 | 1.5s ease-out |
 
 **通用参数**: 触发=点击 glass-panel · 防抖 300ms · z-index 在 panel 之上 card overflow:hidden 之内 · 实现文件 `shared/easter-egg.js` · requestAnimationFrame + CSS transform
 
@@ -826,32 +979,141 @@ Pencil 规格页：`4Vqo5`
 
 ---
 
-## 六、Pencil Node ID 索引
+## 六、Pencil 设计稿页面索引
 
-### 默认态卡片
+> **设计文件**：`UI_pen/card.pen`
+> **命名规范**：`[前缀]-[模板名]-[状态/变体名]`
 
-| 卡片 | Node ID |
-|------|---------|
-| Weather 天气 | `tPVm8` |
-| Music 音乐 | `qXG2n` |
-| Calendar 日程 | `7fKb6` |
-| News 新闻首页 | `OMxV7` |
-| Alarm 闹钟 | `Qb8jr` |
-| Love 恋爱 | `UyUeC` |
-| Baby 宝宝 | `3A9gr` |
-| Holiday 假日 | `7EC5L` |
-| News v2 列表 | `l5AB7` |
-| News v2 详情 | `vwhtM` |
+### 6.0 命名前缀体系
 
-### 交互态页面
+| 前缀 | 含义 | 开发关注度 |
+|------|------|-----------|
+| `Card-` | 主页面（首屏默认渲染态） | ⭐⭐⭐ 必须实现 |
+| `Sub-` | 模板子页面（弹窗、新增、详情等） | ⭐⭐ 按需实现 |
+| `State-` | 交互态（手势/操作触发，**默认隐藏**） | ⭐⭐⭐ 必须实现但不在首屏渲染 |
+| `Variant-` | 配色/天况变体（同模板不同主题色） | ⭐ 仅供参考，代码通过 color-engine 动态生成 |
+| `Car-` | 车端宿主屏幕 | ⭐⭐ 车端实现 |
+| `Asset-` | 背景图素材（预设可选图片） | 素材资源，非 UI 页面 |
+| `Spec-` | 规格说明页（动效参数等） | 仅供参考 |
 
-| 页面 | Node ID | 描述 |
-|------|---------|------|
-| Alarm 左滑删除 | `Kysmf` | 第二行左滑露出 delete 按钮 |
-| Alarm 时钟模式 | `ab3HZ` | 表盘 + 精简列表 + 模式切换 |
-| Alarm 列表+切换 | `qOPTb` | 原列表 + list/clock 切换图标 |
-| Calendar 完成+删除 | `NYtT7` | 第一行完成态 + 第二行左滑 |
-| 彩蛋粒子规格 | `4Vqo5` | 三种粒子效果参数 |
+### 6.1 Card · 主页面（8 张）
+
+首屏默认渲染的卡片。开发时以这些页面为基准还原。
+
+| 页面名 | Node ID | 模板 | 说明 |
+|--------|---------|------|------|
+| Card-Weather | `tPVm8` | 天气 | 晴天默认态，mood 配色 |
+| Card-Music | `qXG2n` | 音乐 | 播放中态，glass 视觉风格 |
+| Card-Calendar | `7fKb6` | 日历 | 亮色主题，蓝色强调（默认） |
+| Card-News | `OMxV7` | 新闻 | 暗色编辑风，hero + 3 条分类 |
+| Card-Alarm | `Qb8jr` | 闹钟 | 暗色列表态，绿色强调（默认） |
+| Card-Love | `UyUeC` | 恋爱纪念 | 照片 + glass panel，image-tint 配色 |
+| Card-Baby | `3A9gr` | 宝宝成长 | 照片 + glass panel，暖琥珀色调 |
+| Card-Holiday | `7EC5L` | 放假倒计时 | 照片 + glass panel，节日主题 |
+
+### 6.2 Sub · 子页面（7 张）
+
+模板内的操作页面，由用户主动触发进入。
+
+| 页面名 | Node ID | 触发条件 | 说明 |
+|--------|---------|----------|------|
+| Sub-Weather-CityPicker | `gmj9b` | 点击城市名 | 城市搜索列表 |
+| Sub-Music-EmptyState | `OLLkg` | 无播放内容时 | 音乐无内容兜底页 |
+| Sub-Calendar-AddEvent | `6eWNV` | 点击 FAB「+」按钮 | 新增日程表单 |
+| Sub-News-ArticleDetail | `D2HUa` | 点击新闻条目 | 全文阅读页 |
+| Sub-Alarm-AddAlarm | `2Hly6` | 点击 FAB「+」按钮 | 新增闹钟时间选择器 |
+| Sub-News-v2-List | `l5AB7` | — | 新闻 v2 图文并排列表（备选方案） |
+| Sub-News-v2-Detail | `vwhtM` | 点击新闻条目 | 新闻 v2 图文混排详情（备选方案） |
+
+### 6.3 State · 交互态（4 张）
+
+⚠️ **关键约束**：这些页面展示的 UI 元素（如删除按钮）**默认隐藏，不在首屏渲染**。
+仅在用户手势触发后动态显示。开发时切勿将交互态元素直接画在主页面上。
+
+| 页面名 | Node ID | 触发手势 | 说明 |
+|--------|---------|----------|------|
+| State-Alarm-SwipeDelete | `Kysmf` | 闹钟行**左滑 ≥64px** | 行右侧露出红色删除按钮（128×行高） |
+| State-Alarm-ClockMode | `ab3HZ` | 点击模式切换按钮 | 表盘视图 + 精简列表 |
+| State-Alarm-ListMode | `qOPTb` | 点击模式切换按钮 | 列表视图 + list/clock 切换图标 |
+| State-Calendar-SwipeDelete | `NYtT7` | 日程行**左滑 ≥64px** | 行右侧露出红色删除按钮（128×行高） |
+
+### 6.4 Variant · 配色变体（12 张）
+
+展示同一模板在不同主题色/天况下的视觉效果。代码中通过 `color-engine.js` 动态计算，无需逐个硬编码。
+
+**天气天况变体**（mood 模式，由 weather API 返回值自动决定）：
+
+| 页面名 | Node ID | 天况 | 背景主色 |
+|--------|---------|------|----------|
+| Variant-Weather-Cloudy | `1VE60` | 多云 | 灰蓝 mesh (#8B9DAF → #5A7088) |
+| Variant-Weather-Rainy | `ixHgP` | 中雨 | 靛蓝 mesh (#3A4A6B → #1A2744) |
+
+**日历强调色变体**（clean 模式，用户通过 color_picker 选择）：
+
+| 页面名 | Node ID | 色名 | 强调色 |
+|--------|---------|------|--------|
+| Variant-Calendar-Graphite | `R5Hts` | 石墨灰 | #64748B |
+| Variant-Calendar-Emerald | `K2BHp` | 翠绿 | #10B981 |
+| Variant-Calendar-Amber | `Fw58N` | 琥珀 | #F59E0B |
+| Variant-Calendar-Violet | `be0Zy` | 紫罗兰 | #8B5CF6 |
+| Variant-Calendar-DarkGray | `9GK7n` | 深灰 | #334155 |
+
+**闹钟强调色变体**（clean 模式，用户通过 color_picker 选择）：
+
+| 页面名 | Node ID | 色名 | 强调色 |
+|--------|---------|------|--------|
+| Variant-Alarm-SkyBlue | `FLLJq` | 天空蓝 | #3B82F6 |
+| Variant-Alarm-Amber | `xHMfe` | 琥珀橙 | #F59E0B |
+| Variant-Alarm-Graphite | `BOLeE` | 石墨灰 | #64748B |
+| Variant-Alarm-Lavender | `zkqLd` | 薰衣紫 | #8B5CF6 |
+| Variant-Alarm-Silver | `gpN8h` | 银灰 | #94A3B8 |
+
+### 6.5 Car · 车端屏幕（4 张）
+
+| 页面名 | Node ID | 场景 |
+|--------|---------|------|
+| Car-ConfirmDialog | `gFa49` | 收到推送后的接收确认弹窗 |
+| Car-CardRendered | `KXjUX` | 卡片在车端全屏渲染效果 |
+| Car-CardSwitch | `0smUc` | 左右滑动切换卡片 |
+| Car-EditMode | `ABEYf` | 长按进入编辑态（缩小 + 删除按钮） |
+
+### 6.6 Spec · 规格说明（1 张）
+
+| 页面名 | Node ID | 内容 |
+|--------|---------|------|
+| Spec-EasterEgg | `4Vqo5` | 纪念日三卡彩蛋粒子动效参数 |
+
+### 6.7 Asset · 背景图素材（15 张）
+
+纪念日三卡的预设背景图，每模板 5 张可选。
+
+| 素材组 | Node IDs | 数量 |
+|--------|----------|------|
+| Asset-LoveBg-01~05 | `gERXB` `xYvZQ` `z4Kaa` `3bVv8` `GqQaM` | 5 |
+| Asset-BabyBg-01~05 | `EPDJ7` `CjCc5` `5F4W9` `707Qk` `0ve2g` | 5 |
+| Asset-HolidayBg-01~05 | `K6EgS` `JpO0P` `Lp170` `Ugkxh` `fSfQV` | 5 |
+
+### 6.8 画布布局
+
+```
+y:520  ━━ Card · 主页面 ━━
+y:600  [Weather] [Music] [Calendar] [News] [Alarm] [Love] [Baby] [Holiday]
+
+y:2150 ━━ Sub · 子页面 ━━
+y:2200 [CityPicker] [EmptyState] [AddEvent] [ArticleDetail] [AddAlarm] [v2-List] [v2-Detail]
+
+y:3950 ━━ State · 交互态（⚠️默认隐藏）━━
+y:4000 [Alarm-Swipe] [Alarm-Clock] [Alarm-List] [Calendar-Swipe] [EasterEgg]
+
+y:5750 ━━ Variant · 配色变体 ━━
+y:5800 [W-Cloudy] [W-Rainy] [C-Graphite] [C-Emerald] [C-Amber] [C-Violet] [C-DarkGray] [A-Blue] [A-Amber] [A-Graphite] [A-Lavender] [A-Silver]
+
+y:7550 ━━ Car · 车端屏幕 ━━
+y:7600 [ConfirmDialog] [CardRendered] [CardSwitch] [EditMode]
+
+y:9350 ━━ Asset · 背景图素材 ━━
+y:9400 [LoveBg×5] [BabyBg×5] [HolidayBg×5]
+```
 
 ---
 

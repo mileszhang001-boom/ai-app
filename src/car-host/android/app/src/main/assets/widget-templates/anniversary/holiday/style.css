@@ -42,6 +42,26 @@ html, body {
   background-repeat: no-repeat;
 }
 
+/* ── Bottom Darken Gradient ── */
+#bottom-darken {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 896px;
+  height: 600px;
+  background: linear-gradient(
+    to bottom,
+    #6b351000   0%,
+    #6b351040  10%,
+    #6b351070  25%,
+    #6b351098  45%,
+    #6b3510b8  65%,
+    #6b3510d0  80%,
+    #6b3510e0 100%
+  );
+  pointer-events: none;
+}
+
 /* ── Glass Panel (LmdCG) — 896x598, y:866, padding 48 uniform ── */
 #glass-panel {
   position: absolute;

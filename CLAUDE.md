@@ -16,6 +16,8 @@
 | `docs/TECH_PLAN.md` | 技术架构 & 开发进度 |
 | `docs/V2_ROADMAP.md` | v2.0 迭代路线图（4 Sprint、37 项反馈、15 个迭代项） |
 | `docs/DESIGN.md` | **设计规范**（唯一设计真相源，所有 UI Token、交互态、Pencil Node ID）|
+| `docs/TEMPLATE_SCHEMA.md` | **模板数据体系**（唯一数据契约，字段定义、数据来源、可自定义参数、NL 映射规则）|
+| `docs/TEMPLATE_REBUILD_PLAN.md` | **模板重构计划**（Phase 0~3 分步执行，含 Claude Code 指令、文件变更清单）|
 
 ## 核心技术决策
 
@@ -26,7 +28,7 @@
 5. **Design-at-896 + CSS zoom**：模板按 896px 设计，手机端 `zoom:containerWidth/896` 等比缩小
 6. **设计语言：Liquid Glass** — 毛玻璃 + 光晕 + 粒子 + 翻牌动画 + 动态配色引擎
 7. **数据分层**（v2.0 新增）：手机端用精品 mock 数据保障预览体验，车端用真实数据
-8. **组件类型（9 模板）**：纪念日×4（恋爱/宝宝/放假/暖橙）、新闻、闹钟、天气、音乐、日历
+8. **组件类型（10 模板）**：纪念日×4（恋爱/宝宝/放假/生日）、新闻、闹钟、天气、音乐、日历、三方媒体中心
 
 ## 项目结构
 
@@ -51,12 +53,13 @@ ai-widget-workshop/
 │   │   ├── src/utils/               #   render-widget 渲染引擎
 │   │   └── public/car-simulator.html #   车端模拟器
 │   ├── widget-templates/              # H5 组件模板（核心产物）
-│   │   ├── anniversary/              #   纪念日（love/baby/holiday/warm）
+│   │   ├── anniversary/              #   纪念日（love/baby/holiday）
 │   │   ├── news/                     #   每日新闻
 │   │   ├── alarm/                    #   闹钟
 │   │   ├── weather/                  #   天气
 │   │   ├── music/                    #   音乐播放器
 │   │   ├── calendar/                 #   日历日程
+│   │   ├── mediahub/                 #   三方媒体中心（QQ音乐/小宇宙/B站/喜马拉雅）
 │   │   └── shared/                   #   公共基础设施
 │   │       ├── tokens.css            #     Design Tokens
 │   │       ├── color-engine.js       #     动态配色引擎

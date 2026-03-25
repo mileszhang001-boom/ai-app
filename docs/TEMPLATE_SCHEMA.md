@@ -784,6 +784,127 @@ accent_color ──→ computePalette(hex, 'clean')
 
 ---
 
+## 8b. 三方媒体中心 (mediahub)
+
+### 8b.0 模板概览
+
+| 属性 | 值 |
+|------|-----|
+| component_type | `mediahub` |
+| theme | `mediahub` |
+| 内容类型 | 三方 App 播放聚合 |
+| 数据来源 | 三方 App 媒体接口（SA）+ Mock 预览（TD） |
+| 色彩模式 | 无用户选色，品牌色自动 |
+| Pencil Node | 单 App `G7eeX`，双 App `Nka42` |
+
+### 8b.1 字段定义
+
+| field | type | source | required | editable | control | constraints |
+|-------|------|--------|----------|----------|---------|-------------|
+| apps | list\<string\> | UI | ✓ | ✓ | multi_select (max 2) | 枚举：qq_music / cosmos / bilibili / ximalaya |
+| (per app) now_playing | object | SA / TD | ✓ | ✗ | — | 见下方 |
+| (per app) playlist | list\<object\> | SA / TD | ✗ | ✗ | — | 单 App max 3, 双 App max 2 |
+
+**now_playing 对象**:
+
+| field | type | source | 说明 |
+|-------|------|--------|------|
+| title | string | SA | 曲名 / 集名 |
+| artist | string | SA | 歌手 / 播客名 |
+| album | string | SA | 专辑名（音乐）/ — |
+| cover_url | image | SA / TD | 封面图 |
+| current_time | number | SA | 当前播放秒数 |
+| total_time | number | SA | 总时长秒数 |
+| is_playing | boolean | SA | 是否正在播放 |
+
+**playlist item 对象**:
+
+| field | type | source | 说明 |
+|-------|------|--------|------|
+| title | string | SA | 曲名 / 集名 |
+| artist | string | SA | 歌手 / 播客 |
+| cover_url | image | SA / TD | 缩略图 |
+| duration | string | SA | 时长 "4:35" / "58min" |
+
+### 8b.2 App 品牌映射
+
+```javascript
+const APP_BRANDS = {
+  qq_music:  { name: 'QQ音乐',   color: '#1DB954', playLabel: '正在播放', contentType: 'music' },
+  cosmos:    { name: '小宇宙',    color: '#EE802C', playLabel: '正在收听', contentType: 'podcast' },
+  bilibili:  { name: 'B站',      color: '#FB7299', playLabel: '正在播放', contentType: 'video' },
+  ximalaya:  { name: '喜马拉雅',  color: '#F5222D', playLabel: '正在收听', contentType: 'audiobook' },
+};
+```
+
+### 8b.3 布局切换逻辑
+
+```
+apps.length === 1 → 单 App 满屏 (896×1464)
+apps.length === 2 → 双 App 分屏 (896×732 × 2)
+```
+
+### 8b.4 Mock 数据（预览模式）
+
+每个 App 有独立的精品 Mock：
+
+```javascript
+const MOCK_DATA = {
+  qq_music: {
+    now_playing: { title: '晴天', artist: '周杰伦', album: '叶惠美', cover_url: './covers/qq_mock.jpg', current_time: 102, total_time: 275, is_playing: true },
+    playlist: [
+      { title: '起风了', artist: '买辣椒也用券', cover_url: '...', duration: '5:12' },
+      { title: '夜曲', artist: '周杰伦', cover_url: '...', duration: '4:01' },
+      { title: '光辉岁月', artist: 'Beyond', cover_url: '...', duration: '4:25' },
+    ]
+  },
+  cosmos: {
+    now_playing: { title: 'Vol.328 当我们谈论AI时', artist: '文化有限', cover_url: './covers/cosmos_mock.jpg', current_time: 1800, total_time: 3480, is_playing: true },
+    playlist: [
+      { title: 'E86 失眠的一百万种理由', artist: '随机波动', cover_url: '...', duration: '58min' },
+      { title: '聊聊远程办公这三年', artist: '日谈公园', cover_url: '...', duration: '45min' },
+    ]
+  },
+  bilibili: {
+    now_playing: { title: '【4K】赛博朋克2077 全剧情', artist: '老番茄', cover_url: './covers/bili_mock.jpg', current_time: 540, total_time: 1800, is_playing: true },
+    playlist: [
+      { title: '何同学新视频', artist: '何同学', cover_url: '...', duration: '12:30' },
+      { title: '三体动画EP26', artist: '哔哩哔哩', cover_url: '...', duration: '24:00' },
+    ]
+  },
+  ximalaya: {
+    now_playing: { title: '第238集·大秦帝国', artist: '大秦帝国有声书', cover_url: './covers/xmly_mock.jpg', current_time: 900, total_time: 2700, is_playing: true },
+    playlist: [
+      { title: '第237集', artist: '大秦帝国有声书', cover_url: '...', duration: '42min' },
+      { title: '三体全集·第89回', artist: '三体有声剧', cover_url: '...', duration: '35min' },
+    ]
+  }
+};
+```
+
+### 8b.5 色彩方案
+
+**色彩模式**：无用户选色。每个 App 区域的品牌色自动注入到 CSS 变量。
+
+```
+APP_BRANDS[appId].color ──→ --app-brand-color
+                         ──→ 播放按钮 fill
+                         ──→ 进度条 fill
+                         ──→ 状态标签 color
+                         ──→ 背景 gradient 色相微调
+```
+
+**背景 gradient 按 App 变化**（统一暗色 + 品牌色微调）：
+
+| App | gradient start | gradient end |
+|-----|---------------|-------------|
+| QQ音乐 | #0C1A12 | #06100C |
+| 小宇宙 | #1A1008 | #120E06 |
+| B站 | #1A0C14 | #120810 |
+| 喜马拉雅 | #1A0808 | #120606 |
+
+---
+
 ## 九、控件类型定义 (Control Types)
 
 以下是 `editable` 字段引用的控件类型及其 UI 行为：

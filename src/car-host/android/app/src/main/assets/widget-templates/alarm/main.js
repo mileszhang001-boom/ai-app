@@ -480,6 +480,57 @@
     });
   }
 
+  // ── Menu (···) handler ──
+  function setupMenu() {
+    var menuEl = document.querySelector('.alarm-menu');
+    if (!menuEl) return;
+
+    menuEl.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (typeof window.createOverlay !== 'function') return;
+
+      var overlay = createOverlay({
+        title: '设置',
+        theme: 'dark',
+        showSave: false,
+        content: function (body) {
+          var items = [
+            { label: '清除全部闹钟', action: function () {
+              alarms = [];
+              saveAlarms();
+              render();
+              overlay.hide();
+            }},
+            { label: '恢复默认闹钟', action: function () {
+              storage.clear();
+              storage.seed(MOCK_ALARMS);
+              alarms = storage.getAll();
+              render();
+              overlay.hide();
+            }}
+          ];
+          for (var i = 0; i < items.length; i++) {
+            var row = document.createElement('div');
+            row.className = 'overlay-row';
+            row.style.cssText = 'cursor:pointer;-webkit-tap-highlight-color:transparent;';
+            var label = document.createElement('span');
+            label.className = 'overlay-row-label';
+            label.textContent = items[i].label;
+            row.appendChild(label);
+            row.addEventListener('click', items[i].action);
+            body.appendChild(row);
+            if (i < items.length - 1) {
+              var div = document.createElement('div');
+              div.className = 'overlay-divider';
+              body.appendChild(div);
+            }
+          }
+        }
+      });
+      overlay.show();
+    });
+  }
+
   // ── Close swiped row on tap outside ──
   function setupOutsideTap() {
     document.addEventListener('click', function (e) {
@@ -503,6 +554,7 @@
     loadAlarms();
     render();
     setupFab();
+    setupMenu();
     setupOutsideTap();
     setupViewToggle();
     // Set initial toggle icon

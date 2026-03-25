@@ -129,6 +129,12 @@
   var params = window.__WIDGET_PARAMS__ || {};
   var dataMode = window.__WIDGET_DATA_MODE__ || 'live';
 
+  // ── Initialize city from params (fixes preview always showing 北京) ──
+  if (params.city) {
+    currentCity = params.city;
+    MOCK = MOCK_CITY_DATA[currentCity] || MOCK;
+  }
+
   // ── Date formatting: "M月D日 周X" ──
   var WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 

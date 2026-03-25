@@ -42,6 +42,26 @@ html, body {
   background-repeat: no-repeat;
 }
 
+/* ── Bottom Darken Gradient ── */
+#bottom-darken {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 896px;
+  height: 600px;
+  background: linear-gradient(
+    to bottom,
+    #5b21b600   0%,
+    #5b21b640  10%,
+    #5b21b670  25%,
+    #5b21b698  45%,
+    #5b21b6b8  65%,
+    #5b21b6d0  80%,
+    #5b21b6e0 100%
+  );
+  pointer-events: none;
+}
+
 /* ── Glass Panel — 896x598, y:866, violet gradient ── */
 #glass-panel {
   position: absolute;

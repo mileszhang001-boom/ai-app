@@ -110,7 +110,7 @@ html, body {
 /* ── Spacers ── */
 .spacer-48 { height: 48px; flex-shrink: 0; }
 .spacer-40 { height: 40px; flex-shrink: 0; }
-.spacer-64 { height: 64px; flex-shrink: 0; }
+.spacer-64 { min-height: 64px; flex: 1; }
 
 /* ── Divider ── */
 .divider-line {
@@ -124,7 +124,10 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 0;
-  flex-shrink: 0;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
 }
 
 /* ── Event Row ── */

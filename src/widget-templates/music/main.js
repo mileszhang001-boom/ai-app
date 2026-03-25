@@ -111,13 +111,23 @@
     artistEl.textContent = data.artist || '--';
     lyricsEl.textContent = data.lyrics_snippet || data.lyrics || '';
 
-    // Cover image
+    // Cover image (pre-check with Image to handle broken URLs)
     var coverUrl = data.cover_url || data.albumArtUrl || '';
     if (coverUrl) {
-      albumArt.style.backgroundImage = 'url(' + coverUrl + ')';
-      bgBlur.style.backgroundImage = 'url(' + coverUrl + ')';
-      // Remove the placeholder gradient
-      albumArt.style.backgroundColor = 'transparent';
+      var testImg = new Image();
+      testImg.onload = function () {
+        albumArt.style.backgroundImage = 'url(' + coverUrl + ')';
+        bgBlur.style.backgroundImage = 'url(' + coverUrl + ')';
+        albumArt.style.backgroundColor = 'transparent';
+      };
+      testImg.onerror = function () {
+        // Fallback: keep CSS default gradient placeholder
+        albumArt.style.backgroundImage = '';
+        bgBlur.style.backgroundImage = '';
+        albumArt.style.backgroundColor = '';
+        console.warn('[Music] Cover image failed to load:', coverUrl);
+      };
+      testImg.src = coverUrl;
     } else {
       // Keep default placeholder
       albumArt.style.backgroundImage = '';
