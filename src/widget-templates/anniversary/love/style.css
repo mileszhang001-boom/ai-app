@@ -35,7 +35,7 @@ html, body {
   left: 0;
   width: 896px;
   height: 1464px;
-  border-radius: 32px;
+  border-radius: 24px;
   opacity: 0.85;
   background-size: cover;
   background-position: center;
@@ -77,7 +77,6 @@ html, body {
     #3a1808f0 66%,
     #3a1808f8 100%
   );
-  opacity: 0.7;
   backdrop-filter: blur(60px) saturate(1.8);
   -webkit-backdrop-filter: blur(60px) saturate(1.8);
   display: flex;

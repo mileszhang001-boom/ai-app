@@ -18,6 +18,7 @@ const ICON_PATHS = {
   'baby':        '<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/>',
   'alarm-clock': '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>',
   'newspaper':   '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 1 1-4 0V7a1 1 0 0 1 1-1h1"/><path d="M10 10h8"/><path d="M10 14h4"/><path d="M10 18h6"/>',
+  'cake':        '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/>',
 };
 
 function getIcon(name, color) {
@@ -31,6 +32,7 @@ const SCENE_CARDS = [
   { id: 'music',     name: '音乐播放',   bgColor: '#EDE0FF', iconColor: '#7B5CFA', icon: 'music' },
   { id: 'countdown', name: '放假倒计时', bgColor: '#FFF8E1', iconColor: '#F59E0B', icon: 'sun' },
   { id: 'baby',      name: '宝宝相册',   bgColor: '#E0F7FA', iconColor: '#0891B2', icon: 'baby' },
+  { id: 'birthday',  name: '生日倒计时', bgColor: '#EDE0FF', iconColor: '#8B5CF6', icon: 'cake' },
   { id: 'alarm',     name: '闹钟',       bgColor: '#EDE0FF', iconColor: '#7B5CFA', icon: 'alarm-clock' },
   { id: 'news',      name: '每日新闻',   bgColor: '#FCE4EC', iconColor: '#E84393', icon: 'newspaper' },
 ];
