@@ -5,12 +5,27 @@
  * 双 App → 上下各 732px
  */
 
+// ─── SVG Icons ──────────────────────────────────────────────────
+var ICONS = {
+  prev: '<svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>',
+  next: '<svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
+  rew30: '<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/><text x="12" y="15.5" text-anchor="middle" font-size="7" font-weight="600" fill="currentColor">30</text></svg>',
+  fwd30: '<svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/><text x="12" y="15.5" text-anchor="middle" font-size="7" font-weight="600" fill="currentColor">30</text></svg>',
+  // App logos as clean SVG
+  qq_music: '<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="24" fill="#1DB954"/><path d="M20 14l14 10-14 10V14z" fill="#fff"/></svg>',
+  cosmos: '<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="24" fill="#3CC8DC"/><circle cx="24" cy="24" r="8" fill="none" stroke="#fff" stroke-width="2.5"/><circle cx="24" cy="24" r="3" fill="#fff"/></svg>',
+  bilibili: '<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="14" fill="#FB7299"/><path d="M16 18h16v12a2 2 0 01-2 2H18a2 2 0 01-2-2V18zm4-4l3 4h2l3-4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="23" r="1.5" fill="#fff"/><circle cx="27" cy="23" r="1.5" fill="#fff"/></svg>',
+  ximalaya: '<svg viewBox="0 0 48 48"><rect width="48" height="48" rx="14" fill="#F5222D"/><path d="M15 30l5-8 4 5 4-9 5 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
 // ─── App Brand Config (对齐 Pencil 设计稿) ──────────────────────
 var APP_BRANDS = {
-  qq_music:  { name: 'QQ音乐',   color: '#1DB954', label: '正在播放', type: 'music',     icon: '♫',  gradient: ['#0C1A12', '#06100C'] },
-  cosmos:    { name: '小宇宙',    color: '#3CC8DC', label: '正在收听', type: 'podcast',   icon: '◉',  gradient: ['#081A1C', '#06101A'] },
-  bilibili:  { name: '哔哩哔哩',  color: '#FB7299', label: '正在播放', type: 'video',     icon: 'B',  gradient: ['#1A0C14', '#120810'] },
-  ximalaya:  { name: '喜马拉雅',  color: '#F5222D', label: '正在收听', type: 'audiobook', icon: '听', gradient: ['#1A0808', '#120606'] },
+  qq_music:  { name: 'QQ音乐',   color: '#1DB954', label: '正在播放', type: 'music',     iconSvg: ICONS.qq_music,  gradient: ['#0C1A12', '#06100C'] },
+  cosmos:    { name: '小宇宙',    color: '#3CC8DC', label: '正在收听', type: 'podcast',   iconSvg: ICONS.cosmos,    gradient: ['#081A1C', '#06101A'] },
+  bilibili:  { name: '哔哩哔哩',  color: '#FB7299', label: '正在播放', type: 'video',     iconSvg: ICONS.bilibili,  gradient: ['#1A0C12', '#10060C'] },
+  ximalaya:  { name: '喜马拉雅',  color: '#F5222D', label: '正在收听', type: 'audiobook', iconSvg: ICONS.ximalaya,  gradient: ['#1A0C0C', '#100606'] },
 };
 
 // ─── Mock Data (对齐 Pencil 设计) ────────────────────────────────
@@ -157,8 +172,7 @@ function renderAppZone(appId, mode) {
 
   var iconEl = document.createElement('div');
   iconEl.className = 'app-icon';
-  iconEl.style.background = brand.color;
-  iconEl.textContent = brand.icon;
+  iconEl.innerHTML = brand.iconSvg || '';
 
   var nameEl = document.createElement('div');
   nameEl.className = 'app-name';
@@ -201,16 +215,17 @@ function renderAppZone(appId, mode) {
   // ── Controls ──
   var controls = document.createElement('div');
   controls.className = 'controls';
+  var playIcon = np.is_playing ? ICONS.pause : ICONS.play;
   if (isPodcast) {
     controls.innerHTML =
-      '<button class="ctrl-btn" data-action="rewind">-30s</button>' +
-      '<button class="ctrl-btn play" style="background:' + brand.color + '" data-action="play">' + (np.is_playing ? '⏸' : '▶') + '</button>' +
-      '<button class="ctrl-btn" data-action="forward">+30s</button>';
+      '<button class="ctrl-btn" data-action="rewind">' + ICONS.rew30 + '</button>' +
+      '<button class="ctrl-btn play" style="background:' + brand.color + '" data-action="play">' + playIcon + '</button>' +
+      '<button class="ctrl-btn" data-action="forward">' + ICONS.fwd30 + '</button>';
   } else {
     controls.innerHTML =
-      '<button class="ctrl-btn" data-action="prev">◀</button>' +
-      '<button class="ctrl-btn play" style="background:' + brand.color + '" data-action="play">' + (np.is_playing ? '⏸' : '▶') + '</button>' +
-      '<button class="ctrl-btn" data-action="next">▶</button>';
+      '<button class="ctrl-btn" data-action="prev">' + ICONS.prev + '</button>' +
+      '<button class="ctrl-btn play" style="background:' + brand.color + '" data-action="play">' + playIcon + '</button>' +
+      '<button class="ctrl-btn" data-action="next">' + ICONS.next + '</button>';
   }
   var btns = controls.querySelectorAll('.ctrl-btn');
   for (var b = 0; b < btns.length; b++) {
@@ -218,7 +233,8 @@ function renderAppZone(appId, mode) {
       return function() {
         var action = btn.dataset.action;
         if (action === 'play') {
-          btn.textContent = btn.textContent === '▶' ? '⏸' : '▶';
+          var isNowPlaying = btn.querySelector('svg path[d*="6 19"]'); // pause icon check
+          btn.innerHTML = isNowPlaying ? ICONS.play : ICONS.pause;
         }
         console.log('[MediaHub] ' + aid + ' → ' + action);
       };
