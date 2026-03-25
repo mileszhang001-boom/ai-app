@@ -27,7 +27,7 @@ export class PreviewPage {
     const insight = this._getAiInsight(this.currentData);
 
     // Show "示例数据" hint for mock-data templates only
-    const MOCK_DATA_TYPES = ['weather', 'news', 'music', 'calendar', 'alarm'];
+    const MOCK_DATA_TYPES = ['weather', 'news', 'music', 'calendar', 'alarm', 'mediahub'];
     const showDataHint = !this.isCodeMode && this.currentData?.component_type &&
       MOCK_DATA_TYPES.includes(this.currentData.component_type);
     const dataHintHTML = showDataHint
@@ -101,6 +101,7 @@ export class PreviewPage {
       music:       '与车载媒体联动，实时显示播放状态',
       alarm:       '智能日夜感知，自动调整显示风格',
       news:        '每30分钟更新，AI智能摘要',
+      mediahub:    '三方媒体聚合，推送后自动连接播放内容',
     };
     return insights[data.component_type] || '已为你优化显示效果';
   }

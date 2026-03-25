@@ -23,6 +23,8 @@ export const TEMPLATE_URL_MAP = {
   'music':               '/widget-templates/music/index.html',
   'calendar-schedule':   '/widget-templates/calendar/index.html',
   'calendar':            '/widget-templates/calendar/index.html',
+  'mediahub-mediahub':   '/widget-templates/mediahub/index.html',
+  'mediahub':            '/widget-templates/mediahub/index.html',
 };
 
 export function getTemplateUrl(data) {
@@ -234,6 +236,7 @@ export function getSceneId(data) {
     'news-news': 'news',
     'news-daily': 'news',
     'alarm-clock': 'alarm',
+    'mediahub-mediahub': 'mediahub',
   };
   return map[key] || data.component_type;
 }
