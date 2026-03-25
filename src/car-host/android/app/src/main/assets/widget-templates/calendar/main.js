@@ -385,11 +385,120 @@
     }
   }
 
+  // ── Add Event Overlay ──
+  var EVENT_COLORS = [
+    { name: '蓝', hex: '#3B82F6' },
+    { name: '橙', hex: '#F59E0B' },
+    { name: '绿', hex: '#10B981' }
+  ];
+
+  function showAddEventOverlay() {
+    if (!window.createOverlay) { console.warn('overlay.js not loaded'); return; }
+
+    var selectedColor = EVENT_COLORS[0].hex;
+
+    // Default time: next whole hour
+    var now = new Date();
+    var nextHour = new Date(now);
+    nextHour.setHours(now.getHours() + 1, 0, 0, 0);
+    var defaultTime = (nextHour.getHours() < 10 ? '0' : '') + nextHour.getHours() + ':00';
+
+    var overlay = createOverlay({
+      title: '新建日程',
+      theme: 'light',
+      saveText: '确认',
+      onSave: function () {
+        var titleInput = overlay.body.querySelector('#addEvTitle');
+        var timeInput = overlay.body.querySelector('#addEvTime');
+        var locationInput = overlay.body.querySelector('#addEvLocation');
+
+        var titleVal = (titleInput.value || '').trim();
+        if (!titleVal) {
+          titleInput.style.border = '2px solid #EF4444';
+          titleInput.focus();
+          return;
+        }
+
+        var newEvent = {
+          id: 'ev_' + Date.now(),
+          time: timeInput.value || defaultTime,
+          title: titleVal,
+          location: (locationInput.value || '').trim(),
+          color: selectedColor
+        };
+
+        // Save to storage
+        currentEvents.push(newEvent);
+        var stored = storage.getAll() || [];
+        stored.push(newEvent);
+        storage.seed(stored);
+
+        // Re-render
+        renderEvents(currentEvents);
+        renderNextMeeting(currentEvents);
+        overlay.hide();
+      },
+      content: function (bodyEl) {
+        var formHTML = '' +
+          '<div style="display:flex;flex-direction:column;gap:32px;padding:16px 0;">' +
+          '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+          '    <label style="font-size:28px;font-weight:500;color:#64748B;">事件标题 *</label>' +
+          '    <input id="addEvTitle" type="text" maxlength="20" placeholder="如：团队周会"' +
+          '      style="width:100%;padding:20px;font-size:32px;border-radius:12px;border:1px solid #CBD5E1;background:#F8FAFC;color:#1E293B;outline:none;" />' +
+          '  </div>' +
+          '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+          '    <label style="font-size:28px;font-weight:500;color:#64748B;">时间</label>' +
+          '    <input id="addEvTime" type="time" value="' + defaultTime + '"' +
+          '      style="width:100%;padding:20px;font-size:32px;border-radius:12px;border:1px solid #CBD5E1;background:#F8FAFC;color:#1E293B;outline:none;" />' +
+          '  </div>' +
+          '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+          '    <label style="font-size:28px;font-weight:500;color:#64748B;">颜色</label>' +
+          '    <div id="colorPicker" style="display:flex;gap:24px;align-items:center;"></div>' +
+          '  </div>' +
+          '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+          '    <label style="font-size:28px;font-weight:500;color:#64748B;">地点（选填）</label>' +
+          '    <input id="addEvLocation" type="text" maxlength="15" placeholder="如：3号会议室"' +
+          '      style="width:100%;padding:20px;font-size:32px;border-radius:12px;border:1px solid #CBD5E1;background:#F8FAFC;color:#1E293B;outline:none;" />' +
+          '  </div>' +
+          '</div>';
+
+        bodyEl.innerHTML = formHTML;
+
+        // Build color picker
+        var picker = bodyEl.querySelector('#colorPicker');
+        for (var i = 0; i < EVENT_COLORS.length; i++) {
+          var circle = document.createElement('div');
+          circle.setAttribute('data-color', EVENT_COLORS[i].hex);
+          circle.style.cssText = 'width:40px;height:40px;border-radius:50%;cursor:pointer;transition:transform 0.15s,border 0.15s;background:' + EVENT_COLORS[i].hex + ';';
+          if (i === 0) {
+            circle.style.border = '3px solid ' + EVENT_COLORS[i].hex;
+            circle.style.boxShadow = '0 0 0 3px #fff, 0 0 0 5px ' + EVENT_COLORS[i].hex;
+            circle.style.transform = 'scale(1.1)';
+          }
+          circle.addEventListener('click', function (e) {
+            var c = e.target.getAttribute('data-color');
+            selectedColor = c;
+            var circles = picker.querySelectorAll('div');
+            for (var j = 0; j < circles.length; j++) {
+              circles[j].style.border = 'none';
+              circles[j].style.boxShadow = 'none';
+              circles[j].style.transform = 'scale(1)';
+            }
+            e.target.style.border = '3px solid ' + c;
+            e.target.style.boxShadow = '0 0 0 3px #fff, 0 0 0 5px ' + c;
+            e.target.style.transform = 'scale(1.1)';
+          });
+          picker.appendChild(circle);
+        }
+      }
+    });
+    overlay.show();
+  }
+
   // ── FAB handler ──
   function setupFab() {
     $fabAddCal.addEventListener('click', function () {
-      console.log('[Calendar] FAB tapped — add event stub');
-      // Future: open overlay add-event form
+      showAddEventOverlay();
     });
   }
 

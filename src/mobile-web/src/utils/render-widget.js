@@ -140,7 +140,7 @@ export async function renderWidgetInFrame(frameEl, data) {
   // Inject CSS zoom for responsive scaling
   // Templates are designed at 896px (car-end); auto-detect & zoom down for smaller containers
   // Use a runtime script inside iframe to self-measure — avoids timing/visibility issues
-  const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw})()<\/script>`;
+  const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw;var r=document.getElementById('widget-root')||document.body.firstElementChild;if(r)r.style.minHeight='100vh'})()<\/script>`;
   html = html.replace('</head>', zoomScript + '</head>');
 
   // DEBUG: 输出实际注入 iframe 的 data-style 和 params
@@ -199,7 +199,7 @@ export function renderCodeWidgetInFrame(frameEl, htmlContent) {
   let html = htmlContent;
 
   // Inject CSS zoom script (same self-measuring logic as template mode)
-  const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw})()<\/script>`;
+  const zoomScript = `<script>(function(){var dw=896,w=window.innerWidth;if(w>0&&w<dw*0.95)document.documentElement.style.zoom=w/dw;var r=document.getElementById('widget-root')||document.body.firstElementChild;if(r)r.style.minHeight='100vh'})()<\/script>`;
   if (html.includes('</head>')) {
     html = html.replace('</head>', zoomScript + '</head>');
   } else if (html.includes('</body>')) {

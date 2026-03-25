@@ -11,7 +11,7 @@
     play: '<path d="M8 5v14l11-7z" fill="currentColor"/>',
     pause: '<path d="M6 4h4v16H6zm8 0h4v16h-4z" fill="currentColor"/>',
     prev: '<path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" fill="currentColor"/>',
-    next: '<path d="M16 6h2v12h-2zm-3.5 6L4 6v12z" fill="currentColor" transform="scale(-1,1) translate(-24,0)"/>',
+    next: '<path d="M16 6h2v12h-2zm-3.5 6L4 18V6z" fill="currentColor"/>',
     heart: '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>',
     star: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" fill="currentColor"/>',
     plane: '<path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" fill="currentColor"/>',

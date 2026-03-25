@@ -365,8 +365,10 @@
       $list.classList.add('hidden');
       $clockView.classList.remove('hidden');
       $clockView.style.display = '';
-      if ($viewToggle) $viewToggle.textContent = '\u2630'; // ☰ list icon
-      if ($viewToggle) $viewToggle.classList.add('active');
+      if ($viewToggle) {
+        $viewToggle.innerHTML = window.WidgetIcons ? WidgetIcons.get('list', 36) : '\u2630';
+        $viewToggle.classList.add('active');
+      }
       renderClockView();
       // Start clock update interval
       if (clockInterval) clearInterval(clockInterval);
@@ -374,8 +376,10 @@
     } else {
       $list.classList.remove('hidden');
       $clockView.classList.add('hidden');
-      if ($viewToggle) $viewToggle.textContent = '\u23F1'; // ⏱ clock icon
-      if ($viewToggle) $viewToggle.classList.remove('active');
+      if ($viewToggle) {
+        $viewToggle.innerHTML = window.WidgetIcons ? WidgetIcons.get('clock', 36) : '\u23F1';
+        $viewToggle.classList.remove('active');
+      }
       // Stop clock interval when not visible
       if (clockInterval) {
         clearInterval(clockInterval);
@@ -392,7 +396,13 @@
     });
   }
 
-  // ── FAB: add alarm stub overlay ──
+  // ── FAB: add alarm overlay with form ──
+  var REPEAT_OPTIONS = [
+    { value: '每天', label: '每天' },
+    { value: '工作日', label: '工作日' },
+    { value: '仅一次', label: '仅一次' }
+  ];
+
   function setupFab() {
     $fab.addEventListener('click', function () {
       if (typeof window.createOverlay !== 'function') {
@@ -400,18 +410,21 @@
         return;
       }
 
+      var selectedRepeat = '每天';
+
       var overlay = createOverlay({
         title: '添加闹钟',
         theme: 'dark',
         showSave: true,
         saveText: '保存',
         onSave: function () {
-          // Stub: add a new alarm with default values
+          var timeInput = overlay.body.querySelector('#addAlarmTime');
+          var labelInput = overlay.body.querySelector('#addAlarmLabel');
           var newAlarm = {
-            time: '09:00',
-            label: '新闹钟',
+            time: timeInput ? timeInput.value : '09:00',
+            label: (labelInput && labelInput.value.trim()) || '新闹钟',
             group: 'other',
-            repeat: '每天',
+            repeat: selectedRepeat,
             enabled: true
           };
           alarms.push(newAlarm);
@@ -422,10 +435,45 @@
         },
         content: function (body) {
           body.style.padding = '36px';
-          body.innerHTML = ''
-            + '<div style="color: rgba(245,245,240,0.6); font-size: 28px; text-align: center; padding: 48px 0;">'
-            + '闹钟设置功能开发中...'
-            + '</div>';
+          body.innerHTML = '' +
+            '<div style="display:flex;flex-direction:column;gap:32px;">' +
+            '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+            '    <label style="font-size:28px;color:rgba(245,245,240,0.5);">时间</label>' +
+            '    <input id="addAlarmTime" type="time" value="09:00" style="width:100%;padding:20px;font-size:36px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#F5F5F0;outline:none;" />' +
+            '  </div>' +
+            '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+            '    <label style="font-size:28px;color:rgba(245,245,240,0.5);">标签</label>' +
+            '    <input id="addAlarmLabel" type="text" maxlength="10" placeholder="起床、出门..." style="width:100%;padding:20px;font-size:32px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#F5F5F0;outline:none;" />' +
+            '  </div>' +
+            '  <div style="display:flex;flex-direction:column;gap:12px;">' +
+            '    <label style="font-size:28px;color:rgba(245,245,240,0.5);">重复</label>' +
+            '    <div id="repeatPicker" style="display:flex;gap:16px;"></div>' +
+            '  </div>' +
+            '</div>';
+
+          // Build repeat picker buttons
+          var picker = body.querySelector('#repeatPicker');
+          if (picker) {
+            for (var i = 0; i < REPEAT_OPTIONS.length; i++) {
+              var btn = document.createElement('div');
+              btn.setAttribute('data-repeat', REPEAT_OPTIONS[i].value);
+              btn.textContent = REPEAT_OPTIONS[i].label;
+              var isSelected = REPEAT_OPTIONS[i].value === selectedRepeat;
+              btn.style.cssText = 'padding:12px 24px;border-radius:16px;font-size:28px;cursor:pointer;transition:all 0.2s;' +
+                (isSelected ? 'background:rgba(74,222,128,0.2);color:#4ADE80;border:1px solid rgba(74,222,128,0.3);' : 'background:rgba(255,255,255,0.06);color:rgba(245,245,240,0.5);border:1px solid transparent;');
+              btn.addEventListener('click', function (e) {
+                selectedRepeat = e.target.getAttribute('data-repeat');
+                var btns = picker.querySelectorAll('div');
+                for (var j = 0; j < btns.length; j++) {
+                  var sel = btns[j].getAttribute('data-repeat') === selectedRepeat;
+                  btns[j].style.background = sel ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.06)';
+                  btns[j].style.color = sel ? '#4ADE80' : 'rgba(245,245,240,0.5)';
+                  btns[j].style.border = sel ? '1px solid rgba(74,222,128,0.3)' : '1px solid transparent';
+                }
+              });
+              picker.appendChild(btn);
+            }
+          }
         }
       });
       overlay.show();
@@ -457,6 +505,10 @@
     setupFab();
     setupOutsideTap();
     setupViewToggle();
+    // Set initial toggle icon
+    if ($viewToggle && window.WidgetIcons) {
+      $viewToggle.innerHTML = WidgetIcons.get('clock', 36);
+    }
     startCountdownTimer();
     // Apply initial view from params
     if (defaultView === 'clock') {

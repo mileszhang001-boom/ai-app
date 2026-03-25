@@ -26,6 +26,14 @@ export class PreviewPage {
       : (this.currentData?.description || '专属卡片');
     const insight = this._getAiInsight(this.currentData);
 
+    // Show "示例数据" hint for mock-data templates only
+    const MOCK_DATA_TYPES = ['weather', 'news', 'music', 'calendar', 'alarm'];
+    const showDataHint = !this.isCodeMode && this.currentData?.component_type &&
+      MOCK_DATA_TYPES.includes(this.currentData.component_type);
+    const dataHintHTML = showDataHint
+      ? `<div class="preview-data-hint"><span class="hint-dot"></span>当前为示例数据，推送到车机后将显示真实内容</div>`
+      : '';
+
     container.innerHTML = `
       <div class="preview-page">
         <div class="preview-top-content">
@@ -42,6 +50,8 @@ export class PreviewPage {
           <div class="ai-summary-bar" id="aiSummary">
             ✨ AI已为你生成：${description}
           </div>
+
+          ${dataHintHTML}
 
           <div class="preview-card-area">
             <div class="preview-card-wrapper">

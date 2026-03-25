@@ -563,6 +563,27 @@ body.scroll-locked { overflow: hidden; }
   line-height: 1.5;
 }
 
+/* 示例数据提示条 */
+.preview-data-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin: 0 16px 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+.hint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-tertiary);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
 /* Preview Actions */
 .preview-bottom-actions {
   display: flex;

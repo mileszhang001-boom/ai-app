@@ -15,8 +15,8 @@
     song_name: '夜曲',
     artist: '周杰伦',
     album: '十一月的萧邦',
-    cover_url: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2D1B3D"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#1A1028"/></linearGradient></defs><rect width="560" height="560" fill="url(#g)"/><text x="280" y="260" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="120" font-family="system-ui">♪</text><text x="280" y="340" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-size="36" font-family="system-ui">夜曲</text></svg>'),
-    lyrics_snippet: '\u266A 一步两步三步四步望着天 ...',
+    cover_url: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NjAiIGhlaWdodD0iNTYwIj48ZGVmcz48cmFkaWFsR3JhZGllbnQgaWQ9ImJnIiBjeD0iMzAlIiBjeT0iMzAlIiByPSI4MCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM0QTJENkIiLz48c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzJEMUIzRCIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBEMEExNCIvPjwvcmFkaWFsR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI1NjAiIGhlaWdodD0iNTYwIiBmaWxsPSJ1cmwoI2JnKSIvPjxjaXJjbGUgY3g9IjI4MCIgY3k9IjI4MCIgcj0iMTYwIiBmaWxsPSIjMUExMDI4IiBzdHJva2U9IiNGRkZGRkYxMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMjgwIiBjeT0iMjgwIiByPSIxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRjA4IiBzdHJva2Utd2lkdGg9IjEiLz48Y2lyY2xlIGN4PSIyODAiIGN5PSIyODAiIHI9IjQwIiBmaWxsPSIjMUExMDI4IiBzdHJva2U9IiNGRkZGRkYxNSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMjgwIiBjeT0iMjgwIiByPSI2IiBmaWxsPSIjOEI1Q0Y2ODAiLz48dGV4dCB4PSIyODAiIHk9IjQ2MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRkZGRjIwIiBmb250LXNpemU9IjI0IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+5Y2B5LiA5pyI55qE6JCn6YKmPC90ZXh0Pjwvc3ZnPg==',
+    lyrics_snippet: '\u266A 一步两步三步四步望着天 看星星 一颗两颗三颗四颗 连成线 ...',
     current_time: 102,
     total_time: 275,
     is_playing: true

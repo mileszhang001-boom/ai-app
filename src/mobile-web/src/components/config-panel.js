@@ -57,7 +57,12 @@ const TEMPLATE_CONFIGS = {
     title: '天气', subtitle: '实时天气信息',
     defaultColor: '#FFD700',
     fields: [
-      { key: 'city', type: 'text_input', label: '默认城市', placeholder: '输入城市名搜索', constraints: { maxLength: 10 } },
+      { key: 'city', type: 'enum_select', label: '默认城市', options: [
+        { value: '北京', label: '北京' }, { value: '上海', label: '上海' },
+        { value: '广州', label: '广州' }, { value: '深圳', label: '深圳' },
+        { value: '杭州', label: '杭州' }, { value: '成都', label: '成都' },
+        { value: '武汉', label: '武汉' }, { value: '西安', label: '西安' },
+      ], fallback: '北京' },
     ],
   },
   music: {
@@ -98,6 +103,19 @@ const TEMPLATE_CONFIGS = {
         { value: 'card', label: '卡片' },
         { value: 'list', label: '列表' },
       ], fallback: 'card' },
+    ],
+  },
+  mediahub: {
+    component_type: 'mediahub', theme: 'mediahub',
+    title: '三方播放', subtitle: '聚合你的播放内容',
+    defaultColor: '#1DB954',
+    fields: [
+      { key: 'apps', type: 'multi_select', label: '选择 App（最多2个）', options: [
+        { value: 'qq_music', label: 'QQ音乐' },
+        { value: 'cosmos', label: '小宇宙' },
+        { value: 'bilibili', label: 'B站' },
+        { value: 'ximalaya', label: '喜马拉雅' },
+      ], fallback: ['qq_music'], constraints: { maxSelect: 2 } },
     ],
   },
   alarm: {

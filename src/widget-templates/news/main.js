@@ -40,38 +40,38 @@
       category: 'tech',
       tag: '科技',
       tag_color: '#60A5FA',
-      title: 'Apple Vision Pro 2 发布：全新 M5 芯片，重量减轻 40%',
-      summary: 'Apple 今日发布第二代空间计算设备，搭载自研 M5 芯片，续航提升至 4 小时，售价 $2999 起。',
+      title: 'GPT-5 发布：多模态推理能力大幅提升',
+      summary: 'OpenAI 正式推出 GPT-5，在数学推理、代码生成和多模态理解方面实现重大突破，支持实时视频对话。',
       source: '36氪',
-      time: timeAgo(1),
-      image: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="896" height="220"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0F172A"/><stop offset="50%" stop-color="#1E40AF"/><stop offset="100%" stop-color="#0F172A"/></linearGradient></defs><rect width="896" height="220" fill="url(#g)"/><text x="448" y="120" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-size="48" font-family="system-ui">📰 每日简报</text></svg>')
+      time: timeAgo(2),
+      image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4OTYiIGhlaWdodD0iMjIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMEYxNzJBIi8+PHN0b3Agb2Zmc2V0PSI0MCUiIHN0b3AtY29sb3I9IiMxRTNBOEEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwRjE3MkEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iODk2IiBoZWlnaHQ9IjIyMCIgZmlsbD0idXJsKCNnKSIvPjx0ZXh0IHg9IjQ0OCIgeT0iMTIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTUpIiBmb250LXNpemU9IjQyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+QUkgwrcgTmV3IEVyYTwvdGV4dD48L3N2Zz4='
     },
     items: [
       {
         category: 'auto',
         tag: '汽车',
         tag_color: '#F59E0B',
-        title: '小米汽车 YU7 开启预订，首日订单突破 10 万',
+        title: '小米 YU7 正式发布：29.9万起，续航800km',
         source: '汽车之家',
         time: timeAgo(3),
-        image: ''
+        image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRjU5RTBCNDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGNTlFMEIxNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIiByeD0iMTIiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI4MCIgeT0iNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzYiPvCfmpc8L3RleHQ+PC9zdmc+'
       },
       {
         category: 'finance',
         tag: '财经',
         tag_color: '#34D399',
-        title: '央行宣布降准 0.5 个百分点，释放长期资金约 1 万亿',
+        title: 'A股三大指数集体收涨，科技板块领涨',
         source: '第一财经',
         time: timeAgo(5),
-        image: ''
+        image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMzREMzk5NDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMzNEQzOTkxNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIiByeD0iMTIiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI4MCIgeT0iNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzYiPvCfk4g8L3RleHQ+PC9zdmc+'
       },
       {
         category: 'sports',
         tag: '体育',
         tag_color: '#FB7185',
-        title: 'CBA 季后赛：北京首钢逆转广东宏远，晋级总决赛',
+        title: 'NBA 季后赛：勇士 vs 湖人 G7 今夜打响',
         source: '虎扑',
-        time: timeAgo(8),
+        time: timeAgo(6),
         image: ''
       }
     ]
@@ -145,24 +145,52 @@
   // ── Render a news card (index 0–2 maps to card 2–4) ──
   function renderCard(index, item) {
     var cardIndex = index + 2; // card2, card3, card4
-    var $tag   = document.getElementById('tag' + cardIndex);
-    var $title = document.getElementById('title' + cardIndex);
-    var $meta  = document.getElementById('meta' + cardIndex);
-    var $card  = document.getElementById('newsCard' + cardIndex);
+    var $card = document.getElementById('newsCard' + cardIndex);
+    if (!$card) return;
 
-    if (!$tag || !$title || !$meta || !$card) return;
-
-    // Tag with color
+    var hasImage = item.image && item.image.length > 0;
     var tagColor = item.tag_color || resolveTagColor(item.category);
-    $tag.textContent = item.tag || item.category || '资讯';
-    $tag.style.color = tagColor;
 
-    // Title
-    $title.textContent = item.title || '--';
+    // Rebuild card DOM to support image layout
+    $card.innerHTML = '';
+    if (hasImage) {
+      $card.classList.add('has-image');
+    } else {
+      $card.classList.remove('has-image');
+    }
 
-    // Meta with arrow
-    var meta = (item.source || '--') + ' · ' + (item.time || '--') + ' ›';
-    $meta.textContent = meta;
+    // Text side
+    var textDiv = document.createElement('div');
+    textDiv.className = 'news-card-text';
+
+    var tagEl = document.createElement('span');
+    tagEl.className = 'news-tag';
+    tagEl.textContent = item.tag || item.category || '资讯';
+    tagEl.style.color = tagColor;
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'news-title';
+    titleEl.textContent = item.title || '--';
+
+    var metaEl = document.createElement('div');
+    metaEl.className = 'news-meta';
+    metaEl.textContent = (item.source || '--') + ' · ' + (item.time || '--') + ' ›';
+
+    textDiv.appendChild(tagEl);
+    textDiv.appendChild(titleEl);
+    textDiv.appendChild(metaEl);
+    $card.appendChild(textDiv);
+
+    // Image side (if present)
+    if (hasImage) {
+      var thumbDiv = document.createElement('div');
+      thumbDiv.className = 'news-card-thumb';
+      var img = document.createElement('img');
+      img.src = item.image;
+      img.alt = '';
+      thumbDiv.appendChild(img);
+      $card.appendChild(thumbDiv);
+    }
 
     // Click handler
     $card.onclick = function () {

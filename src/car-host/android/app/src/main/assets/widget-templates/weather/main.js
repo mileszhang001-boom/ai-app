@@ -7,23 +7,90 @@
 (function () {
   'use strict';
 
-  // ── MOCK data for preview mode ──
-  var MOCK = {
-    city: '北京',
-    temperature: 26,
-    condition: '晴',
-    icon: '☀️',
-    feels_like: 28,
-    humidity: 45,
-    wind: '东南风 3级',
-    uv: '较强',
-    forecast: [
-      { day: '明天', icon: '⛅', high: 27, low: 18 },
-      { day: '后天', icon: '🌧', high: 22, low: 15 },
-      { day: '周一', icon: '☀️', high: 28, low: 19 }
-    ],
-    ai_suggestion: '天气晴好，适合户外活动。紫外线较强，建议涂抹防晒霜。'
+  // ── Preset cities for city picker ──
+  var PRESET_CITIES = ['北京', '上海', '广州', '深圳', '杭州', '成都', '武汉', '西安'];
+
+  // ── MOCK data per city for preview mode ──
+  var MOCK_CITY_DATA = {
+    '北京': {
+      temperature: 18, condition: '多云', icon: '⛅', feels_like: 16, humidity: 35, wind: '北风 3级', uv: '中等',
+      forecast: [
+        { day: '明天', icon: '☀️', high: 20, low: 10 },
+        { day: '后天', icon: '⛅', high: 22, low: 12 },
+        { day: '周一', icon: '☀️', high: 24, low: 13 }
+      ],
+      ai_suggestion: '多云天气，温差较大，建议带件薄外套。空气干燥，注意补水。'
+    },
+    '上海': {
+      temperature: 22, condition: '阴', icon: '☁️', feels_like: 21, humidity: 72, wind: '东风 2级', uv: '弱',
+      forecast: [
+        { day: '明天', icon: '🌧', high: 20, low: 16 },
+        { day: '后天', icon: '⛅', high: 23, low: 17 },
+        { day: '周一', icon: '☀️', high: 25, low: 18 }
+      ],
+      ai_suggestion: '阴天湿度较高，明天有雨，出门记得带伞。体感温润，穿长袖即可。'
+    },
+    '广州': {
+      temperature: 28, condition: '雷阵雨', icon: '⛈️', feels_like: 32, humidity: 85, wind: '南风 2级', uv: '较强',
+      forecast: [
+        { day: '明天', icon: '🌧', high: 29, low: 23 },
+        { day: '后天', icon: '⛅', high: 31, low: 24 },
+        { day: '周一', icon: '☀️', high: 32, low: 25 }
+      ],
+      ai_suggestion: '午后有雷阵雨，出门带伞。湿度大体感闷热，建议穿透气面料。'
+    },
+    '深圳': {
+      temperature: 27, condition: '多云转晴', icon: '⛅', feels_like: 30, humidity: 78, wind: '东南风 3级', uv: '较强',
+      forecast: [
+        { day: '明天', icon: '☀️', high: 30, low: 24 },
+        { day: '后天', icon: '☀️', high: 31, low: 25 },
+        { day: '周一', icon: '⛅', high: 29, low: 23 }
+      ],
+      ai_suggestion: '下午转晴，适合户外活动。紫外线较强，注意防晒。'
+    },
+    '杭州': {
+      temperature: 20, condition: '小雨', icon: '🌧', feels_like: 18, humidity: 80, wind: '东风 1级', uv: '弱',
+      forecast: [
+        { day: '明天', icon: '🌧', high: 19, low: 14 },
+        { day: '后天', icon: '⛅', high: 22, low: 15 },
+        { day: '周一', icon: '☀️', high: 24, low: 16 }
+      ],
+      ai_suggestion: '细雨绵绵，路面湿滑注意驾驶安全。建议穿防水外套。'
+    },
+    '成都': {
+      temperature: 19, condition: '阴', icon: '☁️', feels_like: 18, humidity: 70, wind: '微风', uv: '弱',
+      forecast: [
+        { day: '明天', icon: '☁️', high: 20, low: 14 },
+        { day: '后天', icon: '⛅', high: 22, low: 15 },
+        { day: '周一', icon: '☀️', high: 23, low: 16 }
+      ],
+      ai_suggestion: '阴天微风，气温舒适。适合逛街散步，穿件卫衣刚好。'
+    },
+    '武汉': {
+      temperature: 23, condition: '晴', icon: '☀️', feels_like: 25, humidity: 55, wind: '南风 2级', uv: '强',
+      forecast: [
+        { day: '明天', icon: '☀️', high: 26, low: 17 },
+        { day: '后天', icon: '⛅', high: 24, low: 16 },
+        { day: '周一', icon: '🌧', high: 20, low: 14 }
+      ],
+      ai_suggestion: '晴好天气，紫外线强，外出注意防晒。周一有雨，提前备伞。'
+    },
+    '西安': {
+      temperature: 16, condition: '晴转多云', icon: '⛅', feels_like: 14, humidity: 40, wind: '西北风 3级', uv: '中等',
+      forecast: [
+        { day: '明天', icon: '☁️', high: 18, low: 8 },
+        { day: '后天', icon: '⛅', high: 20, low: 10 },
+        { day: '周一', icon: '☀️', high: 22, low: 11 }
+      ],
+      ai_suggestion: '早晚温差大，建议洋葱穿搭。风力较大，骑行注意安全。'
+    }
   };
+
+  // Default MOCK (fallback)
+  var MOCK = MOCK_CITY_DATA['北京'];
+
+  // Current city state
+  var currentCity = '北京';
 
   // ── Weather condition → mesh gradient color mapping ──
   var CONDITION_COLORS = {
@@ -111,6 +178,24 @@
     }
   }
 
+  // ── Temperature animation ──
+  var prevTemp = null;
+
+  function animateNumber(el, from, to, suffix, duration) {
+    duration = duration || 800;
+    suffix = suffix || '';
+    var start = performance.now();
+    var diff = to - from;
+    if (diff === 0) { el.textContent = to + suffix; return; }
+    function tick(now) {
+      var t = Math.min((now - start) / duration, 1);
+      var ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // easeInOutQuad
+      el.textContent = Math.round(from + diff * ease) + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
   // ── Render all sections from data ──
   function render(data) {
     // City
@@ -121,7 +206,14 @@
 
     // Hero
     $sunIcon.textContent = data.icon || '☀️';
-    $temperature.textContent = (data.temperature != null ? data.temperature : '--') + '°';
+    // Animate temperature number
+    var newTemp = data.temperature != null ? data.temperature : null;
+    if (newTemp != null) {
+      animateNumber($temperature, prevTemp != null ? prevTemp : 0, newTemp, '°');
+      prevTemp = newTemp;
+    } else {
+      $temperature.textContent = '--°';
+    }
     $condition.textContent = data.condition || '--';
     $feelsLike.textContent = '体感 ' + (data.feels_like != null ? data.feels_like : '--') + '°';
 
@@ -153,16 +245,27 @@
     updateSunGlow(category);
   }
 
+  // ── Get mock data for current city ──
+  function getMockForCity(city) {
+    var data = MOCK_CITY_DATA[city] || MOCK;
+    // Attach city name to data
+    var result = {};
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) result[keys[i]] = data[keys[i]];
+    result.city = city;
+    return result;
+  }
+
   // ── Data fetch ──
   function fetchData() {
-    // Preview mode always uses MOCK
+    // Preview mode uses per-city MOCK
     if (dataMode === 'preview') {
-      render(mergeParams(MOCK));
+      render(mergeParams(getMockForCity(currentCity)));
       return;
     }
 
     // Live mode: try API, fallback to MOCK
-    var city = params.city || MOCK.city;
+    var city = params.city || currentCity;
     fetch('/api/weather?city=' + encodeURIComponent(city))
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -175,7 +278,7 @@
       })
       .catch(function (err) {
         console.warn('[Weather] API fetch failed, using MOCK:', err);
-        render(mergeParams(MOCK));
+        render(mergeParams(getMockForCity(currentCity)));
       });
   }
 
@@ -191,30 +294,32 @@
     return merged;
   }
 
-  // ── City click handler — opens overlay city picker ──
+  // ── City click handler — opens overlay with text input (Pencil Node gmj9b) ──
   function setupCityPicker() {
     var cityEl = document.getElementById('cityName') || document.querySelector('.city-name');
     if (!cityEl) return;
     cityEl.style.cursor = 'pointer';
     cityEl.addEventListener('click', function () {
       if (!window.createOverlay) { console.warn('overlay.js not loaded'); return; }
-      var currentCity = cityEl.textContent.replace(/\s*▾\s*/, '').trim();
       var overlay = createOverlay({
         title: '选择城市',
-        onSave: function () { /* handled by input */ },
-        renderContent: function (contentEl) {
-          contentEl.innerHTML = '<input type="text" id="cityInput" placeholder="输入城市名..." value="' + currentCity + '" style="width:100%;padding:16px;font-size:36px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F5F5F0;outline:none;" />';
-          var input = contentEl.querySelector('#cityInput');
-          input.focus();
-          input.select();
+        onSave: function () { /* handled by input enter */ },
+        content: function (contentEl) {
+          var input = document.createElement('input');
+          input.type = 'text';
+          input.id = 'cityInput';
+          input.placeholder = '输入城市名...';
+          input.value = currentCity;
+          input.style.cssText = 'width:100%;padding:16px;font-size:36px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F5F5F0;outline:none;';
+          contentEl.appendChild(input);
+          setTimeout(function () { input.focus(); input.select(); }, 100);
           input.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
               var newCity = input.value.trim();
               if (newCity) {
-                cityEl.textContent = newCity + '  ▾';
-                overlay.close();
-                // Re-fetch if live mode
-                if (typeof fetchWeatherData === 'function') fetchWeatherData(newCity);
+                currentCity = newCity;
+                overlay.hide();
+                fetchData();
               }
             }
           });
