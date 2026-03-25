@@ -69,6 +69,26 @@
     return y + '-' + m + '-' + day;
   }
 
+  // ── Random copy pools ──
+  var LABEL_DEFAULT = ['天就到啦','天的期待','天后出发','天，倒计时开始'];
+  var LABEL_SOON = ['天！马上就到了'];
+  var LABEL_TODAY = ['今天出发！'];
+  var LABEL_PAST = ['已经结束啦，期待下一次'];
+  var COPY_WITH_NAME = ['{name}去海边冲浪吧','期待{name}的旅程','{name}，准备出发'];
+  var COPY_NO_NAME = ['假期即将来临','准备出发吧'];
+
+  function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function makeLabel(countdown) {
+    if (countdown === 0) return pickRandom(LABEL_TODAY);
+    if (countdown < 0) return pickRandom(LABEL_PAST);
+    if (countdown <= 3) return pickRandom(LABEL_SOON);
+    return pickRandom(LABEL_DEFAULT);
+  }
+  function makeCopy(name) {
+    if (name) return pickRandom(COPY_WITH_NAME).replace('{name}', name);
+    return pickRandom(COPY_NO_NAME);
+  }
+
   // ── DOM references ──
   var els = {};
   function $(id) { return els[id] || (els[id] = document.getElementById(id)); }
@@ -78,24 +98,23 @@
     var targetDate = params.target_date;
     var countdown = daysDiff(todayStr(), targetDate);
 
-    // Tag pill
-    $('tagIcon').textContent = params.holiday_icon || '✈️';
-    $('tagText').textContent = params.holiday_name || '假期';
-
     // Countdown number + label
     if (countdown > 0) {
       $('numH').textContent = String(countdown);
-      $('labelH').textContent = '天';
+      $('labelH').textContent = makeLabel(countdown);
+    } else if (countdown === 0) {
+      $('numH').textContent = '0';
+      $('labelH').textContent = makeLabel(countdown);
     } else {
-      // Holiday has arrived or passed
-      $('numH').textContent = '已到达';
+      // Holiday has passed
+      $('numH').textContent = '0';
       $('numH').style.fontSize = '80px';
       $('numH').style.fontWeight = '500';
-      $('labelH').textContent = '';
+      $('labelH').textContent = makeLabel(countdown);
     }
 
     // Subtitle
-    $('subtitle').textContent = params.description || '';
+    $('subtitle').textContent = makeCopy(params.holiday_name) || '';
 
     // Date range
     var startFormatted = formatDate(params.target_date);

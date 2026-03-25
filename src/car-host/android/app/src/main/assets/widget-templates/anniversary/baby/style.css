@@ -87,12 +87,6 @@ html, body {
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* Pencil LtBJg: icon emoji, fontSize 32 */
-.widget-baby .icon-emoji {
-  font-size: 32px;
-  line-height: 1.2;
-}
-
 /* Pencil mfsaZ: big number, fontSize 160, weight 300, fill #3D2510, letterSpacing -4px */
 .widget-baby .big-number {
   font-family: 'MiSans_VF', -apple-system, 'SF Pro Display', sans-serif;

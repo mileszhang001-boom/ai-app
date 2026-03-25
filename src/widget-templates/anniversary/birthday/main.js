@@ -1,8 +1,8 @@
 /**
- * Anniversary / Holiday — main.js
- * Pencil Design Reference: Card-Holiday (7EC5L)
- * Countdown to target holiday date
- * Easter egg type: 'holiday' (confetti)
+ * Anniversary / Birthday — main.js
+ * Pencil Design Reference: Card-Birthday (2LUjp)
+ * Countdown to next birthday
+ * Easter egg type: 'birthday' (cake/gift/balloon)
  */
 
 (function() {
@@ -10,17 +10,42 @@
 
   // ── AI params / mock fallback ──
   var params = window.__WIDGET_PARAMS__ || {
-    target_date: '2026-05-01',
-    target_end_date: '2026-05-05',
-    holiday_name: '五一小长假',
-    holiday_icon: '✈️',
-    title: '出发！',
-    description: '假期即将来临，准备出发吧',
+    birthday_date: '2026-04-09',
+    person_name: '妈妈',
     background_image: '',
     primary_color: ''
   };
 
   var dataMode = window.__WIDGET_DATA_MODE__ || 'preview';
+
+  // ── Visual style ──
+  if (params.visual_style) {
+    document.documentElement.setAttribute('data-visual-style', params.visual_style);
+  }
+
+  // ── Random text pools ──
+  var LABEL_DEFAULT = ['天后就是TA的生日', '天的期待', '天后的惊喜', '天后一起庆祝'];
+  var LABEL_WEEK = ['天！快准备礼物吧'];
+  var LABEL_TOMORROW = ['明天就是TA的生日啦'];
+  var LABEL_TODAY = ['今天是TA的生日！', '生日快乐！'];
+  var COPY_WITH_NAME = ['给{name}准备一份惊喜吧', '{name}的专属生日愿望', '和{name}一起许个愿', '{name}，生日快乐', '期待{name}的生日派对'];
+  var COPY_NO_NAME = ['准备一份特别的惊喜吧', '许一个美好的生日愿望', '又长大了一岁', '生日快乐，愿一切美好'];
+  var COPY_TODAY_NAME = ['{name}，今天是属于你的日子', '祝{name}生日快乐，万事如意'];
+
+  function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function makeLabel(days) {
+    if (days === 0) return pickRandom(LABEL_TODAY);
+    if (days === 1) return pickRandom(LABEL_TOMORROW);
+    if (days <= 7) return pickRandom(LABEL_WEEK);
+    return pickRandom(LABEL_DEFAULT);
+  }
+
+  function makeCopy(name, days) {
+    if (days === 0 && name) return pickRandom(COPY_TODAY_NAME).replace('{name}', name);
+    if (name) return pickRandom(COPY_WITH_NAME).replace('{name}', name);
+    return pickRandom(COPY_NO_NAME);
+  }
 
   // ── Resolve background image base path ──
   function getBasePath() {
@@ -53,14 +78,6 @@
     return y + '.' + m + '.' + day;
   }
 
-  function daysDiff(fromStr, toStr) {
-    var from = parseDate(fromStr);
-    var to = parseDate(toStr);
-    if (!from || !to) return 0;
-    var diff = to.getTime() - from.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  }
-
   function todayStr() {
     var d = new Date();
     var y = d.getFullYear();
@@ -69,24 +86,42 @@
     return y + '-' + m + '-' + day;
   }
 
-  // ── Random copy pools ──
-  var LABEL_DEFAULT = ['天就到啦','天的期待','天后出发','天，倒计时开始'];
-  var LABEL_SOON = ['天！马上就到了'];
-  var LABEL_TODAY = ['今天出发！'];
-  var LABEL_PAST = ['已经结束啦，期待下一次'];
-  var COPY_WITH_NAME = ['{name}去海边冲浪吧','期待{name}的旅程','{name}，准备出发'];
-  var COPY_NO_NAME = ['假期即将来临','准备出发吧'];
+  /** Calculate days until next birthday (auto wrap to next year) */
+  function daysUntilBirthday(birthdayStr) {
+    var bd = parseDate(birthdayStr);
+    if (!bd) return 0;
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function makeLabel(countdown) {
-    if (countdown === 0) return pickRandom(LABEL_TODAY);
-    if (countdown < 0) return pickRandom(LABEL_PAST);
-    if (countdown <= 3) return pickRandom(LABEL_SOON);
-    return pickRandom(LABEL_DEFAULT);
+    // This year's birthday
+    var thisYear = new Date(today.getFullYear(), bd.getMonth(), bd.getDate());
+    thisYear.setHours(0, 0, 0, 0);
+
+    var diff = Math.ceil((thisYear.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diff < 0) {
+      // Birthday already passed this year, get next year's
+      var nextYear = new Date(today.getFullYear() + 1, bd.getMonth(), bd.getDate());
+      nextYear.setHours(0, 0, 0, 0);
+      diff = Math.ceil((nextYear.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    }
+    return diff;
   }
-  function makeCopy(name) {
-    if (name) return pickRandom(COPY_WITH_NAME).replace('{name}', name);
-    return pickRandom(COPY_NO_NAME);
+
+  /** Format the next birthday date as YYYY.MM.DD */
+  function nextBirthdayStr(birthdayStr) {
+    var bd = parseDate(birthdayStr);
+    if (!bd) return '';
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var thisYear = new Date(today.getFullYear(), bd.getMonth(), bd.getDate());
+    thisYear.setHours(0, 0, 0, 0);
+    if (thisYear.getTime() < today.getTime()) {
+      thisYear.setFullYear(today.getFullYear() + 1);
+    }
+    var y = thisYear.getFullYear();
+    var m = String(thisYear.getMonth() + 1).padStart(2, '0');
+    var d = String(thisYear.getDate()).padStart(2, '0');
+    return y + '.' + m + '.' + d;
   }
 
   // ── DOM references ──
@@ -95,47 +130,30 @@
 
   // ── Render ──
   function render() {
-    var targetDate = params.target_date;
-    var countdown = daysDiff(todayStr(), targetDate);
+    var days = daysUntilBirthday(params.birthday_date);
 
-    // Countdown number + label
-    if (countdown > 0) {
-      $('numH').textContent = String(countdown);
-      $('labelH').textContent = makeLabel(countdown);
-    } else if (countdown === 0) {
-      $('numH').textContent = '0';
-      $('labelH').textContent = makeLabel(countdown);
-    } else {
-      // Holiday has passed
-      $('numH').textContent = '0';
-      $('numH').style.fontSize = '80px';
-      $('numH').style.fontWeight = '500';
-      $('labelH').textContent = makeLabel(countdown);
-    }
+    // Hero number
+    $('numBd').textContent = String(days);
 
-    // Subtitle
-    $('subtitle').textContent = makeCopy(params.holiday_name) || '';
+    // Label
+    $('labelBd').textContent = makeLabel(days);
 
-    // Date range
-    var startFormatted = formatDate(params.target_date);
-    var endFormatted = formatDate(params.target_end_date);
-    if (startFormatted && endFormatted && params.target_end_date !== params.target_date) {
-      $('dateH').textContent = startFormatted + ' \u2014 ' + endFormatted;
-    } else if (startFormatted) {
-      $('dateH').textContent = startFormatted;
-    }
+    // Copy (with person_name)
+    $('copyBd').textContent = makeCopy(params.person_name, days);
+
+    // Date
+    $('dateBd').textContent = nextBirthdayStr(params.birthday_date);
   }
 
   // ── Background image loading + color extraction ──
   function loadBackground() {
-    var src = params.background_image || (basePath + 'backgrounds/holiday_bg_01.jpg');
+    var src = params.background_image || (basePath + 'backgrounds/birthday_bg_01.jpg');
 
     var img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = function() {
       $('photo-area').style.backgroundImage = 'url(' + img.src + ')';
 
-      // Extract color from image and tint the panel
       if (window.extractPanelTint) {
         try {
           var tint = window.extractPanelTint(img);
@@ -148,10 +166,9 @@
       }
     };
     img.onerror = function() {
-      // Fallback: try numbered backgrounds
       var fallbacks = [
-        basePath + 'backgrounds/holiday_bg_02.jpg',
-        basePath + 'backgrounds/holiday_bg_03.jpg'
+        basePath + 'backgrounds/birthday_bg_02.jpg',
+        basePath + 'backgrounds/birthday_bg_03.jpg'
       ];
       var idx = 0;
       function tryNext() {
@@ -169,7 +186,7 @@
     img.src = src;
   }
 
-  // ── Dynamic color engine (when AI provides primary_color) ──
+  // ── Dynamic color engine ──
   function applyDynamicColor() {
     if (!params.primary_color || !window.computePalette) return;
     var palette = window.computePalette(params.primary_color, 'mood');
@@ -181,7 +198,7 @@
     }
   }
 
-  // ── Easter egg (confetti on tap) ──
+  // ── Easter egg ──
   function initEasterEgg() {
     var canvas = $('easterEggCanvas');
     if (!canvas || !window.triggerEasterEgg) return;
@@ -196,7 +213,7 @@
       var scaleY = 1464 / rect.height;
       var x = (e.clientX - rect.left) * scaleX;
       var y = (e.clientY - rect.top) * scaleY;
-      window.triggerEasterEgg(canvas, x, y, 'holiday');
+      window.triggerEasterEgg(canvas, x, y, 'birthday');
     });
   }
 
@@ -218,16 +235,12 @@
     if (params.style_preset) {
       document.documentElement.setAttribute('data-style', params.style_preset);
     }
-    if (params.visual_style) {
-      document.documentElement.setAttribute('data-visual-style', params.visual_style);
-    }
 
     applyDynamicColor();
     render();
     loadBackground();
     initEasterEgg();
 
-    // Listen for theme changes
     if (window.AIWidgetBridge) {
       window.AIWidgetBridge.onThemeChange(function(theme) {
         document.documentElement.setAttribute('data-theme', theme.mode);

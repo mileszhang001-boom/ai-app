@@ -12,7 +12,6 @@
 
   var MOCK = {
     birth_date: '2024-09-22',
-    title: '成长',
     baby_name: '小星星',
     description: '宝贝健康长大',
     background_image: ''
@@ -22,7 +21,6 @@
     var m = isPreview ? MOCK : {};
     return {
       birth_date: p.birth_date || m.birth_date || '2024-01-01',
-      title: p.title || m.title || '成长',
       baby_name: p.baby_name || m.baby_name || '',
       description: p.description || p.subtitle || m.description || '',
       background_image: p.background_image || p.bg_photo || m.background_image || ''
@@ -31,6 +29,18 @@
 
   var params = mergeParams(_raw);
   if (_raw.visual_style) { document.documentElement.setAttribute('data-visual-style', _raw.visual_style); }
+
+  // -- Random pool functions --
+  var LABEL_DAYS = ['天的成长','天的陪伴','天的奇妙旅程'];
+  var LABEL_MONTHS = ['个月的成长','个月的蜕变'];
+  var COPY_WITH_NAME = ['{name}的成长日记','{name}每天都在进步','记录{name}的每一步'];
+  var COPY_NO_NAME = ['宝贝的成长日记','记录每一个珍贵瞬间'];
+
+  function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function makeCopy(name) {
+    if (name) return pickRandom(COPY_WITH_NAME).replace('{name}', name);
+    return pickRandom(COPY_NO_NAME);
+  }
 
   // -- Month calculation (timezone-safe) --
   function calculateMonths(birthDate) {
@@ -47,37 +57,6 @@
       months--;
     }
     return months >= 0 ? months : 0;
-  }
-
-  // -- Milestone detection --
-  function getMilestone(months) {
-    var milestones = [1, 3, 6, 9, 12, 18, 24, 30, 36, 48, 60, 72, 100];
-    if (milestones.indexOf(months) !== -1) return months;
-    if (months > 0 && months % 12 === 0) return months;
-    return null;
-  }
-
-  function getSubtitleForMilestone(months) {
-    var milestone = getMilestone(months);
-    if (!milestone) return null;
-    var map = {
-      1: '一个月啦，小小的你真可爱',
-      3: '三个月，会笑了呢',
-      6: '半岁啦，成长好快',
-      9: '九个月，快要学走路了',
-      12: '一岁生日快乐！',
-      18: '一岁半，小小探险家',
-      24: '两岁啦，每天都有新发现',
-      30: '两岁半，话越来越多了',
-      36: '三岁了，幼儿园的小朋友',
-      48: '四岁，充满好奇的年纪',
-      60: '五岁，大孩子了！',
-      72: '六岁，准备上小学啦',
-      100: '一百个月，成长的每一步都珍贵'
-    };
-    if (map[milestone]) return map[milestone];
-    var years = Math.floor(milestone / 12);
-    return years + '岁了，时光如此美好';
   }
 
   // -- Background image loading with fade-in transition --
@@ -139,18 +118,31 @@
   // -- Render --
   function render() {
     var months = calculateMonths(params.birth_date);
-    document.getElementById('dayCounter').textContent = months;
 
-    // Label: "个月的" + title
-    var labelEl = document.getElementById('labelText');
-    if (labelEl) {
-      labelEl.textContent = '个月的' + (params.title || '成长');
+    // Day vs month mode: ≤90 days shows days, >90 shows months
+    var parts0 = params.birth_date.split('-').map(Number);
+    var birthDate = new Date(parts0[0], parts0[1] - 1, parts0[2]);
+    var now = new Date();
+    now.setHours(0, 0, 0, 0);
+    var diffDays = Math.floor((now - birthDate) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) diffDays = 0;
+
+    var useDaysMode = diffDays <= 90;
+
+    if (useDaysMode) {
+      document.getElementById('dayCounter').textContent = diffDays;
+    } else {
+      document.getElementById('dayCounter').textContent = months;
     }
 
-    // Subtitle: baby_name (not description)
-    var milestone = getMilestone(months);
-    var sub = milestone ? getSubtitleForMilestone(months) : (params.baby_name || '小星星');
-    document.getElementById('subtitle').textContent = sub;
+    // Label text: random pick based on mode
+    var labelEl = document.getElementById('labelText');
+    if (labelEl) {
+      labelEl.textContent = useDaysMode ? pickRandom(LABEL_DAYS) : pickRandom(LABEL_MONTHS);
+    }
+
+    // Subtitle: random copy based on baby_name
+    document.getElementById('subtitle').textContent = makeCopy(params.baby_name);
 
     // Date format: "YYYY.MM.DD 出生"
     var parts = params.birth_date.split('-').map(Number);

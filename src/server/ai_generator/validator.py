@@ -18,7 +18,7 @@ from datetime import datetime
 # ── 白名单定义（与 prompt.py TEMPLATES 保持一致） ──
 
 VALID_TEMPLATE_IDS = {
-    "anniversary_love", "anniversary_baby", "anniversary_holiday",
+    "anniversary_love", "anniversary_baby", "anniversary_holiday", "anniversary_birthday",
     "news_news", "news_daily",           # news_daily = legacy alias
     "alarm_clock",
     "weather_weather", "weather_realtime",  # weather_realtime = legacy alias
@@ -50,7 +50,7 @@ VALID_STYLE_PRESETS = {
 VALID_VISUAL_STYLES = {"glass", "minimal", "material", "pixel"}
 
 VALID_THEMES = {
-    "anniversary": {"love", "baby", "holiday"},
+    "anniversary": {"love", "baby", "holiday", "birthday"},
     "news": {"news", "daily"},           # "daily" = legacy alias
     "alarm": {"clock"},
     "weather": {"weather", "realtime"},   # "realtime" = legacy alias
@@ -307,10 +307,18 @@ class ComponentValidator:
             "background_image": {"type": "string", "required": False, "maxLength": 50},
         }
 
+        # 生日 birthday schema
+        _anniversary_birthday = {
+            "birthday_date": {"type": "date", "required": True},
+            "person_name": {"type": "string", "required": False, "maxLength": 6},
+            "background_image": {"type": "string", "required": False, "maxLength": 200},
+        }
+
         schemas = {
             "anniversary": {
                 "love": _anniversary_love,
                 "baby": _anniversary_baby,
+                "birthday": _anniversary_birthday,
                 "holiday": {
                     "title": {"type": "string", "required": False, "maxLength": 8},
                     "target_date": {"type": "date", "required": True},

@@ -86,13 +86,6 @@ html, body {
   padding: 40px 48px;
 }
 
-/* ── Heart Icon (vFO4Q) ── */
-#heartIcon {
-  font-size: 32px;
-  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
-  line-height: 1;
-}
-
 /* ── Big Number (cmlYx) ── */
 #bigNum {
   font-size: 160px;

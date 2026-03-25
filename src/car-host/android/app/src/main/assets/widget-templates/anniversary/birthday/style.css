@@ -1,7 +1,7 @@
 /* ========================================
-   Anniversary / Holiday — style.css
-   Pencil Design Reference: Card-Holiday (7EC5L)
-   896x1464 · Liquid Glass · Dark
+   Anniversary / Birthday — style.css
+   Pencil Design Reference: Card-Birthday (2LUjp)
+   896x1464 · Liquid Glass · Dark · Violet
    ======================================== */
 
 /* Reset */
@@ -18,17 +18,17 @@ html, body {
   background: transparent;
 }
 
-/* ── Card Root (7EC5L) ── */
+/* ── Card Root ── */
 #widget-root {
   position: relative;
   width: 896px;
   height: 1464px;
   border-radius: 24px;
-  background: #0A2A2A;
+  background: #1A2030;
   overflow: hidden;
 }
 
-/* ── Photo Area (oefx1) — full opacity, no separate bottom-darken ── */
+/* ── Photo Area — full bleed background ── */
 #photo-area {
   position: absolute;
   top: 0;
@@ -36,13 +36,13 @@ html, body {
   width: 896px;
   height: 1464px;
   border-radius: 32px;
-  opacity: 1;
+  opacity: 0.85;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-/* ── Glass Panel (LmdCG) — 896x598, y:866, padding 48 uniform ── */
+/* ── Glass Panel — 896x598, y:866, violet gradient ── */
 #glass-panel {
   position: absolute;
   left: 0;
@@ -52,10 +52,10 @@ html, body {
   border-radius: 32px;
   background: linear-gradient(
     180deg,
-    #6b3510d0 0%,
-    #5a2a0cdc 33%,
-    #4a2008f0 66%,
-    #4a2008f8 100%
+    #8b5cf6d0 0%,
+    #7c3aede8 33%,
+    #6d28d9f2 66%,
+    #5b21b6f8 100%
   );
   opacity: 0.7;
   backdrop-filter: blur(60px) saturate(1.8);
@@ -66,8 +66,8 @@ html, body {
   padding: 48px;
 }
 
-/* ── Big Number (OA1qY) ── */
-#numH {
+/* ── Hero Number ── */
+#numBd {
   font-size: 160px;
   font-weight: 300;
   color: #F5F5F0;
@@ -76,8 +76,8 @@ html, body {
   font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* ── Label (k5gF7) ── */
-#labelH {
+/* ── Label ── */
+#labelBd {
   font-size: 42px;
   font-weight: 500;
   color: #F5F5F0D0;
@@ -85,7 +85,7 @@ html, body {
   font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* ── Divider (rne5P) ── */
+/* ── Divider ── */
 #divider {
   width: 48px;
   height: 1.5px;
@@ -93,16 +93,16 @@ html, body {
   flex-shrink: 0;
 }
 
-/* ── Subtitle (PYzkO) ── */
-#subtitle {
+/* ── Copy ── */
+#copyBd {
   font-size: 36px;
   font-weight: 500;
   color: #F5F5F0;
   font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
 }
 
-/* ── Date (scBC0) ── */
-#dateH {
+/* ── Date ── */
+#dateBd {
   font-size: 28px;
   font-weight: normal;
   color: #F5F5F0A0;

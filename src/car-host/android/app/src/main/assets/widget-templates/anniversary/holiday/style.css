@@ -66,32 +66,6 @@ html, body {
   padding: 48px;
 }
 
-/* ── Tag Pill (2oXHu) — cornerRadius 16, fill #FFFFFF20, horizontal layout ── */
-#tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 16px;
-  background: #FFFFFF20;
-  align-self: flex-start;
-}
-
-/* ── Tag Icon (NpeSx) ── */
-#tagIcon {
-  font-size: 28px;
-  line-height: 1;
-}
-
-/* ── Tag Text (PyxlH) ── */
-#tagText {
-  font-size: 32px;
-  font-weight: 600;
-  color: #F5F5F0;
-  font-family: 'MiSans_VF', 'MiSans', -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
-  line-height: 1.2;
-}
-
 /* ── Big Number (OA1qY) ── */
 #numH {
   font-size: 160px;

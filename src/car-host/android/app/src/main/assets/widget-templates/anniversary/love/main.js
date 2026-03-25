@@ -19,11 +19,20 @@
     var m = isPreview ? MOCK : {};
     return {
       start_date: p.start_date || m.start_date || '2024-01-01',
-      title: p.title || m.title || '在一起',
       nickname: p.nickname || m.nickname || '',
       description: p.description || p.subtitle || m.description || '',
       background_image: p.background_image || p.bg_photo || m.background_image || ''
     };
+  }
+
+  var LABEL_POOL = ['天的相伴','天的陪伴','天的甜蜜','天的守护','天的浪漫'];
+  var COPY_WITH_NAME = ['与{name}相伴的每一天','{name}，感谢你的陪伴','有{name}的日子真好','和{name}一起走过的时光'];
+  var COPY_NO_NAME = ['感谢每一天的陪伴','爱是最美的纪念'];
+
+  function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function makeCopy(name) {
+    if (name) return pickRandom(COPY_WITH_NAME).replace('{name}', name);
+    return pickRandom(COPY_NO_NAME);
   }
 
   // ④ Color engine: extract from background image
@@ -55,8 +64,8 @@
   function render(data) {
     var days = daysDiff(data.start_date);
     document.getElementById('bigNum').textContent = days;
-    document.getElementById('label').textContent = '天的' + data.title;
-    document.getElementById('subtitle').textContent = data.description;
+    document.getElementById('label').textContent = pickRandom(LABEL_POOL);
+    document.getElementById('subtitle').textContent = makeCopy(data.nickname);
     document.getElementById('dateText').textContent = fmtDate(data.start_date) + ' — ' + fmtDate(new Date());
 
     // Background image

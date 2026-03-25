@@ -95,6 +95,7 @@
   var LOVE_COLORS = ['#FF6B8A', '#FF8FAB', '#FFB3C6'];
   var BABY_COLORS = ['#F5C842', '#FFD700', '#FFA500'];
   var HOLIDAY_COLORS = ['#FF8C42', '#FFD700', '#4ADE80', '#60A5FA', '#F472B6'];
+  var BIRTHDAY_COLORS = ['#8B5CF6', '#A78BFA', '#FFD700', '#FF6B8A', '#60A5FA'];
 
   function randomColor(colors) {
     return colors[Math.floor(Math.random() * colors.length)];
@@ -161,6 +162,29 @@
     p.active = true;
   }
 
+  function initBirthdayParticle(p, x, y) {
+    // 向上弹射 + 摇摆旋转
+    var angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.6;
+    var speed = 4 + Math.random() * 6;
+    p.x = x;
+    p.y = y;
+    p.vx = Math.cos(angle) * speed;
+    p.vy = Math.sin(angle) * speed;
+    p.gravity = 0.08;
+    p.size = 20 + Math.random() * 24; // 20-44px emoji
+    p.opacity = 0.9;
+    p.rotation = (Math.random() - 0.5) * 0.3;
+    p.rotSpeed = (Math.random() - 0.5) * 0.08;
+    p.color = randomColor(BIRTHDAY_COLORS);
+    p.life = 0;
+    p.maxLife = 40 + Math.random() * 20; // ~1.5s at 60fps
+    // 🎂:🎁:🎈 = 2:1:2
+    var r = Math.random() * 5;
+    p.type = r < 2 ? 'emoji-cake' : r < 3 ? 'emoji-gift' : 'emoji-balloon';
+    p.drift = (Math.random() - 0.5) * 0.06; // 摇摆
+    p.active = true;
+  }
+
   // ── 更新与绘制 ──
 
   function updateParticle(p) {
@@ -201,6 +225,21 @@
       case 'star': drawStar(ctx, p); break;
       case 'confetti': drawConfetti(ctx, p); break;
       case 'sparkle': drawSparkle(ctx, p); break;
+      case 'emoji-cake':
+      case 'emoji-gift':
+      case 'emoji-balloon': {
+        var emoji = p.type === 'emoji-cake' ? '🎂' : p.type === 'emoji-gift' ? '🎁' : '🎈';
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation || 0);
+        ctx.globalAlpha = p.opacity;
+        ctx.font = p.size + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, 0, 0);
+        ctx.restore();
+        break;
+      }
       case 'circle':
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -228,7 +267,7 @@
 
     activeCanvas = canvas;
     var count = 5 + Math.floor(Math.random() * 4); // 5-8 微动效
-    var inits = { love: initLoveParticle, baby: initBabyParticle, holiday: initHolidayParticle };
+    var inits = { love: initLoveParticle, baby: initBabyParticle, holiday: initHolidayParticle, birthday: initBirthdayParticle };
     var initFn = inits[type] || inits.love;
 
     var spawned = 0;

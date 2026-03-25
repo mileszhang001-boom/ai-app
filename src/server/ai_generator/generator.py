@@ -1458,7 +1458,7 @@ class AIGenerator:
         }
         VALID_IDS = {
             "alarm_clock", "news_news", "weather_weather", "music_music", "calendar_calendar",
-            "anniversary_love", "anniversary_baby", "anniversary_holiday",
+            "anniversary_love", "anniversary_baby", "anniversary_holiday", "anniversary_birthday",
             # legacy IDs still accepted
             "news_daily", "weather_realtime", "music_player", "calendar_schedule",
         }
