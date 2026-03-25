@@ -52,12 +52,12 @@ html, body {
   background: linear-gradient(
     to bottom,
     #3a180800   0%,
-    #3a1808c0   3%,
-    #3a1808e8   8%,
-    #3a1808f5  15%,
-    #3a1808fb  30%,
-    #3a1808fd  50%,
-    #3a1808ff 100%
+    #3a180840  10%,
+    #3a180870  25%,
+    #3a180898  45%,
+    #3a1808b8  65%,
+    #3a1808d0  80%,
+    #3a1808e0 100%
   );
   pointer-events: none;
 }
@@ -72,13 +72,13 @@ html, body {
   border-radius: 32px 32px 0 0;
   background: linear-gradient(
     180deg,
-    #5c3018d0 0%,
-    #4b2410e0 33%,
-    #3a1808f0 66%,
-    #3a1808f8 100%
+    #5c301880 0%,
+    #4a251098 33%,
+    #3a1808b0 66%,
+    #3a1808c8 100%
   );
-  backdrop-filter: blur(60px) saturate(1.8);
-  -webkit-backdrop-filter: blur(60px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.4);
+  -webkit-backdrop-filter: blur(40px) saturate(1.4);
   display: flex;
   flex-direction: column;
   gap: 12px;

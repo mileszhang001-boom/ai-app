@@ -53,12 +53,12 @@ html, body {
   height: 600px;
   background: linear-gradient(180deg,
     #b8906000 0%,
-    #b89060c0 3%,
-    #b89060e8 8%,
-    #b89060f5 15%,
-    #b89060fb 30%,
-    #b89060fd 50%,
-    #b89060ff 100%);
+    #b8906040 10%,
+    #b8906070 25%,
+    #b8906098 45%,
+    #b89060b8 65%,
+    #b89060d0 80%,
+    #b89060e0 100%);
   pointer-events: none;
 }
 
@@ -78,10 +78,10 @@ html, body {
   align-items: flex-start;
   z-index: 2;
   background: linear-gradient(180deg,
-    #c8a070e0 0%,
-    #bca064ec 33%,
-    #b09058f2 66%,
-    #b09058f8 100%);
+    #c8a07080 0%,
+    #bca06498 33%,
+    #b09058b0 66%,
+    #b09058c8 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }

@@ -52,13 +52,13 @@ html, body {
   border-radius: 32px;
   background: linear-gradient(
     180deg,
-    #6b3510d0 0%,
-    #5a2a0cdc 33%,
-    #4a2008f0 66%,
-    #4a2008f8 100%
+    #6b351080 0%,
+    #5a2a0c98 33%,
+    #4a2008b0 66%,
+    #4a2008c8 100%
   );
-  backdrop-filter: blur(60px) saturate(1.8);
-  -webkit-backdrop-filter: blur(60px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.4);
+  -webkit-backdrop-filter: blur(40px) saturate(1.4);
   display: flex;
   flex-direction: column;
   gap: 12px;
