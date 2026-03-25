@@ -113,9 +113,16 @@
 
     // Cover image (pre-check with Image to handle broken URLs)
     var coverUrl = data.cover_url || data.albumArtUrl || '';
-    // Resolve relative URLs for srcdoc mode (mobile preview)
-    if (coverUrl && coverUrl.charAt(0) === '.' && window.__TEMPLATE_BASE_PATH__) {
-      coverUrl = window.__TEMPLATE_BASE_PATH__ + coverUrl.replace('./', '');
+    // Resolve relative/absolute URLs for srcdoc iframe (mobile preview)
+    if (coverUrl && coverUrl.indexOf('data:') !== 0 && coverUrl.indexOf('http') !== 0) {
+      var basePath = window.__TEMPLATE_BASE_PATH__ || '';
+      if (coverUrl.charAt(0) === '.') {
+        coverUrl = basePath + coverUrl.replace('./', '');
+      }
+      // srcdoc has about:srcdoc origin — absolute paths need full parent origin
+      if (coverUrl.charAt(0) === '/' && window.location.protocol === 'about:') {
+        try { coverUrl = window.parent.location.origin + coverUrl; } catch(e) {}
+      }
     }
     if (coverUrl) {
       var testImg = new Image();

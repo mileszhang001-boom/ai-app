@@ -3,18 +3,21 @@ package com.xiaomi.carwidget.webview
 import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
@@ -147,12 +150,32 @@ class WidgetJsBridge(
             put("duration", (metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L) / 1000)
             put("position", (playbackState?.position ?: 0L) / 1000)
             put("isPlaying", playbackState?.state == PlaybackState.STATE_PLAYING)
-            // Album art URL: try ART_URI, fall back to empty
-            val artUri = metadata?.getString(MediaMetadata.METADATA_KEY_ART_URI)
+            // Album art: try URI first, then Bitmap → base64 data URI
+            var artUrl = metadata?.getString(MediaMetadata.METADATA_KEY_ART_URI)
                 ?: metadata?.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI)
                 ?: ""
-            put("albumArtUrl", artUri)
+            if (artUrl.isEmpty()) {
+                val bmp = metadata?.getBitmap(MediaMetadata.METADATA_KEY_ART)
+                    ?: metadata?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
+                if (bmp != null) {
+                    artUrl = bitmapToDataUri(bmp)
+                }
+            }
+            put("albumArtUrl", artUrl)
         }
+    }
+
+    private fun bitmapToDataUri(bmp: Bitmap): String {
+        // Scale down to max 200px to keep payload small
+        val maxSize = 200
+        val scaled = if (bmp.width > maxSize || bmp.height > maxSize) {
+            val ratio = maxSize.toFloat() / maxOf(bmp.width, bmp.height)
+            Bitmap.createScaledBitmap(bmp, (bmp.width * ratio).toInt(), (bmp.height * ratio).toInt(), true)
+        } else bmp
+        val baos = ByteArrayOutputStream()
+        scaled.compress(Bitmap.CompressFormat.JPEG, 70, baos)
+        val b64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
+        return "data:image/jpeg;base64,$b64"
     }
 
     fun getInterfaceName(): String = JS_INTERFACE_NAME
@@ -220,7 +243,7 @@ class WidgetJsBridge(
 
             "getMediaSession" -> getActiveMediaSessionData()
 
-            "mediaControl" -> JSONObject().apply { put("success", true) }
+            "mediaControl" -> handleMediaControl(params)
 
             "scheduleNotification" -> JSONObject().apply { put("success", true) }
 
@@ -233,6 +256,24 @@ class WidgetJsBridge(
 
             else -> JSONObject().apply { put("success", true) }
         }
+    }
+
+    private fun handleMediaControl(params: JSONObject): JSONObject {
+        val action = params.optString("action", "")
+        val controller = activeMediaController
+        if (controller == null) {
+            return JSONObject().apply { put("success", false); put("error", "no active session") }
+        }
+        val tc = controller.transportControls
+        when (action) {
+            "play" -> tc.play()
+            "pause" -> tc.pause()
+            "next" -> tc.skipToNext()
+            "prev" -> tc.skipToPrevious()
+            else -> return JSONObject().apply { put("success", false); put("error", "unknown action: $action") }
+        }
+        Log.i("WidgetJsBridge", "mediaControl: $action → ${controller.packageName}")
+        return JSONObject().apply { put("success", true); put("action", action) }
     }
 
     private fun getActiveMediaSessionData(): JSONObject {
