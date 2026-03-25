@@ -100,7 +100,8 @@ class WidgetWebView(
             else{applyZoom();}
         })();</script>"""
 
-        val injection = "$paramsScript\n$carWidgetScript\n$zoomScript\n"
+        val dataModeScript = "<script>window.__WIDGET_DATA_MODE__ = 'live';</script>"
+        val injection = "$paramsScript\n$carWidgetScript\n$dataModeScript\n$zoomScript\n"
 
         // Inject before </head>
         return if (html.contains("</head>")) {

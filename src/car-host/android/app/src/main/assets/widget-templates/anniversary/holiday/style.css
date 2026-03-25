@@ -52,12 +52,12 @@ html, body {
   background: linear-gradient(
     to bottom,
     #6b351000   0%,
-    #6b351040  10%,
-    #6b351070  25%,
-    #6b351098  45%,
-    #6b3510b8  65%,
-    #6b3510d0  80%,
-    #6b3510e0 100%
+    #6b3510c0   3%,
+    #6b3510e8   8%,
+    #6b3510f5  15%,
+    #6b3510fb  30%,
+    #6b3510fd  50%,
+    #6b3510ff 100%
   );
   pointer-events: none;
 }
@@ -72,10 +72,10 @@ html, body {
   border-radius: 32px;
   background: linear-gradient(
     180deg,
-    #6b351080 0%,
-    #5a2a0c98 33%,
-    #4a2008b0 66%,
-    #4a2008c8 100%
+    #6b3510d0 0%,
+    #5a2808e8 33%,
+    #4a2008f2 66%,
+    #4a2008f8 100%
   );
   backdrop-filter: blur(40px) saturate(1.4);
   -webkit-backdrop-filter: blur(40px) saturate(1.4);
