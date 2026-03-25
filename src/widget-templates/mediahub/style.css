@@ -262,7 +262,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   flex: 1;
   overflow: hidden;
 }
-.dual .playlist { gap: 6px; }
+.dual .playlist { gap: 8px; justify-content: space-between; }
 
 .track-row {
   display: flex;
@@ -278,24 +278,24 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 }
 .track-row:active { background: rgba(255,255,255,0.06); }
 .dual .track-row {
-  min-height: 56px;
-  gap: 12px;
-  padding: 8px 10px;
-  border-radius: 10px;
+  min-height: 120px;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
 }
 
 .track-thumb {
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
+  width: 110px;
+  height: 110px;
+  border-radius: 16px;
   overflow: hidden;
   flex-shrink: 0;
   background: rgba(255,255,255,0.04);
 }
 .dual .track-thumb {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
 }
 
 .track-thumb img {
@@ -316,7 +316,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.dual .track-name { font-size: 22px; }
+.dual .track-name { font-size: 28px; }
 
 .track-artist {
   font-size: 22px;

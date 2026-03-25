@@ -135,7 +135,7 @@ function renderAppZone(appId, mode) {
   var data = MOCK_DATA[appId] || {};
   var np = data.now_playing || {};
   var playlist = data.playlist || [];
-  var maxTracks = mode === 'single' ? 7 : 4;
+  var maxTracks = mode === 'single' ? 7 : 3;
   var isPodcast = brand.type === 'podcast' || brand.type === 'audiobook';
 
   var zone = document.createElement('div');

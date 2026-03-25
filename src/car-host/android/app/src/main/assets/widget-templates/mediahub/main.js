@@ -18,49 +18,65 @@ var MOCK_DATA = {
   qq_music: {
     now_playing: {
       title: '晴天', artist: '周杰伦 · 叶惠美',
-      cover_url: 'https://picsum.photos/seed/qq-album/560/560',
+      cover_url: 'https://picsum.photos/seed/qq-album/280/280',
       current_time: 102, total_time: 275, is_playing: true
     },
     playlist: [
       { title: '起风了', artist: '买辣椒也用券', cover_url: 'https://picsum.photos/seed/qifengle/52/52', duration: '5:12' },
       { title: '夜曲', artist: '周杰伦', cover_url: 'https://picsum.photos/seed/yequ/52/52', duration: '4:01' },
       { title: '光辉岁月', artist: 'Beyond', cover_url: 'https://picsum.photos/seed/beyond/52/52', duration: '4:25' },
+      { title: '稻香', artist: '周杰伦', cover_url: 'https://picsum.photos/seed/daoxiang/52/52', duration: '3:43' },
+      { title: '平凡之路', artist: '朴树', cover_url: 'https://picsum.photos/seed/pfzl/52/52', duration: '4:46' },
+      { title: '海阔天空', artist: 'Beyond', cover_url: 'https://picsum.photos/seed/hktk/52/52', duration: '5:25' },
+      { title: '告白气球', artist: '周杰伦', cover_url: 'https://picsum.photos/seed/gbqq/52/52', duration: '3:36' },
     ]
   },
   cosmos: {
     now_playing: {
       title: 'Vol.328 当我们谈论AI时', artist: '文化有限 · 科技',
-      cover_url: 'https://picsum.photos/seed/cosmos-pod/560/560',
+      cover_url: 'https://picsum.photos/seed/cosmos-pod/280/280',
       current_time: 1800, total_time: 3480, is_playing: true
     },
     playlist: [
       { title: 'E86 失眠的一百万种理由', artist: '随机波动', cover_url: 'https://picsum.photos/seed/cosmos1/52/52', duration: '45min' },
       { title: '聊聊远程办公这三年', artist: '日谈公园', cover_url: 'https://picsum.photos/seed/cosmos2/52/52', duration: '58min' },
       { title: '故事FM · 我在南极的200天', artist: '故事FM', cover_url: 'https://picsum.photos/seed/cosmos3/52/52', duration: '45min' },
+      { title: '谐星聊天会 · 内卷人生', artist: '谐星聊天会', cover_url: 'https://picsum.photos/seed/cosmos4/52/52', duration: '62min' },
+      { title: '不合时宜 · 城市漫步', artist: '不合时宜', cover_url: 'https://picsum.photos/seed/cosmos5/52/52', duration: '38min' },
+      { title: '忽左忽右 · 芯片战争', artist: '忽左忽右', cover_url: 'https://picsum.photos/seed/cosmos6/52/52', duration: '72min' },
+      { title: '声东击西 · 数字游民', artist: '声东击西', cover_url: 'https://picsum.photos/seed/cosmos7/52/52', duration: '51min' },
     ]
   },
   bilibili: {
     now_playing: {
       title: '【4K】绝美风景合集', artist: '摄影师小明 · 2.3万播放',
-      cover_url: 'https://picsum.photos/seed/bili-4k/560/560',
+      cover_url: 'https://picsum.photos/seed/bili-4k/280/280',
       current_time: 204, total_time: 537, is_playing: true
     },
     playlist: [
       { title: '日落黄昏的海边', artist: '旅行小王 · 8.1万播放', cover_url: 'https://picsum.photos/seed/bili1/52/52', duration: '8:30' },
       { title: '城市夜景延时摄影', artist: '影视飓风 · 32万播放', cover_url: 'https://picsum.photos/seed/bili2/52/52', duration: '12:45' },
       { title: '深夜电台 · 一人食', artist: '美食作家王刚 · 15万播放', cover_url: 'https://picsum.photos/seed/bili3/52/52', duration: '10:20' },
+      { title: '宇宙自然纪录片', artist: '科学科普人 · 45万播放', cover_url: 'https://picsum.photos/seed/bili4/52/52', duration: '15:30' },
+      { title: '极简主义生活vlog', artist: '日常小美 · 6.7万播放', cover_url: 'https://picsum.photos/seed/bili5/52/52', duration: '7:15' },
+      { title: '机械键盘测评合集', artist: '科技美学 · 28万播放', cover_url: 'https://picsum.photos/seed/bili6/52/52', duration: '18:42' },
+      { title: '二次元混剪 · 燃向', artist: 'AMV工坊 · 52万播放', cover_url: 'https://picsum.photos/seed/bili7/52/52', duration: '4:55' },
     ]
   },
   ximalaya: {
     now_playing: {
       title: '三体（全集）', artist: '刘慈欣 | 播讲：张震',
-      cover_url: 'https://picsum.photos/seed/xmly-santi/560/560',
+      cover_url: 'https://picsum.photos/seed/xmly-santi/280/280',
       current_time: 5025, total_time: 7710, is_playing: true
     },
     playlist: [
       { title: '明朝那些事儿', artist: '当年明月 · 第3集', cover_url: 'https://picsum.photos/seed/xmly1/52/52', duration: '45:12' },
       { title: '白鹿原', artist: '陈忠实 · 第12集', cover_url: 'https://picsum.photos/seed/xmly2/52/52', duration: '38:45' },
       { title: '人间词话', artist: '王国维 · 第7集', cover_url: 'https://picsum.photos/seed/xmly3/52/52', duration: '52:18' },
+      { title: '围城', artist: '钱钟书 · 第5集', cover_url: 'https://picsum.photos/seed/xmly4/52/52', duration: '41:33' },
+      { title: '活着', artist: '余华 · 第2集', cover_url: 'https://picsum.photos/seed/xmly5/52/52', duration: '35:18' },
+      { title: '百年孤独', artist: '马尔克斯 · 第8集', cover_url: 'https://picsum.photos/seed/xmly6/52/52', duration: '48:05' },
+      { title: '红楼梦', artist: '曹雪芹 · 第15集', cover_url: 'https://picsum.photos/seed/xmly7/52/52', duration: '55:42' },
     ]
   }
 };
@@ -119,7 +135,7 @@ function renderAppZone(appId, mode) {
   var data = MOCK_DATA[appId] || {};
   var np = data.now_playing || {};
   var playlist = data.playlist || [];
-  var maxTracks = 3;
+  var maxTracks = mode === 'single' ? 7 : 3;
   var isPodcast = brand.type === 'podcast' || brand.type === 'audiobook';
 
   var zone = document.createElement('div');
@@ -163,54 +179,24 @@ function renderAppZone(appId, mode) {
   sp1.className = 'spacer-lg';
   content.appendChild(sp1);
 
-  // ── Now Playing ──
-  var artSize = mode === 'single' ? 560 : 340;
+  // ── Now Playing (horizontal: art + info side-by-side) ──
+  var artSize = mode === 'single' ? 280 : 140;
   var coverUrl = np.cover_url || makeCoverPlaceholder(brand.color, artSize);
+  var pct = np.total_time ? (np.current_time / np.total_time * 100) : 0;
 
-  if (mode === 'single') {
-    // Single: art centered, info below
-    var artDiv = document.createElement('div');
-    artDiv.className = 'album-art-wrap';
-    artDiv.innerHTML = '<img class="album-art" src="' + coverUrl + '" alt="cover">';
-    content.appendChild(artDiv);
-
-    var sp2 = document.createElement('div');
-    sp2.className = 'spacer-md';
-    content.appendChild(sp2);
-
-    var infoDiv = document.createElement('div');
-    infoDiv.className = 'song-info';
-    infoDiv.innerHTML =
-      '<div class="song-title">' + (np.title || '未在播放') + '</div>' +
-      '<div class="song-artist">' + (np.artist || '') + '</div>';
-    content.appendChild(infoDiv);
-
-    // Progress
-    var progressDiv = document.createElement('div');
-    progressDiv.className = 'progress-wrap';
-    var pct = np.total_time ? (np.current_time / np.total_time * 100) : 0;
-    progressDiv.innerHTML =
-      '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;background:' + brand.color + '"></div></div>' +
-      '<div class="time-row"><span>' + formatTime(np.current_time) + '</span><span>' + formatTime(np.total_time) + '</span></div>';
-    content.appendChild(progressDiv);
-  } else {
-    // Dual: art + info side-by-side
-    var nowPlay = document.createElement('div');
-    nowPlay.className = 'now-playing';
-
-    var pct2 = np.total_time ? (np.current_time / np.total_time * 100) : 0;
-    nowPlay.innerHTML =
-      '<img class="album-art" src="' + coverUrl + '" alt="cover">' +
-      '<div class="song-info">' +
-      '  <div class="song-title">' + (np.title || '未在播放') + '</div>' +
-      '  <div class="song-artist">' + (np.artist || '') + '</div>' +
-      '  <div class="progress-wrap">' +
-      '    <div class="progress-track"><div class="progress-fill" style="width:' + pct2 + '%;background:' + brand.color + '"></div></div>' +
-      '    <div class="time-row"><span>' + formatTime(np.current_time) + '</span><span>' + formatTime(np.total_time) + '</span></div>' +
-      '  </div>' +
-      '</div>';
-    content.appendChild(nowPlay);
-  }
+  var nowPlay = document.createElement('div');
+  nowPlay.className = 'now-playing';
+  nowPlay.innerHTML =
+    '<img class="album-art" src="' + coverUrl + '" alt="cover">' +
+    '<div class="song-info">' +
+    '  <div class="song-title">' + (np.title || '未在播放') + '</div>' +
+    '  <div class="song-artist">' + (np.artist || '') + '</div>' +
+    '  <div class="progress-wrap">' +
+    '    <div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;background:' + brand.color + '"></div></div>' +
+    '    <div class="time-row"><span>' + formatTime(np.current_time) + '</span><span>' + formatTime(np.total_time) + '</span></div>' +
+    '  </div>' +
+    '</div>';
+  content.appendChild(nowPlay);
 
   // ── Controls ──
   var controls = document.createElement('div');
