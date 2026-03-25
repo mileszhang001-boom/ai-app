@@ -19,6 +19,7 @@ const ICON_PATHS = {
   'alarm-clock': '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/>',
   'newspaper':   '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 1 1-4 0V7a1 1 0 0 1 1-1h1"/><path d="M10 10h8"/><path d="M10 14h4"/><path d="M10 18h6"/>',
   'cake':        '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/>',
+  'radio':       '<path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>',
 };
 
 function getIcon(name, color) {
@@ -35,6 +36,7 @@ const SCENE_CARDS = [
   { id: 'birthday',  name: '生日倒计时', bgColor: '#EDE0FF', iconColor: '#8B5CF6', icon: 'cake' },
   { id: 'alarm',     name: '闹钟',       bgColor: '#EDE0FF', iconColor: '#7B5CFA', icon: 'alarm-clock' },
   { id: 'news',      name: '每日新闻',   bgColor: '#FCE4EC', iconColor: '#E84393', icon: 'newspaper' },
+  { id: 'mediahub',  name: '三方播放',   bgColor: '#E0FFE8', iconColor: '#1DB954', icon: 'radio' },
 ];
 
 export class TemplateMarket {
