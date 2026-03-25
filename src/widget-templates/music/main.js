@@ -113,6 +113,10 @@
 
     // Cover image (pre-check with Image to handle broken URLs)
     var coverUrl = data.cover_url || data.albumArtUrl || '';
+    // Resolve relative URLs for srcdoc mode (mobile preview)
+    if (coverUrl && coverUrl.charAt(0) === '.' && window.__TEMPLATE_BASE_PATH__) {
+      coverUrl = window.__TEMPLATE_BASE_PATH__ + coverUrl.replace('./', '');
+    }
     if (coverUrl) {
       var testImg = new Image();
       testImg.onload = function () {

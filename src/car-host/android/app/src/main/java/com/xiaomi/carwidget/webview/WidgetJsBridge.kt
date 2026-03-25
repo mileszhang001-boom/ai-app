@@ -1,9 +1,15 @@
 package com.xiaomi.carwidget.webview
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
+import android.media.MediaMetadata
+import android.media.session.MediaController
+import android.media.session.MediaSessionManager
+import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import okhttp3.OkHttpClient
@@ -38,6 +44,116 @@ class WidgetJsBridge(
 
     // Event handlers registered by JS
     private val eventHandlers = mutableMapOf<String, MutableList<String>>()
+
+    // MediaSession integration
+    private var mediaSessionManager: MediaSessionManager? = null
+    private var activeMediaCallback: MediaController.Callback? = null
+    private var activeMediaController: MediaController? = null
+
+    init {
+        try {
+            mediaSessionManager = context.getSystemService(Context.MEDIA_SESSION_SERVICE)
+                as? MediaSessionManager
+            startMediaSessionListener()
+        } catch (e: Exception) {
+            Log.w("WidgetJsBridge", "MediaSessionManager not available: ${e.message}")
+        }
+    }
+
+    private fun getListenerComponent(): ComponentName {
+        return ComponentName(context, MediaListenerService::class.java)
+    }
+
+    private fun startMediaSessionListener() {
+        val msm = mediaSessionManager ?: return
+
+        // Try with NotificationListenerService component first, then null (needs MEDIA_CONTENT_CONTROL)
+        val componentName = getListenerComponent()
+
+        fun tryGetSessions(): List<MediaController>? {
+            return try {
+                msm.getActiveSessions(componentName)
+            } catch (e: SecurityException) {
+                Log.w("WidgetJsBridge", "getActiveSessions with listener denied, trying null: ${e.message}")
+                try {
+                    msm.getActiveSessions(null)
+                } catch (e2: SecurityException) {
+                    Log.w("WidgetJsBridge", "getActiveSessions denied: ${e2.message}")
+                    null
+                }
+            }
+        }
+
+        val controllers = tryGetSessions()
+        if (controllers != null && controllers.isNotEmpty()) {
+            watchController(controllers[0])
+            Log.i("WidgetJsBridge", "Watching MediaSession: ${controllers[0].packageName}")
+        }
+
+        // Listen for session changes
+        try {
+            msm.addOnActiveSessionsChangedListener({ newControllers ->
+                if (!newControllers.isNullOrEmpty()) {
+                    watchController(newControllers[0])
+                    Log.i("WidgetJsBridge", "MediaSession changed: ${newControllers[0].packageName}")
+                } else {
+                    unwatchController()
+                    fireEvent("mediaSessionChange", JSONObject().apply {
+                        put("song_name", "")
+                        put("artist", "")
+                        put("isPlaying", false)
+                    })
+                }
+            }, componentName)
+        } catch (e: SecurityException) {
+            Log.w("WidgetJsBridge", "addOnActiveSessionsChangedListener denied: ${e.message}")
+        }
+    }
+
+    private fun watchController(controller: MediaController) {
+        unwatchController()
+        activeMediaController = controller
+        activeMediaCallback = object : MediaController.Callback() {
+            override fun onPlaybackStateChanged(state: PlaybackState?) {
+                fireMediaSessionUpdate(controller)
+            }
+            override fun onMetadataChanged(metadata: MediaMetadata?) {
+                fireMediaSessionUpdate(controller)
+            }
+        }
+        controller.registerCallback(activeMediaCallback!!, mainHandler)
+    }
+
+    private fun unwatchController() {
+        activeMediaCallback?.let { cb ->
+            activeMediaController?.unregisterCallback(cb)
+        }
+        activeMediaCallback = null
+        activeMediaController = null
+    }
+
+    private fun fireMediaSessionUpdate(controller: MediaController) {
+        val data = buildMediaSessionJson(controller)
+        fireEvent("mediaSessionChange", data)
+    }
+
+    private fun buildMediaSessionJson(controller: MediaController): JSONObject {
+        val metadata = controller.metadata
+        val playbackState = controller.playbackState
+        return JSONObject().apply {
+            put("song_name", metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: "")
+            put("artist", metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: "")
+            put("album", metadata?.getString(MediaMetadata.METADATA_KEY_ALBUM) ?: "")
+            put("duration", (metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L) / 1000)
+            put("position", (playbackState?.position ?: 0L) / 1000)
+            put("isPlaying", playbackState?.state == PlaybackState.STATE_PLAYING)
+            // Album art URL: try ART_URI, fall back to empty
+            val artUri = metadata?.getString(MediaMetadata.METADATA_KEY_ART_URI)
+                ?: metadata?.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI)
+                ?: ""
+            put("albumArtUrl", artUri)
+        }
+    }
 
     fun getInterfaceName(): String = JS_INTERFACE_NAME
 
@@ -102,15 +218,7 @@ class WidgetJsBridge(
 
             "fetchData" -> handleFetchData(params)
 
-            "getMediaSession" -> JSONObject().apply {
-                put("song_name", "晴天")
-                put("artist", "周杰伦")
-                put("album", "叶惠美")
-                put("duration", 269)
-                put("position", 45)
-                put("isPlaying", true)
-                put("albumArtUrl", "")
-            }
+            "getMediaSession" -> getActiveMediaSessionData()
 
             "mediaControl" -> JSONObject().apply { put("success", true) }
 
@@ -124,6 +232,30 @@ class WidgetJsBridge(
             }
 
             else -> JSONObject().apply { put("success", true) }
+        }
+    }
+
+    private fun getActiveMediaSessionData(): JSONObject {
+        // Try real MediaSession — first with listener component, then with null
+        val msm = mediaSessionManager
+        if (msm != null) {
+            val controllers = try {
+                msm.getActiveSessions(getListenerComponent())
+            } catch (e: SecurityException) {
+                try { msm.getActiveSessions(null) } catch (_: SecurityException) { null }
+            } catch (e: Exception) {
+                Log.w("WidgetJsBridge", "MediaSession error: ${e.message}")
+                null
+            }
+            if (controllers != null && controllers.isNotEmpty()) {
+                return buildMediaSessionJson(controllers[0])
+            }
+        }
+        // No active session — return empty so template shows empty state
+        return JSONObject().apply {
+            put("song_name", "")
+            put("artist", "")
+            put("isPlaying", false)
         }
     }
 
