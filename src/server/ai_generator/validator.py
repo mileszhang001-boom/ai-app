@@ -24,6 +24,7 @@ VALID_TEMPLATE_IDS = {
     "weather_weather", "weather_realtime",  # weather_realtime = legacy alias
     "music_music", "music_player",        # music_player = legacy alias
     "calendar_calendar", "calendar_schedule",  # calendar_schedule = legacy alias
+    "mediahub_mediahub",
 }
 
 VALID_STYLE_PRESETS = {
@@ -56,6 +57,7 @@ VALID_THEMES = {
     "weather": {"weather", "realtime"},   # "realtime" = legacy alias
     "music": {"music", "player"},         # "player" = legacy alias
     "calendar": {"calendar", "schedule"}, # "schedule" = legacy alias
+    "mediahub": {"mediahub"},
 }
 
 
