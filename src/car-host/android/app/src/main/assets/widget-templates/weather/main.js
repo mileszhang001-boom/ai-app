@@ -294,7 +294,7 @@
     return merged;
   }
 
-  // ── City click handler — opens overlay with text input (Pencil Node gmj9b) ──
+  // ── City click handler — opens overlay with city list + search (Pencil Node gmj9b) ──
   function setupCityPicker() {
     var cityEl = document.getElementById('cityName') || document.querySelector('.city-name');
     if (!cityEl) return;
@@ -302,26 +302,76 @@
     cityEl.addEventListener('click', function () {
       if (!window.createOverlay) { console.warn('overlay.js not loaded'); return; }
       var overlay = createOverlay({
-        title: '选择城市',
-        onSave: function () { /* handled by input enter */ },
+        title: '切换地点',
+        showSave: false,
         content: function (contentEl) {
-          var input = document.createElement('input');
-          input.type = 'text';
-          input.id = 'cityInput';
-          input.placeholder = '输入城市名...';
-          input.value = currentCity;
-          input.style.cssText = 'width:100%;padding:16px;font-size:36px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#F5F5F0;outline:none;';
-          contentEl.appendChild(input);
-          setTimeout(function () { input.focus(); input.select(); }, 100);
-          input.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-              var newCity = input.value.trim();
-              if (newCity) {
-                currentCity = newCity;
-                overlay.hide();
-                fetchData();
-              }
+          // Search input
+          var searchWrap = document.createElement('div');
+          searchWrap.style.cssText = 'padding:8px 0 16px;';
+          var searchInput = document.createElement('input');
+          searchInput.type = 'text';
+          searchInput.placeholder = '搜索城市';
+          searchInput.style.cssText = 'width:100%;padding:16px 20px;font-size:28px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#F5F5F0;outline:none;';
+          searchWrap.appendChild(searchInput);
+          contentEl.appendChild(searchWrap);
+
+          // Current location row
+          var locRow = document.createElement('div');
+          locRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.06);';
+          locRow.innerHTML = '<span style="font-size:28px;color:#60A5FA;">\uD83D\uDCCD 当前位置</span><span style="font-size:28px;color:#F5F5F0;">' + currentCity + '</span>';
+          contentEl.appendChild(locRow);
+
+          // Section label
+          var label = document.createElement('div');
+          label.textContent = '已保存的城市';
+          label.style.cssText = 'font-size:24px;color:rgba(245,245,240,0.4);padding:20px 0 12px;';
+          contentEl.appendChild(label);
+
+          // City list container
+          var listEl = document.createElement('div');
+          listEl.id = 'cityList';
+          contentEl.appendChild(listEl);
+
+          function renderCityList(filter) {
+            listEl.innerHTML = '';
+            var cities = PRESET_CITIES;
+            if (filter) {
+              cities = cities.filter(function (c) { return c.indexOf(filter) !== -1; });
             }
+            for (var i = 0; i < cities.length; i++) {
+              var city = cities[i];
+              var mockData = MOCK_CITY_DATA[city];
+              var row = document.createElement('div');
+              row.setAttribute('data-city', city);
+              row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:opacity 0.15s;';
+              var leftDiv = document.createElement('div');
+              leftDiv.innerHTML = '<div style="font-size:32px;font-weight:500;color:#F5F5F0;">' + city + '</div>' +
+                (mockData ? '<div style="font-size:24px;color:rgba(245,245,240,0.4);margin-top:4px;">' + mockData.condition + '</div>' : '');
+              var rightSpan = document.createElement('span');
+              rightSpan.style.cssText = 'font-size:36px;font-weight:300;color:#F5F5F0;';
+              rightSpan.textContent = mockData ? mockData.temperature + '°' : '--°';
+              row.appendChild(leftDiv);
+              row.appendChild(rightSpan);
+              row.addEventListener('click', function (e) {
+                var target = e.currentTarget;
+                var newCity = target.getAttribute('data-city');
+                if (newCity) {
+                  currentCity = newCity;
+                  overlay.hide();
+                  fetchData();
+                }
+              });
+              listEl.appendChild(row);
+            }
+            if (cities.length === 0) {
+              listEl.innerHTML = '<div style="text-align:center;padding:32px;color:rgba(245,245,240,0.3);font-size:28px;">无匹配城市</div>';
+            }
+          }
+
+          renderCityList('');
+
+          searchInput.addEventListener('input', function () {
+            renderCityList(searchInput.value.trim());
           });
         }
       });

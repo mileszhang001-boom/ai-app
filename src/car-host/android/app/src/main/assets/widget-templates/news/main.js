@@ -34,43 +34,46 @@
     return Math.floor(hoursAgo / 24) + '天前';
   }
 
-  // ── MOCK data for preview mode ──
+  // ── MOCK data for preview mode (real news) ──
   var MOCK = {
     hero: {
       category: 'tech',
       tag: '科技',
       tag_color: '#60A5FA',
-      title: 'GPT-5 发布：多模态推理能力大幅提升',
-      summary: 'OpenAI 正式推出 GPT-5，在数学推理、代码生成和多模态理解方面实现重大突破，支持实时视频对话。',
+      title: '深圳推动光模块向1.6T代际升级，CPO概念股集体爆发',
+      summary: '深圳发布光通信产业升级规划，推动光模块从800G向1.6T/3.2T代际跃迁。受此利好影响，CPO概念股今日集体高开，铭普光磁涨停，新易盛、天孚通信等龙头大幅上涨。',
       source: '36氪',
-      time: timeAgo(2),
-      image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4OTYiIGhlaWdodD0iMjIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMEYxNzJBIi8+PHN0b3Agb2Zmc2V0PSI0MCUiIHN0b3AtY29sb3I9IiMxRTNBOEEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwRjE3MkEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iODk2IiBoZWlnaHQ9IjIyMCIgZmlsbD0idXJsKCNnKSIvPjx0ZXh0IHg9IjQ0OCIgeT0iMTIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMTUpIiBmb250LXNpemU9IjQyIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+QUkgwrcgTmV3IEVyYTwvdGV4dD48L3N2Zz4='
+      time: timeAgo(1),
+      image: 'https://picsum.photos/seed/cpo-tech/896/440'
     },
     items: [
-      {
-        category: 'auto',
-        tag: '汽车',
-        tag_color: '#F59E0B',
-        title: '小米 YU7 正式发布：29.9万起，续航800km',
-        source: '汽车之家',
-        time: timeAgo(3),
-        image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRjU5RTBCNDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGNTlFMEIxNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIiByeD0iMTIiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI4MCIgeT0iNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzYiPvCfmpc8L3RleHQ+PC9zdmc+'
-      },
       {
         category: 'finance',
         tag: '财经',
         tag_color: '#34D399',
-        title: 'A股三大指数集体收涨，科技板块领涨',
+        title: 'SpaceX计划本周提交IPO申请，估值或超7500亿美元',
+        summary: '马斯克旗下SpaceX计划最早于本周向SEC提交IPO申请，有望成为史上最大科技公司IPO。公司最新一轮私募估值已达3500亿美元。',
         source: '第一财经',
-        time: timeAgo(5),
-        image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMzREMzk5NDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMzNEQzOTkxNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMTIwIiByeD0iMTIiIGZpbGw9InVybCgjZykiLz48dGV4dCB4PSI4MCIgeT0iNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMzYiPvCfk4g8L3RleHQ+PC9zdmc+'
+        time: timeAgo(3),
+        image: 'https://picsum.photos/seed/spacex-ipo/160/120'
       },
       {
         category: 'sports',
         tag: '体育',
         tag_color: '#FB7185',
-        title: 'NBA 季后赛：勇士 vs 湖人 G7 今夜打响',
-        source: '虎扑',
+        title: '孙颖莎累计200周世界排名第一，创乒坛新纪录',
+        summary: '中国女乒名将孙颖莎世界排名累计200周位居榜首，刷新国际乒联历史纪录，展现中国乒乓球的绝对统治力。',
+        source: '新浪体育',
+        time: timeAgo(5),
+        image: 'https://picsum.photos/seed/pingpong/160/120'
+      },
+      {
+        category: 'tech',
+        tag: '科技',
+        tag_color: '#A78BFA',
+        title: '苹果重启AI战略：Siri大升级，新增Ask智能按钮',
+        summary: '苹果计划通过全面升级Siri应用程序及在系统中新增"Ask"智能按钮来重新启动其人工智能战略布局。',
+        source: '网易科技',
         time: timeAgo(6),
         image: ''
       }
